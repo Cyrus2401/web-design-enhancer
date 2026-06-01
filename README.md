@@ -2,7 +2,7 @@
 
 **Éradiquez l'improvisation visuelle de l'IA et livrez des interfaces premium, épurées et professionnelles.**
 
-## 🎯 Philosophie : Anti-"Odeur d'IA"
+## Philosophie : Anti-"Odeur d'IA"
 
 Ce skill transforme n'importe quel site générique en une expérience visuelle haut de gamme. Il impose une rigueur absolue pour éviter les tics de conception des IA (emojis superflus, espacements aléatoires, composants génériques).
 
@@ -12,7 +12,7 @@ Ce skill transforme n'importe quel site générique en une expérience visuelle 
 - **Logos textuels** : Utilisation de texte stylisé haut de gamme si aucun logo n'est fourni.
 - **Auto-correction visuelle** : Utilisation obligatoire de Playwright pour chasser "l'odeur d'IA".
 
-## 🚀 Workflow d'Amélioration
+## Workflow d'Amélioration
 
 ### 1. Audit et Définition (Le "Cerveau")
 Définir le système de design dans `DESIGN.md`.
@@ -31,7 +31,7 @@ Définir le système de design dans `DESIGN.md`.
 - Audit obligatoire du rendu réel.
 - Correction immédiate des défauts de géométrie ou d'artefacts IA.
 
-## 🔍 Chasse à l'Odeur d'IA (Antipatterns)
+## Chasse à l'Odeur d'IA (Antipatterns)
 
 | Antipattern | "Odeur d'IA" | Remède Professionnel |
 |------------|-----------|-----------|
@@ -42,7 +42,7 @@ Définir le système de design dans `DESIGN.md`.
 | **Icônes génériques** | Lucide random sans contexte | Pack cohérent ou custom SVG |
 | **Gradients clichés** | Dégradés bleu/violet sans but | Couleurs sémantiques solides |
 
-## 📁 Structure du Skill
+## Structure du Skill
 
 ```
 web-design-enhancer/
@@ -60,7 +60,7 @@ web-design-enhancer/
     └── design-md-template.md       # Template DESIGN.md
 ```
 
-## ✅ Checklist Avant Livraison
+## Checklist Avant Livraison
 
 - [ ] `DESIGN.md` créé et mappé sur shadcn/ui.
 - [ ] Grille de 8px respectée sur tout le site.

@@ -24,7 +24,7 @@ Bâtir une interface propre et rigide sans improvisation.
 Ajouter de la vie avec des animations intentionnelles et fluides (voir `references/gsap-best-practices.md`).
 - **Complémentarité** : Laisser shadcn/ui et Tailwind gérer les états natifs (hover, focus). Utiliser GSAP uniquement pour l'orchestration (entrées échelonnées *staggers*, effets au scroll via ScrollTrigger).
 
-### 4. Inspection Visuelle & Auto-Correction (Les "Yeux" via MCP Playwright) 🚨 CRITIQUE
+### 4. Inspection Visuelle & Auto-Correction (Les "Yeux" via MCP Playwright) - CRITIQUE
 Une tâche n'est jamais terminée tant qu'elle n'a pas été inspectée visuellement.
 - **Rendu actif** : Lancer le serveur local et utiliser le MCP Playwright pour afficher l'interface.
 - **Audit Anti-Slop (Chasse à l'odeur d'IA)** : Inspecter le rendu visuel et corriger immédiatement si l'un de ces défauts est présent :
