@@ -75,6 +75,127 @@ Ce document définit les règles strictes de design pour le projet. Toute implé
 
 ---
 
+
+---
+
+## 8. Dark Mode
+
+> **Obligatoire.** Sans contrat dark mode explicite, l'implémentation sera improvisée.
+> `validate_design.py` bloque si cette section est absente ou insuffisante (< 3 couleurs).
+
+| Rôle | Hex | Équivalent Light |
+| :--- | :--- | :--- |
+| Fond | [Ex: #0F1117] | [Ex: #FFFFFF] |
+| Surface | [Ex: #1C1E26] | [Ex: #F8FAFC] |
+| Texte | [Ex: #E8EAF0] | [Ex: #1E3A8A] |
+| Texte secondaire | [Ex: #94A3B8] | [Ex: #64748B] |
+| Bordure | [Ex: #2D3142] | [Ex: #E2E8F0] |
+| Primaire (inchangé) | [Ex: #533afd] | [Ex: #533afd] |
+| Accent dark | [Ex: #7C6FFF] | [Ex: #D97706] |
+
+**Règles dark mode :**
+- Le fond doit être < `#333` (luminosité relative < 9%)
+- Le texte sur fond dark doit passer WCAG AA (≥ 4.5:1)
+- Les couleurs sémantiques (Succès, Danger, Attention) restent lisibles sur fond dark
+- Utiliser `prefers-color-scheme: dark` en CSS, pas de toggle JS non demandé
+
+
+---
+
+## 9. Mobile
+
+> **Optionnel pour les projets web-only. Obligatoire dès qu'une app native ou hybrid est dans le scope.**
+> `validate_design.py` valide cette section si elle est présente — touch targets, safe areas, unités natives, accessibilité.
+
+### Plateforme(s) cible(s)
+
+- **Stack :** [SwiftUI | Flutter | React Native | Jetpack Compose | Expo]
+- **Plateformes :** [iOS | Android | Les deux]
+- **Version minimum :** [Ex: iOS 16+, Android 8+ (API 26)]
+
+### Unités et Grille Mobile
+
+> Ne jamais utiliser `px` en dur dans du code natif — utiliser les unités de la plateforme.
+
+| Plateforme | Unité | Grille base | Exemple |
+| :--- | :--- | :--- | :--- |
+| iOS / SwiftUI | pt (points) | 4pt | `padding(16)` = 16pt |
+| Android / Compose | dp | 4dp | `Modifier.padding(16.dp)` |
+| Flutter | logical pixels | 4 | `SizedBox(height: 16)` |
+| React Native | dp (auto) | 4 | `padding: 16` |
+
+- **Grille de base :** [4pt / 4dp — multiples de 4 uniquement en mobile]
+- **Padding horizontal :** [Ex: 16pt / 16dp]
+- **Padding vertical section :** [Ex: 24pt / 24dp]
+- **Espacement entre éléments :** [Ex: 8pt, 12pt, 16pt, 24pt]
+
+### Touch Targets
+
+> iOS HIG minimum : **44×44pt**. Material Design minimum : **48×48dp**.
+
+- **Boutons principaux :** [Ex: hauteur 44pt minimum, largeur full-width ou ≥ 120pt]
+- **Icônes interactives :** [Ex: zone tactile 44×44pt même si l'icône est plus petite]
+- **Éléments de liste :** [Ex: hauteur ligne ≥ 44pt]
+- **Champs de formulaire :** [Ex: hauteur 44pt minimum]
+
+```swift
+// SwiftUI — zone tactile explicite
+Button(action: {}) {
+    Image(systemName: "heart")
+        .frame(width: 44, height: 44) // Touch target iOS HIG
+}
+```
+
+```kotlin
+// Compose — zone tactile Material
+IconButton(
+    modifier = Modifier.size(48.dp), // Touch target Material
+    onClick = {}
+) { Icon(Icons.Default.Favorite, contentDescription = "Favoris") }
+```
+
+### Safe Areas
+
+> Ne jamais hardcoder les hauteurs de status bar, notch ou home indicator.
+
+- **Stratégie iOS :** `.safeAreaInset()` ou `.ignoresSafeArea()` uniquement pour le fond
+- **Stratégie Android :** `WindowInsets` via `Modifier.windowInsetsPadding()`
+- **Stratégie RN :** `useSafeAreaInsets()` depuis `react-native-safe-area-context`
+- **Stratégie Flutter :** `MediaQuery.of(context).padding` ou `SafeArea` widget
+
+### Navigation Mobile
+
+- **Pattern :** [Tab Bar (iOS) | Bottom Navigation (Android) | Navigation Drawer | Stack]
+- **Tab Bar :** [Ex: 5 onglets maximum, icône + label, hauteur 83pt sur iPhone avec home indicator]
+- **Transitions :** [Ex: push/pop natif, modal sheet, fullscreen cover]
+
+### Animations Mobiles
+
+> Sur mobile, les animations système (spring) sont préférées aux durées fixes.
+
+- **Transitions de navigation :** Animation système native (pas de durée custom)
+- **Micro-interactions :** [Ex: spring() pour les bounces, 200ms pour les fades]
+- **Feedback tactile :** [Ex: UIImpactFeedbackGenerator / HapticFeedback.lightImpact()]
+- **prefers-reduced-motion :** iOS `isReduceMotionEnabled`, Android `isReducedMotionEnabled`
+
+### Dark Mode Mobile
+
+> Le dark mode natif est automatique sur iOS/Android si les semantic colors sont utilisées.
+
+- **iOS :** Utiliser `Color(.systemBackground)`, `Color(.label)`, `Color(.secondaryLabel)`
+- **Android :** Utiliser `MaterialTheme.colorScheme.background`, `.onBackground`, `.surface`
+- **Flutter :** `Theme.of(context).colorScheme` avec `ThemeData.dark()`
+- **React Native :** `useColorScheme()` + `StyleSheet.create` avec variables conditionnelles
+
+### Accessibilité Mobile
+
+- **VoiceOver (iOS) :** `.accessibilityLabel()` sur chaque `Image` et élément interactif
+- **TalkBack (Android) :** `contentDescription` sur chaque `Image` (null si décoratif)
+- **Focus order :** `.accessibilitySortPriority()` (iOS) / `Modifier.semantics` (Compose)
+- **Taille de texte dynamique :** Supporter Dynamic Type (iOS) / Text Scaling (Android)
+
+---
+
 ## ✅ Checklist de Validation Anti-Slop
 
 Avant livraison, vérifier:
@@ -93,6 +214,8 @@ Avant livraison, vérifier:
 - [ ] **Couleurs** : Palette de 4-8 couleurs avec des rôles sémantiques clairs, définies dans le DESIGN.md.
 - [ ] **Animations** : Toutes les animations sont ≤ 400ms et respectent `prefers-reduced-motion`.
 - [ ] **Shadcn/ui** : Composants personnalisés et non laissés par défaut.
+- [ ] **Dark Mode** : Section ## 8. Dark Mode présente, ≥ 3 couleurs, fond < #333, WCAG AA validé.
+- [ ] **Mobile** (si applicable) : Section ## 9. Mobile présente, touch targets ≥ 44pt/48dp, safe areas documentées, unités natives (pas de px).
 
 **Exécuter l'audit automatique:**
 ```bash

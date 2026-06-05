@@ -1,81 +1,153 @@
-# Web Design Enhancer
+# Web Design Enhancer Pro
 
-**Eradicate AI visual improvisation and deliver premium, clean, and professional interfaces.**
-
-## Philosophy: Anti-"AI Slop"
-
-This skill transforms any generic website into a high-end visual experience. It enforces absolute rigor to prevent common AI design tells (unnecessary emojis, random spacing, generic components).
-
-### Strict Visual Hygiene Principles
-- **Less is more**: Elimination of any cosmetic element without a clear function.
-- **Strict 8px grid**: Multiples of 8 for all spacing (Tailwind: `p-2`, `m-8`, etc.).
-- **Textual logos**: Use premium stylized typography if no logo asset is provided.
-- **WCAG AA Contrast**: Enforced color contrast ratio (minimum 4.5:1 for text, 3.0:1 for UI elements).
-- **Visual self-correction**: Mandatory use of Playwright to eliminate "AI slop".
-
-## Improvement Workflow
-
-### 1. Audit & Definition (The "Brain")
-Define the design system in a `DESIGN.md` file.
-- Map semantic variables to **shadcn/ui**.
-- Justify every technical layout decision.
-- Validate the design schema and contrast compliance: `python3 scripts/validate_design.py DESIGN.md`
-
-### 2. Structural Implementation (The "Body")
-- Exclusively use **shadcn/ui** primitives.
-- Configure `globals.css` using the variables defined in `DESIGN.md`.
-
-### 3. Dynamism with GSAP (The "Soul")
-- Orchestrate entrance animations and scroll effects.
-- Adhere strictly to the timings in `gsap-best-practices.md`.
-
-### 4. Visual Inspection (The "Eyes" via Playwright)
-- Mandatory rendering audit of the actual interface.
-- Automatic capture and inspection on **4 responsive breakpoints** (Mobile, Tablet, Desktop, Wide).
-- Instant correction of geometry errors or AI artifacts.
-
-## Hunting AI Slop (Antipatterns)
-
-| Antipattern | "AI Slop" Tell | Professional Remedy |
-|------------|-----------|-----------|
-| **Artifacts** | Emojis, stickers, sparkles | Radical suppression |
-| **Invented Logos** | Strange graphic placeholders | Stylized typography logos |
-| **Wobbly Geometry** | Asymmetrical spacing | Strict 8px grid |
-| **Generic shadcn/ui** | "Out of the box" default look | Customization via CSS variables |
-| **Generic Icons** | Random Lucide icons without context | Cohesive pack or custom SVG |
-| **Cliché Gradients** | Purposeless blue/purple gradients | Solid semantic colors |
-| **Low Contrast** | Text or buttons hard to read | WCAG AA compliant colors |
-| **Status Badges** | Unrequested uppercase status labels or pulsing dots (e.g. ● LIVE NOW, ATMOSPHÈRE EXCELLENTE) | Radical suppression or explicit justification in DESIGN.md |
-
-## Skill Structure
-
-```
-web-design-enhancer/
-├── SKILL.md                          # Main documentation
-├── README.md                         # This file
-├── references/
-│   ├── design-md-spec-v2.md        # DESIGN.md specification (shadcn/ui format)
-│   ├── gsap-best-practices.md      # GSAP best practices guide
-│   └── api_reference.md            # Technical API reference
-├── scripts/
-│   ├── detect_ai_slop.py           # AI slop and antipattern detector
-│   ├── audit_spacing.py            # CSS/TSX spacing grid auditor
-│   ├── validate_design.py          # DESIGN.md contract & WCAG contrast validator
-│   ├── search.py                   # Semantic BM25 style guide search engine
-│   └── visual_audit.py             # Visual layout audit script (Playwright, 4 breakpoints)
-└── templates/
-    ├── design-system.css           # CSS variables template
-    └── design-md-template.md       # DESIGN.md template
-```
-
-## Checklist Before Delivery
-
-- [ ] `DESIGN.md` created and mapped onto shadcn/ui.
-- [ ] Contrast ratio meets WCAG AA standards (4.5:1 text, 3.0:1 UI).
-- [ ] Strict 8px grid respected across the entire website.
-- [ ] Zero "decorative" emojis or stickers.
-- [ ] Playwright visual audit completed successfully on 4 breakpoints.
-- [ ] Fluid and intentional GSAP animations.
+**Éradiquer l'improvisation visuelle des IA — livrer des interfaces propres, précises, professionnelles.**
 
 ---
-**Created to transform AI code into exceptional design.**
+
+## Philosophie : Anti-"AI Slop"
+
+Ce skill transforme n'importe quelle interface générée par une IA en un résultat de qualité professionnelle. Il impose une rigueur mécanique qui rend impossible la production de patterns "AI slop" — même avec un agent non supervisé.
+
+**3 principes fondamentaux :**
+- **Contrat avant code** — le DESIGN.md est validé mécaniquement avant qu'une seule ligne de code soit écrite
+- **Vérifiable > subjectif** — chaque règle design est testable par un script Python
+- **Références réelles > training data** — Phase 0 force l'ancrage sur des designs existants (Stripe, Linear, Vercel...)
+
+---
+
+## Architecture : 3 Piliers
+
+```
+Pilier 1 — getdesign.md           Pilier 2 — UI/UX Pro Max
+(références visuelles réelles)    (intelligence sectorielle, 161 règles, 67 styles)
+           ↓                                    ↓
+                      DESIGN.md
+                  (contrat de design)
+                         ↓
+           Pilier 3 — web-design-enhancer-pro
+           (validation + implémentation + audit)
+```
+
+---
+
+## Workflow en 5 Phases
+
+### Phase 0 — Ancrage (obligatoire, bloquante)
+```bash
+# 1. Récupérer les références visuelles réelles
+npx getdesign@latest add stripe
+
+# 2. Interroger la base UI/UX Pro Max
+python3 scripts/search.py "saas analytics dashboard" --design-system -p "MonProjet"
+
+# 3. Vérifier que Phase 0 est prouvée
+python3 scripts/check.py --gate 0
+```
+
+### Phase 1 — Contrat DESIGN.md
+Remplir `DESIGN.md` avec les §0 à §8 (template : `templates/design-md-template.md`).
+```bash
+python3 scripts/validate_design.py DESIGN.md
+python3 scripts/check.py --gate 1
+```
+
+### Phase 2 — Implémentation CSS/HTML
+Mapper les tokens du DESIGN.md vers `globals.css` ou les variables CSS.
+
+### Phase 3 — Animations GSAP
+Orchestrer les entrées et effets de scroll selon `references/gsap-best-practices.md`.
+
+### Phase 4 — Audit visuel Playwright
+```bash
+python3 scripts/visual_audit.py --url http://localhost:3000 --output ./audit-results
+```
+
+### Phase 5 — Validation finale (gate bloquant)
+```bash
+python3 scripts/check.py --final --code ./src
+# Séquence : detect_ai_slop → audit_spacing → validate_design → diff_design_vs_code
+```
+
+---
+
+## Scripts disponibles
+
+| Script | Usage | Rôle |
+| :--- | :--- | :--- |
+| `validate_design.py` | `DESIGN.md` | Valide les §0–8, WCAG AA, dark mode |
+| `detect_ai_slop.py` | `--design` + `--code` | Score antipatterns IA (0–100, seuil 80) |
+| `diff_design_vs_code.py` | `DESIGN.md --code ./src` | Divergences contrat ↔ implémentation |
+| `audit_spacing.py` | `--path ./src` | Grille 8px sur le CSS/JSX réel |
+| `visual_audit.py` | `--url localhost:3000` | Screenshots + audit Playwright 4 breakpoints |
+| `check.py` | `--gate 0/1/final` | Orchestrateur de gates séquentiels |
+| `search.py` | `"requête" --domain` | Recherche BM25 dans les CSV UI/UX Pro Max |
+
+---
+
+## Antipatterns détectés automatiquement
+
+| Antipattern | Signal IA | Remède |
+| :--- | :--- | :--- |
+| Emojis décoratifs | ✨🚀💡 dans le code | Suppression radicale |
+| Icônes Lucide génériques | sparkles, zap, star, bot, magic | Pack cohérent ou SVG custom |
+| Gradients clichés | bleu→violet, rose→violet | Couleurs sémantiques solides |
+| Badges statut non demandés | ● LIVE NOW, SYS_STATUS: ONLINE | Suppression ou justification §1 |
+| Buzzwords vagues | premium, moderne, élégant | Descriptions précises et mesurables |
+| Typographie uniforme | font-size: 16px partout | Hiérarchie §4 respectée |
+| Hover excessif | translateY(-8px), ombre 32px | ≤ -4px, ombre discrète |
+| Dark mode improvisé | couleurs inventées à la génération | Section §8 obligatoire |
+| Thèmes interdits | glassmorphism, typewriter effect | Détecté et bloqué par validate_design |
+
+---
+
+## Structure du projet
+
+```
+web-design-enhancer-pro/
+├── SKILL.md                          # Documentation principale (workflow complet)
+├── README.md                         # Ce fichier
+├── requirements.txt                  # Dépendances Python
+├── .slop-ignore                      # Whitelist anti-faux positifs
+├── data/                             # CSV UI/UX Pro Max (styles, couleurs, typo...)
+│   └── stacks/                       # Guidelines par stack (16 frameworks)
+├── scripts/
+│   ├── validate_design.py            # Validateur DESIGN.md (§0–8, WCAG, dark mode)
+│   ├── detect_ai_slop.py             # Détecteur antipatterns IA (score 0–100)
+│   ├── diff_design_vs_code.py        # Diff DESIGN.md ↔ code réel
+│   ├── audit_spacing.py              # Audit grille 8px sur CSS/JSX
+│   ├── visual_audit.py               # Audit Playwright 4 breakpoints
+│   ├── check.py                      # Orchestrateur de gates
+│   ├── search.py                     # Moteur BM25 UI/UX Pro Max
+│   ├── core.py                       # Moteur de recherche BM25 (dépendance search.py)
+│   └── design_system.py              # Générateur de design system (dépendance search.py)
+├── references/
+│   ├── design-md-spec-v2.md          # Spécification DESIGN.md v3 (§0–8 détaillés)
+│   ├── api_reference.md              # Référence technique complète
+│   ├── antipatterns-guide.md         # Guide antipatterns ❌ vs ✅
+│   └── gsap-best-practices.md        # Guide GSAP (Phase 3)
+├── templates/
+│   ├── design-md-template.md         # Template DESIGN.md §0–8 + checklist
+│   ├── design-system.css             # Variables CSS prêtes à personnaliser
+│   └── brand-kit.json                # Structure brand kit exportable
+└── examples/
+    ├── manus-demo/DESIGN.md          # Exemple validé — dev tool, Neo-Brutalism
+    └── dataflow-saas/DESIGN.md       # Exemple validé — SaaS analytics, Dense Dashboard
+```
+
+---
+
+## Checklist avant livraison
+
+- [ ] `DESIGN.md` §0–8 complet, `check.py --gate 0` passé
+- [ ] `validate_design.py` : 0 erreur
+- [ ] `detect_ai_slop.py` : score ≥ 80/100
+- [ ] `diff_design_vs_code.py` : 0 divergence
+- [ ] `audit_spacing.py` : 0 violation grille 8px
+- [ ] `visual_audit.py` : screenshots validés sur 4 breakpoints
+- [ ] Section §8 Dark Mode présente avec fond < #333 et WCAG AA
+- [ ] `prefers-reduced-motion` dans le code CSS/JS
+- [ ] Zéro emoji décoratif, zéro gradient cliché, zéro icône générique non justifiée
+
+---
+
+*Conçu pour transformer le code IA en design d'exception.*

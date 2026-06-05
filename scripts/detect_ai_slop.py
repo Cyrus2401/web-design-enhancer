@@ -25,15 +25,47 @@ from collections import Counter
 class AISloPDetector:
     """Détecteur d'antipatterns AI slop"""
 
-    # Icônes génériques et artefacts "Odeur d'IA"
+    # Icônes génériques et artefacts "Odeur d'IA" — web et mobile
     GENERIC_ICONS = {
+        # Web (Lucide / FontAwesome)
         "sparkles", "zap", "cog", "network", "arrow", "check", "star",
         "heart", "user", "settings", "menu", "search", "bell", "mail",
         "download", "upload", "trash", "edit", "copy", "share", "link",
         "eye", "lock", "unlock", "calendar", "clock", "map", "phone",
         "play", "pause", "volume", "wifi", "battery", "sun", "moon",
-        "magic", "stars", "bot", "robot", "ai", "brain"
+        "magic", "stars", "bot", "robot", "ai", "brain",
+        # Mobile — SF Symbols génériques (iOS)
+        "person.fill", "house.fill", "gear", "bell.fill", "magnifyingglass",
+        "ellipsis", "xmark", "chevron.right", "arrow.right", "plus.circle",
+        # Mobile — Material Icons génériques (Android)
+        "Icons.Default.Home", "Icons.Default.Person", "Icons.Default.Settings",
+        "Icons.Default.Notifications", "Icons.Default.Search", "Icons.Default.Menu",
+        "Icons.Default.Add", "Icons.Default.Close", "Icons.Default.ArrowBack",
+        # Mobile — Expo Icons génériques (React Native)
+        "Ionicons.home", "Ionicons.person", "Ionicons.settings",
+        "MaterialIcons.home", "MaterialIcons.person",
     }
+
+    # Antipatterns mobiles spécifiques
+    MOBILE_SLOP_PATTERNS = [
+        # Hardcoded screen dimensions (iPhone 13 = 390, Pixel 6 = 412...)
+        (r"width\s*[:=]\s*(?:375|390|393|414|375\.0|390\.0)",
+         "Largeur d'écran iPhone hardcodée — utiliser .frame(maxWidth: .infinity) ou LayoutBuilder"),
+        (r"width\s*[:=]\s*(?:360|393|412|411)",
+         "Largeur d'écran Android hardcodée — utiliser responsive layout"),
+        # Touch targets trop petits
+        (r"\.frame\s*\(.*?(?:width|height)\s*:\s*([1-3]\d)",
+         "Touch target probablement trop petit (< 40pt) — minimum iOS HIG 44pt"),
+        # Status bar hardcodée
+        (r"(?:padding|margin).*?(?:top)\s*:\s*(?:44|20|47)",
+         "Hauteur de status bar hardcodée — utiliser SafeAreaInsets ou useSafeAreaInsets()"),
+        # Couleurs hardcodées au lieu de system colors
+        (r"Color\(red:\s*\d+,\s*green:\s*\d+",
+         "Couleur RGB hardcodée SwiftUI — préférer Color(.systemBackground) ou les semantic colors"),
+        # Pas d'adaptive colors (dark mode non géré)
+        (r"backgroundColor\s*=\s*UIColor\.white",
+         "backgroundColor blanc fixe — utiliser .systemBackground pour le dark mode automatique"),
+    ]
 
     # Patterns pour détecter les logos inventés ou placeholders graphiques
     LOGO_PLACEHOLDERS = [
@@ -104,6 +136,137 @@ class AISloPDetector:
         self.issues: List[Dict] = []
         self.score = 100  # Score de qualité (0-100)
 
+        # Whitelist .slop-ignore — chargée depuis la racine du projet
+        self._whitelist = self._load_slop_ignore()
+
+    # ── .slop-ignore ──────────────────────────────────────────────────────────
+
+    def _load_slop_ignore(self) -> Dict[str, List[str]]:
+        """Charge le fichier .slop-ignore depuis la racine du projet."""
+        whitelist: Dict[str, List[str]] = {
+            "icons": [], "buzzwords": [], "gradients": [], "badges": [], "files": []
+        }
+        # Chercher dans le répertoire courant et les parents immédiats
+        candidates = [
+            Path(".slop-ignore"),
+            Path("../.slop-ignore"),
+            Path(__file__).parent.parent / ".slop-ignore",
+        ]
+        ignore_path = next((p for p in candidates if p.exists()), None)
+        if not ignore_path:
+            return whitelist
+
+        current_section = None
+        for raw_line in ignore_path.read_text(encoding="utf-8").splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#"):
+                continue
+            # Section header : [icons]
+            section_match = re.match(r"^\[(\w+)\]$", line)
+            if section_match:
+                current_section = section_match.group(1).lower()
+                continue
+            # Entrée : "search  # justification"
+            if current_section and current_section in whitelist:
+                token = line.split("#")[0].strip()  # retirer le commentaire inline
+                justification = line.split("#")[1].strip() if "#" in line else ""
+                # Règle : sans justification, l'entrée est ignorée (sécurité)
+                if token and justification:
+                    whitelist[current_section].append(token.lower())
+
+        if any(whitelist.values()):
+            loaded = sum(len(v) for v in whitelist.values())
+            print(f"  📋 .slop-ignore chargé — {loaded} exemption(s)")
+
+        return whitelist
+
+    def _add_issue(self, issue_type: str, message: str, suggestion: str = "", severity: int = 1):
+        """Helper unifié pour ajouter un problème et déduire le score."""
+        self.issues.append({
+            "type": issue_type.lower(),
+            "severity": "warning" if severity == 1 else "error",
+            "message": message,
+            "suggestion": suggestion,
+        })
+        self.score -= 5 * severity
+
+    def _is_whitelisted(self, section: str, token: str) -> bool:
+        """Retourne True si le token est exempté dans la section donnée."""
+        return token.lower() in self._whitelist.get(section, [])
+
+    def _file_is_ignored(self, path) -> bool:
+        """Retourne True si le fichier est dans la liste d'ignorés."""
+        path_str = str(path).replace("\\", "/")
+        for pattern in self._whitelist.get("files", []):
+            if pattern.rstrip("/") in path_str:
+                return True
+        return False
+
+
+    def _detect_mobile_slop(self, content: str, file_path: Path = None):
+        """Détecte les antipatterns mobiles natifs dans le code."""
+        ctx = str(file_path.name) if file_path else "code"
+
+        # Détecter si c'est du code mobile natif
+        is_swift    = file_path and file_path.suffix in {".swift"}
+        is_kotlin   = file_path and file_path.suffix in {".kt", ".kts"}
+        is_dart     = file_path and file_path.suffix in {".dart"}
+        is_rn       = file_path and file_path.suffix in {".tsx", ".jsx"} and (
+                        "react-native" in content.lower() or
+                        "StyleSheet.create" in content or
+                        "from 'react-native'" in content
+                    )
+
+        if not (is_swift or is_kotlin or is_dart or is_rn):
+            return  # Pas du code mobile natif — skip
+
+        import re as _re
+
+        for pattern, description in self.MOBILE_SLOP_PATTERNS:
+            if _re.search(pattern, content):
+                self._add_issue(
+                    "MOBILE_SLOP",
+                    f"{description} [{ctx}]",
+                    "Utiliser les composants et APIs natifs de la plateforme",
+                    severity=2
+                )
+
+        # Vérification dark mode adaptatif
+        if is_swift and "Color.white" in content and "colorScheme" not in content:
+            self._add_issue(
+                "MOBILE_SLOP",
+                f"Couleur blanche fixe sans adaptation dark mode [{ctx}]",
+                "Utiliser Color(.systemBackground) ou @Environment(.colorScheme)",
+                severity=1
+            )
+
+        if is_kotlin and "Color.White" in content and "isSystemInDarkTheme" not in content:
+            self._add_issue(
+                "MOBILE_SLOP",
+                f"Color.White fixe sans dark mode adaptatif [{ctx}]",
+                "Utiliser MaterialTheme.colorScheme.background",
+                severity=1
+            )
+
+        # Vérification accessibilité minimale
+        if is_swift and "Image(" in content:
+            has_label = "accessibilityLabel" in content or "Label(" in content
+            if not has_label:
+                self._add_issue(
+                    "MOBILE_SLOP",
+                    f"Image SwiftUI sans accessibilityLabel [{ctx}]",
+                    "Ajouter .accessibilityLabel(String) sur chaque Image",
+                    severity=1
+                )
+
+        if is_kotlin and "Image(" in content and "contentDescription" not in content:
+            self._add_issue(
+                "MOBILE_SLOP",
+                f"Image Compose sans contentDescription [{ctx}]",
+                "Ajouter contentDescription = String ou null si decoratif",
+                severity=1
+            )
+
     def run(self) -> bool:
         """Exécute la détection complète"""
         if self.design_file:
@@ -150,11 +313,12 @@ class AISloPDetector:
             print(f"❌ Répertoire non trouvé: {self.code_dir}")
             return
 
-        # Vérifie les fichiers TSX/JSX
-        for file_path in self.code_dir.rglob("*.tsx"):
-            self._check_code_file(file_path)
-        for file_path in self.code_dir.rglob("*.jsx"):
-            self._check_code_file(file_path)
+        # Vérifie les fichiers web (TSX/JSX) et mobile natif (Swift/Kotlin/Dart)
+        mobile_web_exts = ["*.tsx", "*.jsx", "*.swift", "*.kt", "*.kts", "*.dart"]
+        for ext in mobile_web_exts:
+            for file_path in self.code_dir.rglob(ext):
+                if not self._file_is_ignored(file_path):
+                    self._check_code_file(file_path)
 
         # Détecte l'utilisation par défaut de shadcn/ui dans le code
         for file_path in self.code_dir.rglob("*.tsx"):
@@ -200,6 +364,9 @@ class AISloPDetector:
             })
             self.score -= 10
 
+        # Détecte les antipatterns mobiles natifs
+        self._detect_mobile_slop(content, file_path)
+
 
     def _detect_status_badges(self, content: str, file_path: Path = None):
         """Détecte les badges statut IA non demandés (● ATMOSPHÈRE EXCELLENTE, LIVE NOW, etc.)"""
@@ -222,6 +389,8 @@ class AISloPDetector:
     def _detect_buzzwords(self, content: str):
         """Détecte les buzzwords vagues"""
         for buzzword, suggestion in self.BUZZWORDS.items():
+            if self._is_whitelisted("buzzwords", buzzword):
+                continue
             if re.search(rf"\b{buzzword}\b", content, re.IGNORECASE):
                 self.issues.append({
                     "type": "buzzword",
@@ -234,6 +403,8 @@ class AISloPDetector:
     def _detect_generic_icons(self, content: str):
         """Détecte les icônes génériques"""
         for icon in self.GENERIC_ICONS:
+            if self._is_whitelisted("icons", icon):
+                continue
             if re.search(rf"\b{icon}\b", content, re.IGNORECASE):
                 self.issues.append({
                     "type": "generic_icon",

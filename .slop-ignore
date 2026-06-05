@@ -1,0 +1,43 @@
+# .slop-ignore — Whitelist anti-faux positifs pour detect_ai_slop.py
+#
+# Déclarer ici les patterns légitimes du projet pour éviter les faux positifs.
+# Syntaxe : une règle par ligne.
+# Commentaires : lignes commençant par #
+# Sections : [icons], [buzzwords], [gradients], [badges], [fonts]
+#
+# Exemple :
+#   [icons]
+#   search          # icône de recherche fonctionnelle dans la barre de navigation
+#   check           # icône de validation dans les formulaires
+#
+#   [buzzwords]
+#   premium         # utilisé comme nom de plan tarifaire réel (plan Premium)
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# RÈGLE : Toute entrée doit être justifiée par un commentaire.
+# Sans commentaire = la règle est ignorée.
+# ─────────────────────────────────────────────────────────────────────────────
+
+[icons]
+# Ajouter ici les icônes Lucide/Heroicons utilisées fonctionnellement
+# search       # barre de recherche de la nav principale
+# check        # état de validation des formulaires
+# mail         # lien mailto du contact
+
+[buzzwords]
+# Ajouter ici les buzzwords qui ont un sens précis dans ce projet
+# premium      # nom du plan tarifaire (pas un adjectif vague)
+
+[gradients]
+# Ajouter ici les gradients intentionnels avec justification
+# gradient     # gradient mesh statique inspiré de Stripe (refs/antipatterns-guide.md §4)
+
+[badges]
+# Ajouter ici les patterns de badges statut légitimes
+# LIVE         # indicateur en direct sur le dashboard analytics (donnée réelle)
+
+[files]
+# Ajouter ici les fichiers ou dossiers à ignorer complètement
+# scripts/     # les scripts internes du skill (search.py, core.py...)
+# node_modules/
+# dist/

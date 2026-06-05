@@ -1,0 +1,3 @@
+# .slop-ignore — DataFlow SaaS
+[icons]
+check           # faux positif : mot "check" dans "Checklist" — section de validation du DESIGN.md

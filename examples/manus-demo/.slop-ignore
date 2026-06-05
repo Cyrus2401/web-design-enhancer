@@ -1,0 +1,5 @@
+# .slop-ignore — Manus Demo
+[icons]
+check           # faux positif : mot "check" dans "Checklist" — section validation DESIGN.md
+search          # faux positif : "scripts/search.py" dans la commande Phase 0
+ai              # faux positif : "agent IA" dans la description du projet

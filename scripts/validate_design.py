@@ -43,7 +43,9 @@ class DesignValidator:
         self._parse_sections()
 
         # Validations
+        self._validate_phase0_evidence()    # Gate 0 — preuve d'exécution Phase 0
         self._validate_structure()
+        self._validate_theme_originality()  # Niveau 1 — bloquer dès le DESIGN.md
         self._validate_typography()
         self._validate_colors()
         self._validate_wcag_contrast()
@@ -51,6 +53,8 @@ class DesignValidator:
         self._validate_animations()
         self._validate_components()
         self._detect_antipatterns()
+        self._validate_dark_mode()  # Section dark mode obligatoire
+        self._validate_mobile()      # Section mobile (optionnelle mais validée si présente)
 
         # Rapport
         self._print_report()
@@ -67,11 +71,104 @@ class DesignValidator:
             "components": r"## 6\. Composants et États.*?(?=##|$)",
             "animations": r"## 7\. Motion et Animations.*?(?=##|$)",
             "checklist": r"## ✅ Checklist.*?(?=##|$)",
+            "darkmode": r"## 8\. Dark Mode.*?(?=##|$)",
+            "mobile": r"## 9\. Mobile.*?(?=##|$)",
         }
 
         for name, pattern in sections.items():
             match = re.search(pattern, self.content, re.DOTALL | re.IGNORECASE)
             self.sections[name] = match.group(0) if match else ""
+
+    def _validate_phase0_evidence(self):
+        """
+        Gate 0 — Vérifie que Phase 0 a été réellement exécutée.
+        Sans preuve dans le DESIGN.md → bloque tout le reste.
+        Empêche l'IA de sauter Phase 0 et d'inventer le DESIGN.md depuis son training data.
+        """
+        missing = []
+
+        # Section obligatoire
+        if "## 0. Sources Phase 0" not in self.content:
+            self.errors.append(
+                "[PHASE 0 MANQUANTE] La section '## 0. Sources Phase 0' est absente du DESIGN.md. "
+                "Phase 0 (getdesign.md + UI/UX Pro Max) doit être exécutée avant tout code. "
+                "Utiliser templates/design-md-template.md comme base."
+            )
+            return  # Inutile de continuer — preuve totalement absente
+
+        # Vérifier que les placeholders ont été remplacés par de vraies valeurs
+        placeholder_patterns = [
+            (r"\[Ex:", "Contient encore des placeholders non remplis '[Ex: ...]'"),
+            (r"Brand utilisée\s*:\s*\[", "Brand getdesign.md non renseignée"),
+            (r"Commande exécutée\s*:\s*`npx getdesign@latest add <brand>`",
+             "Commande getdesign.md non exécutée (placeholder '<brand>' non remplacé)"),
+            (r"Requête exécutée\s*:\s*`python3 scripts/search\.py \"<description>\"",
+             "Commande UI/UX Pro Max non exécutée (placeholder non remplacé)"),
+            (r"Style retenu\s*:\s*\[",
+             "Style UI/UX Pro Max non renseigné — search.py doit être lancé"),
+            (r"Justification.*?:\s*\[",
+             "Justification du thème non renseignée"),
+        ]
+
+        for pattern, message in placeholder_patterns:
+            if re.search(pattern, self.content):
+                missing.append(message)
+
+        for msg in missing:
+            self.errors.append(f"[PHASE 0 INCOMPLÈTE] {msg}")
+
+        if missing:
+            self.errors.append(
+                "→ Exécuter Phase 0 avant de continuer : "
+                "(1) npx getdesign@latest add <brand>  "
+                "(2) python3 scripts/search.py '<description>' --design-system -p '<Projet>'  "
+                "(3) Remplir la section '## 0. Sources Phase 0' avec les vraies valeurs."
+            )
+
+    def _validate_theme_originality(self):
+        """
+        Niveau 1 — Détecte les thèmes et concepts IA clichés directement dans le DESIGN.md.
+        Bloque avant que le code soit écrit.
+        """
+        FORBIDDEN_THEMES = [
+            (r"\bdark\s+cyberpunk\b",
+             "'dark cyberpunk' — cliché IA #1 portfolios tech. Décrire la texture réelle à la place."),
+            (r"\bcyberneti[cq]",
+             "'cybernétique/cybernetic' — esthétique IA générique. Spécifier les vrais tokens visuels."),
+            (r"\bglow[\s-]cursor\b",
+             "Glow cursor — effet non demandé, signal IA fort. Supprimer du DESIGN.md."),
+            (r"\bgrid[\s-]background\b",
+             "Grid background — fond grille présent dans 90% des portfolios dev IA. Utiliser fond uni."),
+            (r"\bglassmorphism\b",
+             "Glassmorphism — tendance épuisée. Autoriser uniquement pour modals/dropdowns fonctionnels."),
+            (r"\bneon[\s-]glow\b|\bneon[\s-]accent",
+             "Neon glow/accents — signal IA cyberpunk immédiat."),
+            (r"\bparticle(?:s)?[\s-](?:background|effect|js)\b",
+             "Particles background — overdone depuis 2018, signal IA fort."),
+            (r"\btyp(?:ewriter|ed)[\s-]effect\b|\btyped\.js\b",
+             "Typewriter/typed effect — cliché portfolio dev. Titre statique uniquement."),
+            (r"\bsys[_\s]status\b",
+             "SYS_STATUS badge — injection IA non demandée. Doit être justifié dans le brief."),
+            (r"\bhero[\s-]badge\b",
+             "Hero badge décoratif — l'information est déjà dans le H1/H2. Supprimer."),
+            (r"\bstyle\s+(?:monitoring|grafana|datadog)\b",
+             "Style Monitoring/Grafana comme thème — générique IA pour profils sysadmin."),
+        ]
+
+        found = []
+        for pattern, message in FORBIDDEN_THEMES:
+            if re.search(pattern, self.content, re.IGNORECASE):
+                found.append(message)
+
+        for msg in found:
+            self.errors.append(f"[THÈME INTERDIT] {msg}")
+
+        if found:
+            self.errors.append(
+                "→ Corriger le DESIGN.md avant tout code. "
+                "Chaque concept interdit doit être remplacé par une description "
+                "spécifique au projet réel, pas au secteur."
+            )
 
     def _validate_structure(self):
         """Vérifie que toutes les sections obligatoires existent"""
@@ -317,6 +414,141 @@ class DesignValidator:
                     f"⚠️  Trop de gradients ({gradient_count}). "
                     f"Limiter à 2-3 gradients intentionnels"
                 )
+
+
+    def _validate_dark_mode(self):
+        """Vérifie que la section Dark Mode est présente et correctement définie."""
+        darkmode_section = self.sections.get("darkmode", "")
+
+        if not darkmode_section:
+            self.warnings.append(
+                "⚠️  Section '## 8. Dark Mode' absente du DESIGN.md. "
+                "Sans contrat dark mode explicite, l'implémentation sera improvisée — "
+                "le slop revient par la fenêtre. "
+                "Ajouter une section avec les tokens inversés (fond-dark, texte-dark, surface-dark)."
+            )
+            return
+
+        # Vérifier qu'il y a des hex déclarés dans la section dark
+        dark_hexes = re.findall(r"#[0-9A-Fa-f]{6}", darkmode_section)
+        if len(dark_hexes) < 3:
+            self.warnings.append(
+                f"⚠️  Section Dark Mode insuffisante : {len(dark_hexes)} couleur(s) déclarée(s). "
+                f"Minimum 3 requises (fond-dark, texte-dark, surface-dark)."
+            )
+
+        # Vérifier que les rôles minimaux sont présents
+        required_dark_roles = ["fond", "texte", "surface"]
+        missing = [r for r in required_dark_roles if r not in darkmode_section.lower()]
+        if missing:
+            self.warnings.append(
+                f"⚠️  Rôles dark mode manquants : {', '.join(missing)}. "
+                f"Déclarer explicitement fond-dark, texte-dark et surface-dark."
+            )
+
+        # Vérifier que le fond dark est bien sombre (luminosité < 30%)
+        for line in darkmode_section.splitlines():
+            if any(k in line.lower() for k in ("fond", "background", "bg")):
+                hexes = re.findall(r"#[0-9A-Fa-f]{6}", line)
+                if hexes:
+                    lum = self._relative_luminance(self._hex_to_rgb(hexes[0]))
+                    if lum > 0.09:  # luminosité relative > ~30% = pas assez sombre
+                        self.warnings.append(
+                            f"⚠️  Fond dark mode trop clair ({hexes[0]}, luminosité {lum:.2f}). "
+                            f"Recommandé : < #333 pour un dark mode confortable."
+                        )
+                    break
+
+
+    def _validate_mobile(self):
+        """Valide la section Mobile (§9) si présente.
+        Vérifie les unités natives (pt/dp/sp), touch targets,
+        safe areas, et patterns d'animation système."""
+        mobile_section = self.sections.get("mobile", "")
+
+        if not mobile_section:
+            # Pas une erreur — section optionnelle pour les projets web-only
+            return
+
+        # ── Unités natives ───────────────────────────────────────────────
+        # Détecter les px hardcodés dans un contexte mobile natif
+        # (iOS = pt, Android = dp, Flutter = logical pixels, RN = dp)
+        platform_section = mobile_section.lower()
+        is_native = any(k in platform_section for k in [
+            "swiftui", "flutter", "jetpack", "compose", "react native", "react-native",
+            "ios", "android", "uikit", "swift", "kotlin"
+        ])
+
+        if is_native:
+            # Chercher des px hardcodés hors d'un contexte CSS
+            px_in_native = re.findall(
+                r"(?<!font-size:)(?<!padding:)(?<!margin:)\b(\d+)px\b",
+                mobile_section
+            )
+            if px_in_native:
+                self.warnings.append(
+                    f"⚠️  Unités px dans contexte mobile natif : {px_in_native[:5]}. "
+                    f"Utiliser pt (iOS), dp (Android), ou logical pixels (Flutter/RN)."
+                )
+
+        # ── Touch targets ─────────────────────────────────────────────────
+        # iOS HIG : 44pt min, Android Material : 48dp min
+        touch_target_mentioned = any(k in mobile_section.lower() for k in [
+            "touch target", "tap target", "44pt", "44dp", "48dp", "48pt",
+            "taille tactile", "zone tactile", "minimum tap"
+        ])
+        if not touch_target_mentioned:
+            self.warnings.append(
+                "⚠️  Taille minimale des touch targets non documentée dans §9 Mobile. "
+                "iOS HIG : 44pt min, Material Design : 48dp min."
+            )
+
+        # ── Safe Areas ────────────────────────────────────────────────────
+        safe_area_mentioned = any(k in mobile_section.lower() for k in [
+            "safe area", "safeareainsets", "edgeinsets", "notch", "dynamic island",
+            "home indicator", "status bar", "navigation bar", "insets"
+        ])
+        if not safe_area_mentioned:
+            self.warnings.append(
+                "⚠️  Gestion des Safe Areas non documentée dans §9 Mobile. "
+                "Documenter comment le layout respecte notch/Dynamic Island/Home Indicator."
+            )
+
+        # ── Animations mobiles ────────────────────────────────────────────
+        # Les animations système (spring, easeInOut) sont autorisées même > 400ms
+        # car elles respectent le rythme natif de la plateforme
+        anim_section = mobile_section
+        ms_raw = re.findall(r"(\d+(?:\.\d+)?)\s*ms\b", anim_section)
+        s_raw  = re.findall(r"(\d+(?:\.\d+)?)\s*s(?!econds)\b", anim_section)
+        all_ms = [float(v) for v in ms_raw] + [float(v)*1000 for v in s_raw]
+
+        # Exclure si spring/system mentionné (animations natives sans durée fixe)
+        is_spring = any(k in anim_section.lower() for k in [
+            "spring", "uispringtiming", "withspring", "animation.spring",
+            "springanimation", "system animation", "animation système"
+        ])
+        if not is_spring:
+            violations = [v for v in all_ms if v > 500]  # seuil + souple sur mobile
+            if violations:
+                self.warnings.append(
+                    f"⚠️  Animations mobiles longues : {violations}ms. "
+                    f"Sur mobile, privilégier spring() ou ≤ 400ms pour les transitions."
+                )
+
+        # ── Accessibilité mobile ──────────────────────────────────────────
+        a11y_mentioned = any(k in mobile_section.lower() for k in [
+            "accessibilityLabel", "contentdescription", "talkback", "voiceover",
+            "accessibilité", "accessibility", "a11y", "semantics"
+        ])
+        if not a11y_mentioned:
+            self.warnings.append(
+                "⚠️  Accessibilité mobile non documentée dans §9. "
+                "Mentionner VoiceOver (iOS) / TalkBack (Android) et les labels d'accessibilité."
+            )
+
+        # Si la section est bien remplie, confirmer
+        if mobile_section and len(mobile_section) > 200:
+            pass  # Pas de message inutile
 
     def _print_report(self):
         """Affiche le rapport de validation"""
