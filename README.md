@@ -70,6 +70,21 @@ python3 scripts/check.py --final --code ./src
 
 ---
 
+## Utilisation par outil IA
+
+Le cœur du skill est un ensemble de scripts Python **agent-agnostiques** — ils tournent dans n'importe quel terminal. Seule la lecture de `SKILL.md` change selon l'outil.
+
+| Outil | Installation | Lancement |
+| :--- | :--- | :--- |
+| **Claude Code** | Cloner dans `~/.claude/skills/web-design-enhancer-pro/` | Le skill est auto-découvert. Invoquer via `/web-design-enhancer` ou laisser Claude le détecter |
+| **Codex** (OpenAI CLI) | Cloner n'importe où | Pointer Codex sur le repo : `codex --context ./web-design-enhancer-pro "valide mon DESIGN.md"`. Les scripts s'exécutent via Bash |
+| **OpenCode** | Cloner dans le projet ou ajouter en submodule | Référencer `SKILL.md` dans le contexte (`/add SKILL.md`) puis exécuter les `python3 scripts/...` |
+| **Antigravity** (Google) | Cloner dans le workspace | Charger `SKILL.md` comme contexte agent ; les scripts tournent via le terminal intégré |
+
+**Pré-requis communs** : Python 3.10+, `pip install -r requirements.txt`. Les scripts ne dépendent d'aucune API LLM — ils sont déterministes et reproductibles.
+
+---
+
 ## Scripts disponibles
 
 | Script | Usage | Rôle |

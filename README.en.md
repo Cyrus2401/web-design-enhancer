@@ -72,6 +72,21 @@ python3 scripts/check.py --final --code ./src
 
 ---
 
+## Usage by AI tool
+
+The core of this skill is a set of **agent-agnostic Python scripts** — they run in any terminal. Only the way `SKILL.md` is loaded changes per tool.
+
+| Tool | Install | Run |
+| :--- | :--- | :--- |
+| **Claude Code** | Clone into `~/.claude/skills/web-design-enhancer-pro/` | Auto-discovered. Invoke via `/web-design-enhancer` or let Claude detect it |
+| **Codex** (OpenAI CLI) | Clone anywhere | Point Codex at the repo: `codex --context ./web-design-enhancer-pro "validate my DESIGN.md"`. Scripts run via Bash |
+| **OpenCode** | Clone into the project or add as a submodule | Reference `SKILL.en.md` in context (`/add SKILL.en.md`) then run `python3 scripts/...` |
+| **Antigravity** (Google) | Clone into the workspace | Load `SKILL.en.md` as agent context; scripts run via the built-in terminal |
+
+**Common prerequisites**: Python 3.10+, `pip install -r requirements.txt`. The scripts depend on no LLM API — they are deterministic and reproducible.
+
+---
+
 ## Available scripts
 
 | Script | Usage | Role |
