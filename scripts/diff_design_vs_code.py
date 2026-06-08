@@ -149,8 +149,9 @@ class DesignContract:
 class CodeAnalyzer:
     """Extrait les tokens réellement utilisés dans le code CSS/JS/TSX."""
 
-    CSS_EXTS = {".css", ".scss", ".sass", ".less"}
-    JS_EXTS  = {".js", ".ts", ".jsx", ".tsx", ".vue", ".svelte"}
+    CSS_EXTS  = {".css", ".scss", ".sass", ".less"}
+    JS_EXTS   = {".js", ".ts", ".jsx", ".tsx", ".vue", ".svelte"}
+    HTML_EXTS = {".html", ".htm"}
     SKIP_DIRS = {"node_modules", ".git", "dist", "build", ".next", "__pycache__"}
 
     def __init__(self, code_path: str = None, file_path: str = None):
@@ -174,7 +175,7 @@ class CodeAnalyzer:
                 for f in root.rglob("*"):
                     if any(part in self.SKIP_DIRS for part in f.parts):
                         continue
-                    if f.suffix in self.CSS_EXTS | self.JS_EXTS:
+                    if f.suffix in self.CSS_EXTS | self.JS_EXTS | self.HTML_EXTS:
                         self._scan_file(f)
 
     def _scan_file(self, path: Path):
@@ -198,6 +199,9 @@ class CodeAnalyzer:
         ):
             self.font_refs.add(m.group(1).strip())
         for m in re.finditer(r"family=([A-Za-z+]+)", content):
+            self.font_refs.add(m.group(1).replace("+", " "))
+        # Google Fonts dans balise <link> HTML
+        for m in re.finditer(r"fonts[.]googleapis[.]com[^>]*family=([A-Za-z+]+)", content):
             self.font_refs.add(m.group(1).replace("+", " "))
         for m in re.finditer(r"['\"](@fontsource|next/font).*?([A-Za-z][A-Za-z\s]+)['\"]", content):
             self.font_refs.add(m.group(2).strip())

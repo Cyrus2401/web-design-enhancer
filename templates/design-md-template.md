@@ -4,6 +4,28 @@ Ce document définit les règles strictes de design pour le projet. Toute implé
 
 ---
 
+## 0. Sources Phase 0
+
+> **Bloc obligatoire — preuve d'exécution de Phase 0.** `scripts/check.py --gate 0` lit cette section et bloque tant qu'elle n'est pas remplie.
+> Tous les placeholders `[Ex: ...]`, `<brand>`, `<description>`, `<Projet>` doivent être remplacés par de vraies valeurs avant de passer à Phase 1.
+
+### 0a. Référence visuelle — getdesign.md
+- **Brand utilisée**: [Ex: stripe]
+- **Commande exécutée**: `npx getdesign@latest add <brand>`
+- **Tokens extraits du DESIGN.md de référence**: [Ex: palette gris + accent #635BFF, radius 8px, ombres douces]
+
+### 0b. Intelligence design — UI/UX Pro Max
+- **Description du produit**: [Ex: "fintech analytics dashboard"]
+- **Requête exécutée**: `python3 scripts/search.py "<description>" --design-system -p "<Projet>"`
+- **Style retenu**: [Ex: Clean Tech]
+- **Pattern de page recommandé**: [Ex: dashboard split-pane, sidebar gauche, header dense]
+- **Anti-patterns sectoriels à éviter**: [Ex: glassmorphism décoratif, neon glow]
+
+### 0c. Justification
+- **Justification du thème retenu**: [Ex: combinaison Stripe (palette) + Clean Tech (densité) pour SaaS B2B exigeant]
+
+---
+
 ## 1. Thème Visuel & Concept
 *Décrivez l'ambiance visuelle en termes techniques (ex: "Néomorphisme doux", "Minimalisme brutaliste", "Dark mode haute fidélité"). Évitez les buzzwords comme "moderne" ou "premium". Référez-vous aux styles UI de UI/UX Pro Max pour l'inspiration.*
 
@@ -193,6 +215,77 @@ IconButton(
 - **TalkBack (Android) :** `contentDescription` sur chaque `Image` (null si décoratif)
 - **Focus order :** `.accessibilitySortPriority()` (iOS) / `Modifier.semantics` (Compose)
 - **Taille de texte dynamique :** Supporter Dynamic Type (iOS) / Text Scaling (Android)
+
+---
+
+
+---
+
+## 10. Three.js
+
+> **Optionnel. Obligatoire dès qu'une scène WebGL/Three.js est dans le scope.**
+> `validate_design.py` valide cette section si présente. `detect_ai_slop.py` scanne le code `.js`/`.ts`/`.jsx`/`.tsx` pour les antipatterns Three.js critiques.
+
+### Type de scène
+
+- **Type :** [Hero background | Interactive viewer | Scroll-driven storytelling | Particle system | Product showcase]
+- **Rôle visuel :** [Ex: fond animé statique, modèle 3D interactif, caméra scroll-driven]
+- **Stack :** Three.js r128 via CDN épinglé (jamais `@latest`)
+
+### Renderer
+
+- **Instance :** Un seul `WebGLRenderer` par page — lifetime = page entière
+- **Pixel ratio :** `renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))` — cap obligatoire
+- **Alpha :** `alpha: true` sur le renderer + fond via CSS (pas `setClearColor`)
+- **Antialias :** `antialias: true` pour desktop, `false` sur mobile si perf insuffisante
+
+### Budget Géométrie
+
+| Rôle | Segments recommandés |
+| :--- | :--- |
+| Hero mesh (foreground) | 32–64 |
+| Background meshes | 8–16 |
+| Particles stand-in | 6–8 |
+| Ground plane | 1 (PlaneGeometry) |
+
+**Règle absolue :** Jamais de `new THREE.XxxGeometry()` dans `animate()` — créer avant la boucle.
+
+### Lighting
+
+- **Minimum :** `AmbientLight` (fill, intensity 0.4) + `DirectionalLight` (key, intensity 1.0)
+- **Shadows :** Activé uniquement sur la `DirectionalLight` principale et le hero mesh
+- **`MeshBasicMaterial` :** Pas besoin de lights — utiliser pour éléments décoratifs plats
+
+### Dispose Strategy
+
+Toujours appeler avant `scene.remove()` :
+```js
+mesh.geometry.dispose()
+mesh.material.dispose()
+mesh.material.map?.dispose()       // textures
+mesh.material.normalMap?.dispose() // normal maps
+```
+
+### Fallback WebGL
+
+- **Détection :** `WebGL2RenderingContext` ou `WebGLRenderingContext` dans `window`
+- **Fallback :** [Image statique PNG | Canvas 2D simplifié | Message discret]
+
+### Animations Three.js
+
+> Note : La règle ≤ 400ms du §7 s'applique aux transitions UI, **pas** aux animations Three.js.
+> Les boucles 60fps, scrub scroll, et rotations continues sont exemptées.
+
+- **UI transitions** (fondu, apparition) : ≤ 400ms via GSAP
+- **Boucles Three.js** : clock.getDelta(), requestAnimationFrame — pas de durée fixe
+- **Scroll scrub** : GSAP ScrollTrigger + `scrub: 1` — durée relative au scroll, pas en ms
+- **prefers-reduced-motion :** Scène figée (`renderer` toujours actif mais `delta = 0`) ou rotation lente (0.001 rad/frame max)
+
+### Accessibilité WebGL
+
+- **`<canvas>` :** Attribut `aria-label` descriptif + `role="img"`
+- **Interactivité 3D :** Cursor `pointer` sur hover (raycasting), feedback tactile si mobile
+- **Screen readers :** Contenu alternatif visible dans `<noscript>` ou `aria-describedby`
 
 ---
 

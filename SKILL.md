@@ -67,7 +67,7 @@ Le fichier `DESIGN.md` de référence est déposé à la racine. **C'est une ins
 Générer le système de design adapté au type de produit :
 
 ```bash
-python3 scripts\search.py \
+python3 scripts/search.py \
   "description du produit" --design-system -p "Nom du projet"
 ```
 
@@ -75,15 +75,15 @@ Exemples :
 
 ```bash
 # Application bancaire
-python3 scripts\search.py \
+python3 scripts/search.py \
   "fintech banking app" --design-system -p "MyBank"
 
 # Plateforme wellness
-python3 scripts\search.py \
+python3 scripts/search.py \
   "beauty spa wellness booking" --design-system -p "Serenity"
 
 # Dashboard SaaS analytics
-python3  scripts\search.py \
+python3 scripts/search.py \
   "saas analytics dashboard" --design-system -p "DataFlow"
 ```
 
@@ -131,18 +131,12 @@ Valider le DESIGN.md avant tout code :
 
 ```bash
 python3 scripts/check.py --gate 0   # Vérifie que Phase 0 a été exécutée
-python3 scripts/check.py --gate 1   # Valide le DESIGN.md
+python3 scripts/check.py --gate 1   # Valide le DESIGN.md (appelle validate_design.py en interne)
 ```
 
-**Si l'un de ces deux commandes retourne une erreur → ne pas passer à Phase 1. Corriger et relancer.**
+**`check.py` est l'unique point d'entrée.** Il orchestre `validate_design.py` (thèmes interdits, WCAG AA, §0 preuves, §4 hiérarchie, §8 dark mode, §10 Three.js) et persiste l'état dans `.phase-log.json`.
 
-Valider le DESIGN.md avant tout code :
-
-```bash
-python3 scripts/validate_design.py DESIGN.md
-```
-
-`validate_design.py` détecte automatiquement les thèmes interdits et bloque la progression.
+**Si l'une de ces deux commandes retourne une erreur → ne pas passer à Phase 1. Corriger et relancer.**
 
 ---
 
@@ -150,11 +144,15 @@ python3 scripts/validate_design.py DESIGN.md
 
 Le `DESIGN.md` final doit être complet avant tout code. Exigences minimales :
 
-- **Palette** : 4–8 couleurs avec rôles sémantiques (`Primaire`, `Fond`, `Texte`, `Accent`, `Succès`, `Danger`)
-- **Typographie** : Maximum 2 polices (display + body), Google Fonts uniquement
-- **Espacements** : Tous en multiples de 8px
-- **Animations** : ≤ 400ms, mention de `prefers-reduced-motion` obligatoire
-- **Composants** : Maximum 3 variantes par type
+- **§2 Palette** : 4–8 couleurs avec rôles sémantiques (`Primaire`, `Fond`, `Texte`, `Accent`, `Succès`, `Danger`) — contraste WCAG AA vérifié automatiquement
+- **§3 Typographie** : Maximum 2 polices (display + body), Google Fonts uniquement
+- **§4 Hiérarchie typographique** : Tailles dans des plages vérifiées automatiquement par `validate_design.py` — **H1 28–80px**, H2 22–60px, H3 18–36px, **P 13–18px**, Small 11–14px
+- **§5 Espacements** : Tous en multiples de 8px
+- **§6 Composants** : Maximum 3 variantes par type
+- **§7 Animations** : ≤ 400ms, mention de `prefers-reduced-motion` obligatoire
+- **§8 Dark Mode** : Obligatoire si fond principal sombre — surface, texte-secondaire, bordure-dark documentés
+- **§9 Mobile** *(optionnel — obligatoire si app native dans le scope)* : touch targets ≥ 44pt iOS / 48dp Android, safe areas, unités natives
+- **§10 Three.js** *(optionnel — obligatoire si scène WebGL dans le scope)* : pixel ratio cap, dispose strategy, fallback WebGL — voir `references/threejs-best-practices.md`
 
 Valider avant de continuer :
 
@@ -162,15 +160,9 @@ Valider avant de continuer :
 python3 scripts/check.py --gate 1
 ```
 
+**`check.py --gate 1` est la commande canonique.** Elle invoque `validate_design.py` (WCAG AA, §4 plages, §8/§9/§10) et persiste le hash SHA-256 du DESIGN.md dans `.phase-log.json` — le gate s'auto-invalide si le DESIGN.md est modifié.
+
 **Si la commande retourne une erreur → corriger le DESIGN.md. Ne pas écrire une ligne de code avant que ce gate soit vert.**
-
-Valider avant de continuer :
-
-```bash
-python3 scripts/validate_design.py DESIGN.md
-```
-
-Ne pas passer à la phase suivante si des erreurs sont signalées (incluant le contraste WCAG AA).
 
 ---
 
@@ -250,7 +242,8 @@ Si un script renvoie une erreur → corriger immédiatement en consultant `refer
 | `references/design-md-spec-v2.md` | Spec complète du format DESIGN.md |
 | `references/antipatterns-guide.md` | Exemples concrets ❌ vs ✅ |
 | `references/gsap-best-practices.md` | Guide GSAP |
-| `scripts/validate_design.py` | Validation DESIGN.md + WCAG AA |
+| `references/threejs-best-practices.md` | Guide Three.js — antipatterns WebGL critiques (§10) |
+| `scripts/validate_design.py` | Validation DESIGN.md + WCAG AA + plages §4 + §10 Three.js |
 | `scripts/detect_ai_slop.py` | Détection antipatterns dans le code |
 | `scripts/audit_spacing.py` | Audit grille 8px |
 | `scripts/visual_audit.py` | Audit visuel Playwright (4 breakpoints) |

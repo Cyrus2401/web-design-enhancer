@@ -67,55 +67,78 @@ async def run_audit(url, output_dir):
         print("🔍 Analyse du DOM et des styles calculés...")
         audit_data = await page.evaluate("""
             () => {
-                const elements = document.querySelectorAll('h1, h2, h3, p, button, section, div');
+                const elements = document.querySelectorAll('h1, h2, h3, p, button, section, div, span, article');
                 const fonts = new Set();
                 const spacingErrors = [];
                 const slopElements = [];
-                
+
                 const isMultipleOf8 = (val) => {
                     const num = parseInt(val);
                     return isNaN(num) || num === 0 || num % 8 === 0 || num === 4;
                 };
 
                 elements.forEach(el => {
-                    const style = window.getComputedStyle(el);
-                    
-                    // Fonts
-                    fonts.add(style.fontFamily);
-                    
-                    // Spacing (Padding/Margin) — FIX: .push() not .append()
-                    ['paddingTop', 'paddingBottom', 'marginTop', 'marginBottom'].forEach(prop => {
-                        if (!isMultipleOf8(style[prop])) {
-                            spacingErrors.push(`${el.tagName} ${el.className}: ${prop}=${style[prop]}`);
+                    const cs = window.getComputedStyle(el);
+                    const text = (el.innerText || "").trim();
+                    const tag = el.tagName.toLowerCase();
+
+                    // 1. Polices chargees
+                    fonts.add(cs.fontFamily.split(",")[0].trim().replace(/['"]/g, ""));
+
+                    // 2. Spacing audit
+                    ["paddingTop", "paddingBottom", "paddingLeft", "paddingRight", "marginTop", "marginBottom"].forEach(prop => {
+                        if (!isMultipleOf8(cs[prop])) {
+                            spacingErrors.push(tag + "." + el.className.split(" ")[0] + ": " + prop + "=" + cs[prop]);
                         }
                     });
 
-                    // AI Slop (Emojis, stickers, generic icons, placeholders)
-                    const text = el.innerText || "";
-                    const emojiRegex = /[\\u{1F300}-\\u{1F9FF}]|[\\u{2700}-\\u{27BF}]/u;
-                    if (emojiRegex.test(text) && !el.closest('footer')) {
-                        slopElements.push(`Artefact IA (Emoji) détecté: "${text.substring(0, 20)}..."`);
+                    // 3. Badge statut systeme invente
+                    if (/[A-Z][A-Z_]{3,}:\s*[A-Z][A-Z_]+/.test(text) && text.length < 50) {
+                        slopElements.push("Badge statut: \"" + text + "\" — AI slop");
                     }
 
-                    const placeholderRegex = /logo-placeholder|your-logo|brandname|company-name/i;
-                    if (placeholderRegex.test(text)) {
-                        slopElements.push(`Logo/Nom générique détecté: "${text.substring(0, 20)}..."`);
+                    // 4. Bouton ALL_CAPS
+                    if ((tag === "button" || el.closest("button")) && text.length > 3) {
+                        const isUpper = cs.textTransform === "uppercase" ||
+                                        (text === text.toUpperCase() && /[A-Z]{3}/.test(text));
+                        if (isUpper) slopElements.push("Bouton ALL_CAPS: \"" + text.substring(0, 40) + "\"");
                     }
 
-                    // Détection des formes bizarres (stickers/placeholders SVG)
-                    if (el.tagName === 'SVG' && el.getBBox().width > 0) {
-                        const title = el.querySelector('title')?.textContent || "";
-                        if (/sparkle|magic|bot|ai|stars/i.test(title)) {
-                            slopElements.push(`Icône "Odeur d'IA" détectée: ${title}`);
+                    // 5. Labels ALL_CAPS dans cartes
+                    if (/^[A-Z][A-Z\'\s]{6,}\s*:/.test(text) && text.length < 60) {
+                        if (el.closest("[class*=card],[class*=Card],article")) {
+                            slopElements.push("Label ALL_CAPS: \"" + text.substring(0, 50) + "\"");
+                        }
+                    }
+
+                    // 6. Grille asymetrique
+                    if (el.matches("[class*=grid],[class*=Grid]")) {
+                        const cards = el.querySelectorAll("[class*=card],[class*=Card],article");
+                        if (cards.length > 0) {
+                            const cols = cs.gridTemplateColumns === "none" ? 1 : cs.gridTemplateColumns.split(" ").length;
+                            if (cols >= 3 && cards.length % cols !== 0) {
+                                slopElements.push("Grille asymetrique: " + cards.length + " cartes / " + cols + " col");
+                            }
+                        }
+                    }
+
+                    // 7. Section trop vide
+                    if (tag === "section") {
+                        const pTop = parseInt(cs.paddingTop) || 0;
+                        const pBot = parseInt(cs.paddingBottom) || 0;
+                        if ((pTop + pBot) > 192 && el.children.length <= 2) {
+                            slopElements.push("Section trop vide: padding " + (pTop+pBot) + "px, " + el.children.length + " enfants");
                         }
                     }
                 });
 
-                return {
-                    fonts: Array.from(fonts),
-                    spacingErrors: spacingErrors,
-                    slopElements: slopElements
-                };
+                // 8. Trop de familles de polices
+                const fontList = Array.from(fonts).filter(f => f && f.length > 1);
+                if (fontList.length > 3) {
+                    slopElements.push("Trop de polices: " + fontList.length + " familles (" + fontList.slice(0,4).join(", ") + ")");
+                }
+
+                return { fonts: fontList, spacingErrors: spacingErrors.slice(0, 20), slopElements: slopElements };
             }
         """)
 

@@ -19,6 +19,7 @@ import sys
 import os
 import re
 import json
+import hashlib
 import argparse
 import subprocess
 from pathlib import Path
@@ -39,9 +40,20 @@ def info(msg): print(f"  {CYAN}→  {msg}{RESET}")
 
 SCRIPTS_DIR = Path(__file__).parent
 LOG_FILE    = Path(".phase-log.json")
+DESIGN_FILE = Path("DESIGN.md")
+
+# Gates dont la validité dépend du contenu de DESIGN.md
+# (si DESIGN.md change après le pass, le gate est auto-invalidé)
+DESIGN_DEPENDENT_GATES = {"gate0", "gate1"}
 
 
 # ─── Log de phases ────────────────────────────────────────────────────────────
+
+def _design_hash():
+    """SHA-256 du DESIGN.md courant, ou None si absent."""
+    if not DESIGN_FILE.exists():
+        return None
+    return hashlib.sha256(DESIGN_FILE.read_bytes()).hexdigest()
 
 def load_log():
     if LOG_FILE.exists():
@@ -56,11 +68,35 @@ def save_log(log):
 
 def mark_passed(gate):
     log = load_log()
-    log[gate] = {"passed": True, "at": datetime.now().isoformat()}
+    entry = {"passed": True, "at": datetime.now().isoformat()}
+    # Pour les gates qui dépendent de DESIGN.md, on persiste le hash courant.
+    # Toute modification ultérieure du fichier invalide le pass.
+    if gate in DESIGN_DEPENDENT_GATES:
+        h = _design_hash()
+        if h is not None:
+            entry["design_hash"] = h
+    log[gate] = entry
     save_log(log)
 
 def gate_passed(gate):
-    return load_log().get(gate, {}).get("passed", False)
+    """Retourne True si le gate a été validé ET que DESIGN.md n'a pas changé depuis."""
+    entry = load_log().get(gate, {})
+    if not entry.get("passed", False):
+        return False
+    # Auto-invalidation si DESIGN.md a changé depuis le pass
+    if gate in DESIGN_DEPENDENT_GATES:
+        stored_hash = entry.get("design_hash")
+        current_hash = _design_hash()
+        if stored_hash and current_hash and stored_hash != current_hash:
+            warn(f"{gate} invalidé : DESIGN.md a été modifié depuis la validation.")
+            info(f"Relancer : python3 scripts/check.py --gate {gate[-1]}")
+            return False
+        # Si le gate dépend de DESIGN.md mais aucun hash n'avait été stocké
+        # (vieux log au format pré-hash), on invalide par prudence
+        if stored_hash is None and current_hash is not None:
+            warn(f"{gate} : log obsolète (sans hash) — relancer le gate.")
+            return False
+    return True
 
 
 # ─── Gate 0 — Preuve d'exécution Phase 0 ─────────────────────────────────────

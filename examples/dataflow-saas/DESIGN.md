@@ -83,6 +83,16 @@ Contraste WCAG AA — Texte sur Fond : 9.2:1 (min 4.5:1). Primaire sur Fond : 8.
 - **Secondaire (Normal) :** Transparent, bordure 1px #1E40AF, texte #1E40AF
 - **Ghost (Normal) :** Transparent, texte #1E3A8A, sans bordure
 
+### Section Contact / CTA
+- **Titre :** H2 visible (28–32px)
+- **Sous-titre :** Texte descriptif, 1–2 lignes
+- **Action :** Bouton primaire ou champ email + CTA
+- **Padding vertical max :** 96px (jamais plus — densité minimale obligatoire)
+
+### Comportement grille sur nombre impair de cartes
+- **Stratégie :** Last card en `grid-column: 1 / -1` (full-width) si N%3 ≠ 0
+- **Alignement :** Centré sur la ligne incomplète
+
 ### Cartes (Cards)
 
 - **Structure :** Fond blanc, bordure 1px solid #DBEAFE, radius 4px

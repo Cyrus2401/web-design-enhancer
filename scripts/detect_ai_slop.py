@@ -83,6 +83,7 @@ class AISloPDetector:
 
     # Badges statut IA non demandés — ● ATMOSPHÈRE EXCELLENTE, LIVE NOW, etc.
     STATUS_BADGE_PATTERNS = [
+        # Badges statut ponctuels
         (r"[●•◉]\s*[A-ZÀ-ÖØ-Þ][A-ZÀ-ÖØ-Þ\s]{4,}",
          "Point coloré + texte statut majuscule"),
         (r"\b(?:PREMIUM\s+QUALITY|ULTRA\s+FAST|HIGH\s+PERFORMANCE|LIVE\s+NOW|TOP\s+RATED|ATMOSPHÈRE\s+\w+)\b",
@@ -91,6 +92,51 @@ class AISloPDetector:
          "Point vert décoratif Tailwind (indicateur statut IA)"),
         (r"animate-pulse[^\"]*rounded-full|rounded-full[^\"]*animate-pulse",
          "Point animé (pulse) décoratif — signal IA fréquent"),
+        # Badges statut système inventés (JSX/TSX pattern)
+        # Restreint au contexte JSX (entre > et <) pour éviter les faux positifs
+        # sur les enums TypeScript (PaymentStatus.PAID: SUCCESS), les commentaires
+        # de code SQL/CSS (SELECT NAME:, MEDIA QUERIES:), ou les constantes JS.
+        (r">[\s]*[A-Z][A-Z_]{3,}\s*:\s*[A-Z][A-Z_]+[\s]*<",
+         "Badge statut système inventé ex: '<span>SYNC_NODE: STABLE</span>' — jamais des données réelles"),
+        (r"\b(?:sync_node|sys_info|sys_status|sync_status)\b",
+         "Indicateur statut système générique — signal IA fort"),
+        # ALL_CAPS sur boutons et labels (uniquement dans contexte JSX/composant)
+        # Évite les faux positifs sur CSS legit (badges utilitaires, .uppercase Tailwind seul)
+        (r"text-transform\s*:\s*uppercase[^}]{0,200}(?:button|\.btn|\.cta|nav-link|menu-item)",
+         "text-transform: uppercase sur bouton/CTA — pattern AI slop (ENVOYER UN MAIL, GET STARTED)"),
+        (r"(?:className|class)\s*=\s*\"[^\"]*\b(?:uppercase|tracking-widest)\b[^\"]*\b(?:btn|button|cta|nav-link)\b",
+         "Classe uppercase sur bouton/CTA — MAJUSCULES sur CTA = pattern IA fréquent"),
+        # Stars/likes badges décoratifs GitHub
+        (r"<(?:Star|StarIcon|StarFilled)\s*/>",
+         "Icône étoile JSX sans contexte fonctionnel — badge GitHub stars décoratif"),
+        (r"(?:starCount|star_count|stargazers_count).*?\d+",
+         "Compteur de stars GitHub hardcodé — donnée statique non liée à l'API"),
+        # Labels ALL_CAPS non justifiés dans les cartes
+        # Restreint au contexte JSX visible (entre > et <) pour éviter les faux positifs
+        # sur SQL ("SELECT NAME:"), CSS comments ("MEDIA QUERIES:"), JSDoc, env files.
+        (r">\s*[A-Z][A-Z ]{6,}\s*:\s*<",
+         "Label ALL_CAPS dans une carte ex: '>COMMANDE INSTALLATION:<' — non documenté dans le DESIGN.md"),
+        # Identifiants système inventés — uniquement si NON précédés par process.env.,
+        # import.meta.env., un slash (chemin), ou un point (accès propriété).
+        # Préserve les usages légitimes : process.env.API_KEY, NODE_ENV, API_URL en constante.
+        # Cible : SYS_*, NODE_* (hors NODE_ENV), API_* utilisés comme badges textuels JSX.
+        (r"(?<![.\w/])\b(?:SYS_INFO|SYS_STATUS|SYS_NODE|SYS_PING|NODE_STATUS|API_HEALTH|API_LIVE)\b",
+         "Identifiant système inventé — signal AI slop fort"),
+        # Texte bouton ALL_CAPS (ENVOYER UN MAIL, GET STARTED, etc.)
+        # Exclut les abréviations courantes (ID, URL, API, FAQ, CTA, OK, NEW, PRO)
+        # et les patterns courts d'accessibilité (ARIA labels en majuscule).
+        (r">\s*(?!(?:ID|URL|API|FAQ|CTA|OK|NEW|PRO|VIP|GDPR|RGPD|ALL|TOP|HOT|END|YES|NO|ON|OFF)\s*<)"
+         r"[A-Z][A-Z\s]{5,30}<",
+         "Texte de bouton en ALL_CAPS dans le HTML — MAJUSCULES sur CTA = pattern IA"),
+        # Star icon JSX patterns
+        (r"<(?:Star|StarIcon|StarFilled|FaStar|BsStar)\s*[^>]*/?>",
+         "Icône étoile JSX — badge GitHub stars décoratif"),
+        # Gradient radial non documenté dans §1
+        (r"radial-gradient\s*\([^)]{20,}\)",
+         "Gradient radial dans le CSS — documenter dans §1 si intentionnel"),
+        # Variantes de cartes featured non documentées
+        (r"(?:border|ring)-(?:blue|accent|primary)-\d{3}[^;]*(?:card|Card|projet|project)",
+         "Carte avec bordure colorée featured — variante non documentée dans §6"),
     ]
 
     # Gradients clichés
@@ -99,6 +145,49 @@ class AISloPDetector:
         (r"(?:from|to).*?pink.*?(?:from|to).*?purple|purple.*?pink", "rose→violet"),
         (r"(?:from|to).*?cyan.*?(?:from|to).*?blue|blue.*?cyan", "cyan→bleu"),
         (r"(?:from|to).*?red.*?(?:from|to).*?orange|orange.*?red", "rouge→orange"),
+    ]
+
+
+    # Antipatterns Three.js — détectés dans .js/.ts/.jsx/.tsx
+    THREEJS_SLOP_PATTERNS = [
+        # Geometry dans animate() = VRAM leak critique
+        (r"new\s+THREE\.\w+Geometry\s*\([^)]*\)[^}]{0,200}requestAnimationFrame",
+         "Geometry créée dans animate() — new buffer GPU à chaque frame, VRAM exhausted en secondes"),
+        (r"requestAnimationFrame[^}]{0,200}new\s+THREE\.\w+Geometry",
+         "Geometry créée dans la boucle de rendu — VRAM leak critique"),
+        # Renderer recréé = épuise les GPU contexts (limite 8-16)
+        (r"function\s+\w+\s*\([^)]*\)[^}]{0,300}new\s+THREE\.WebGLRenderer",
+         "WebGLRenderer créé dans une fonction appelée répétitivement — GPU context leak"),
+        (r"useEffect[^}]{0,400}new\s+THREE\.WebGLRenderer",
+         "WebGLRenderer dans useEffect sans cleanup — recréé à chaque render React"),
+        # Pixel ratio sans cap = coût GPU x2.25 sur Retina 3x
+        (r"setPixelRatio\s*\(\s*window\.devicePixelRatio\s*\)",
+         "setPixelRatio sans cap — Retina 3x = 9 px/CSS px. Utiliser Math.min(devicePixelRatio, 2)"),
+        # Raycaster créé dans l'event handler = allocation par mousemove
+        (r"addEventListener.{0,20}(?:mousemove|pointermove).{0,200}new THREE.Raycaster",
+         "new THREE.Raycaster() dans mousemove — 200+ allocations/sec. Créer une fois, réutiliser"),
+        # Material dupliqué dans une boucle
+        (r"for\s*\([^)]+\)[^}]{0,200}new\s+THREE\.Mesh(?:Standard|Phong|Lambert)Material",
+         "Material recréé dans une boucle — partager une instance unique entre meshes identiques"),
+        # CapsuleGeometry sur r128 = crash certain
+        (r"new\s+THREE\.CapsuleGeometry",
+         "THREE.CapsuleGeometry n'existe pas en r128 (ajouté en r142) — construire avec CylinderGeometry + SphereGeometry"),
+        # Pas de dispose sur teardown
+        (r"scene\.remove\s*\([^)]+\)(?![^}]{0,200}\.dispose\s*\(\))",
+         "scene.remove() sans dispose() — geometry/material/textures restent en VRAM indéfiniment"),
+        # Segment count trop élevé sur éléments de fond
+        (r"new\s+THREE\.SphereGeometry\s*\([^,]+,\s*(?:128|256|512)\s*,",
+         "SphereGeometry avec 128+ segments — budget excessif. Hero: 32-64, Background: 8-16"),
+        # Shadows sur tout = double pass GPU
+        (r"for\s*\([^)]+\)[^}]{0,200}\.castShadow\s*=\s*true",
+         "castShadow activé en boucle sur tous les objets — shadow map pass sur chaque mesh, très coûteux"),
+        # CDN non versionné = casse silencieux
+        (r"unpkg\.com/three@latest|cdnjs\.cloudflare\.com.*three.*latest",
+         "CDN Three.js non versionné — casse silencieusement quand unpkg/cdnjs met à jour. Épingler r128"),
+        # Pas de lookAt initial = scène potentiellement vide
+        (r"new\s+THREE\.PerspectiveCamera[^}]{0,500}renderer\.render",
+         # Heuristique légère — vérifier la présence de lookAt
+         "PerspectiveCamera sans camera.lookAt() apparent — scène potentiellement invisible"),
     ]
 
     # Buzzwords vagues
@@ -267,6 +356,42 @@ class AISloPDetector:
                 severity=1
             )
 
+
+    def _detect_threejs_slop(self, content: str, file_path: Path = None):
+        """Détecte les antipatterns Three.js dans le code JS/TS/JSX/TSX."""
+        import re as _re
+        ctx = file_path.name if file_path else "code"
+
+        # Vérifier si Three.js est utilisé dans ce fichier
+        is_three = any(k in content for k in [
+            "THREE.", "from 'three'", 'from "three"',
+            "WebGLRenderer", "PerspectiveCamera", "BufferGeometry"
+        ])
+        if not is_three:
+            return
+
+        for pattern, description in self.THREEJS_SLOP_PATTERNS:
+            # Exclure le pattern lookAt trop bruité
+            if "PerspectiveCamera sans camera.lookAt" in description:
+                has_camera = "PerspectiveCamera" in content
+                has_lookat = "lookAt" in content
+                if has_camera and not has_lookat:
+                    self._add_issue(
+                        "THREEJS_SLOP",
+                        f"{description} [{ctx}]",
+                        "Ajouter camera.lookAt(scene.position) ou camera.lookAt(target) avant le premier render",
+                        severity=1
+                    )
+                continue
+
+            if _re.search(pattern, content, _re.DOTALL):
+                self._add_issue(
+                    "THREEJS_SLOP",
+                    f"{description} [{ctx}]",
+                    "Voir references/threejs-best-practices.md",
+                    severity=2
+                )
+
     def run(self) -> bool:
         """Exécute la détection complète"""
         if self.design_file:
@@ -314,7 +439,7 @@ class AISloPDetector:
             return
 
         # Vérifie les fichiers web (TSX/JSX) et mobile natif (Swift/Kotlin/Dart)
-        mobile_web_exts = ["*.tsx", "*.jsx", "*.swift", "*.kt", "*.kts", "*.dart"]
+        mobile_web_exts = ["*.tsx", "*.jsx", "*.js", "*.ts", "*.swift", "*.kt", "*.kts", "*.dart"]
         for ext in mobile_web_exts:
             for file_path in self.code_dir.rglob(ext):
                 if not self._file_is_ignored(file_path):
@@ -367,6 +492,9 @@ class AISloPDetector:
         # Détecte les antipatterns mobiles natifs
         self._detect_mobile_slop(content, file_path)
 
+        # Détecte les antipatterns Three.js
+        self._detect_threejs_slop(content, file_path)
+
 
     def _detect_status_badges(self, content: str, file_path: Path = None):
         """Détecte les badges statut IA non demandés (● ATMOSPHÈRE EXCELLENTE, LIVE NOW, etc.)"""
@@ -413,6 +541,34 @@ class AISloPDetector:
                     "suggestion": "Considérer custom SVG si utilisée de manière non-standard"
                 })
                 self.score -= 1
+
+    def _detect_undocumented_gradients(self, content: str):
+        """Détecte les gradients présents dans le code mais non documentés en §1 du DESIGN.md."""
+        # Chercher background-image avec gradient ou radial-gradient
+        grad_patterns = [
+            r"radial-gradient\s*\(",
+            r"linear-gradient\s*\(",
+            r"conic-gradient\s*\(",
+            r"bg-gradient-",  # Tailwind
+        ]
+        design_mentions = []
+        if self.design_file:
+            try:
+                design_content = self.design_file.read_text(encoding="utf-8", errors="ignore").lower()
+                design_mentions = re.findall(r"gradient|dégradé|degrade|mesh|radial", design_content)
+            except Exception:
+                pass
+
+        for pat in grad_patterns:
+            if re.search(pat, content, re.IGNORECASE):
+                if not design_mentions:
+                    self._add_issue(
+                        "UNDOCUMENTED_GRADIENT",
+                        f"Gradient détecté dans le code mais non documenté dans §1 du DESIGN.md.",
+                        "Documenter le gradient dans §1 'Effets autorisés' avec justification visuelle.",
+                        severity=1
+                    )
+                break  # Un seul warning même si plusieurs gradients
 
     def _detect_cliche_gradients(self, content: str):
         """Détecte les gradients clichés"""
