@@ -1,0 +1,51 @@
+pattern_name,category,platform,anatomy,source,url
+Tab Bar,Navigation,iOS/iPadOS,"Icon, Label, Badge, Background",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/navigation-and-search/tab-bars
+Sidebar,Navigation,iPadOS/macOS,"List items, Grouping, Search field",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/navigation-and-search/sidebars
+Navigation Bar,Navigation,iOS/iPadOS,"Title, Leading action, Trailing action",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/navigation-and-search/nav-bars
+Search Field,Navigation,All,"Magnifying glass, Placeholder text, Clear button",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/navigation-and-search/search-fields
+Push Button,Actions,macOS,"Label, Bezel, Symbol/Icon",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/menus-and-actions/buttons
+Standard Button,Actions,iOS/iPadOS,"Style (Filled/Gray/Tinted), Content, Role",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/menus-and-actions/buttons
+Destructive Button,Actions,All,"Red label/background, Semantic role",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/menus-and-actions/buttons
+List Row,Layout,iOS/iPadOS,"Leading image, Label, Disclosure indicator",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/layout-and-organization/lists-and-tables
+Grouped List,Layout,iOS/iPadOS,"Headers, Footers, Spacing",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/layout-and-organization/lists-and-tables
+Outline View,Layout,macOS,"Disclosure triangle, Hierarchical rows",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/layout-and-organization/outline-views
+Context Menu,Actions,All,"Preview, Menu items, Icons",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/menus-and-actions/context-menus
+Segmented Control,Selection,All,"Segments, Labels, Selection indicator",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/selection-and-input/segmented-controls
+Toggle,Selection,All,"Switch, State label",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/selection-and-input/toggles
+Slider,Selection,All,"Track, Thumb, Icons",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/selection-and-input/sliders
+Progress Indicator,Status,All,"Track, Fill, Label",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/status/progress-indicators
+Activity Indicator,Status,All,"Spinning wheel",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/status/activity-indicators
+Alert,Presentation,All,"Title, Message, Action buttons",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/presentation/alerts
+Sheet,Presentation,iOS/iPadOS,"Handle, Content area, Dismissal action",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/presentation/sheets
+Popover,Presentation,iPadOS/macOS,"Arrow, Content area",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/presentation/popovers
+Action Sheet,Presentation,iOS,"Title, Message, Action buttons",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/presentation/action-sheets
+Text Field,Selection/Input,All,"Label, Placeholder, Input area",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/selection-and-input/text-fields
+Date Picker,Selection/Input,All,"Calendar view, Time selector",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/selection-and-input/date-pickers
+Checkmark,Selection/Input,All,"List item, Selection state",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/selection-and-input/selection-and-input
+Stepper,Selection/Input,All,"Plus button, Minus button",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/selection-and-input/steppers
+Radio Button,Selection/Input,macOS,"Circular button, Selection state",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/selection-and-input/selection-and-input
+Badge,Status,All,"Red oval, Number/Icon",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/status/status
+Menu,Actions,All,"Menu items, Separators",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/menus-and-actions/menus
+Pull-down Button,Actions,All,"Label, Chevron, Menu",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/menus-and-actions/pull-down-buttons
+Pop-up Button,Actions,All,"Label, Double chevron, Selection menu",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/menus-and-actions/pop-up-buttons
+Toolbar,Navigation,All,"Icons, Labels, Flexible space",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/menus-and-actions/toolbars
+Split View,Layout,iPadOS/macOS,"Primary pane, Secondary pane, Divider",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/layout-and-organization/split-views
+Collection,Layout,All,"Grid, Items, Sections",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/layout-and-organization/collections
+Box,Layout,macOS,"Title, Border, Content area",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/layout-and-organization/boxes
+Label,Layout,All,"Text content, Icon",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/layout-and-organization/labels
+Lockup,Layout,All,"Image, Title, Subtitle",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/layout-and-organization/lockups
+Home Screen Quick Actions,System,iOS,"Menu items, Icons",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/system-experiences/home-screen-quick-actions
+Widgets,System,All,"Sizes, Content, Deep links",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/system-experiences/widgets
+Live Activities,System,iOS,"Dynamic Island, Lock Screen, Updates",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/system-experiences/live-activities
+Notifications,Status,All,"Title, Subtitle, Body, Image",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/status/notifications
+Control Center,System,All,"Controls, Icons, Status",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/system-experiences/control-center
+App Shortcuts,System,All,"Siri, Search, Shortcuts app",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/system-experiences/app-shortcuts
+Share Sheet,System,All,"Activities, Recipients, Copy link",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/system-experiences/share-sheet
+Spotlight,System,All,"Search bar, Results, Suggestions",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/system-experiences/spotlight
+Dock,System,macOS/iPadOS,"App icons, Folders, Trash",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/system-experiences/dock
+Menu Bar,System,macOS,"Apple menu, App menus, Status items",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/system-experiences/menu-bar
+Control,Selection,All,"State (Normal/Highlighted/Selected), Interaction",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/selection-and-input/selection-and-input
+Pickers,Selection,All,"Options, Wheel/List",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/selection-and-input/pickers
+Color Well,Selection,All,"Color preview, Color picker",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/selection-and-input/color-wells
+Rating Indicator,Selection,All,"Stars, Value",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/selection-and-input/rating-indicators
+Search Bar,Navigation,iOS,"Search field, Cancel button, Scope bar",Apple HIG,https://developer.apple.com/design/human-interface-guidelines/components/navigation-and-search/search-fields

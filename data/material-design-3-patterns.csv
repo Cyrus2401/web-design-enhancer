@@ -1,0 +1,50 @@
+pattern_name,category,platform,anatomy,source,url
+Navigation Bar,Navigation,Android,"Icons, Labels, Selection indicator, Container",Material Design 3,https://m3.material.io/components/navigation-bar
+Navigation Drawer,Navigation,Android/Web,"Header, List items, Selection state",Material Design 3,https://m3.material.io/components/navigation-drawer
+Navigation Rail,Navigation,Android/Web,"Icons, Labels, Floating Action Button",Material Design 3,https://m3.material.io/components/navigation-rail
+Bottom App Bar,Navigation,Android,"Icons, FAB, Container",Material Design 3,https://m3.material.io/components/bottom-app-bar
+Top App Bar,Navigation,Android,"Title, Navigation icon, Action icons",Material Design 3,https://m3.material.io/components/top-app-bar
+Filled Button,Actions,All,"Label, Container, Icon (Optional)",Material Design 3,https://m3.material.io/components/buttons
+Tonal Button,Actions,All,"Label, Container (Lower emphasis), Icon",Material Design 3,https://m3.material.io/components/buttons
+Outlined Button,Actions,All,"Label, Border, Icon",Material Design 3,https://m3.material.io/components/buttons
+Text Button,Actions,All,"Label, Icon",Material Design 3,https://m3.material.io/components/buttons
+Elevated Button,Actions,All,"Label, Shadow, Container",Material Design 3,https://m3.material.io/components/buttons
+Floating Action Button (FAB),Actions,Android,"Icon, Container (Circular/Rounded)",Material Design 3,https://m3.material.io/components/floating-action-button
+Extended FAB,Actions,Android,"Icon, Label, Container",Material Design 3,https://m3.material.io/components/extended-fab
+Icon Button,Actions,All,"Icon, State layer",Material Design 3,https://m3.material.io/components/icon-button
+Segmented Button,Actions,All,"Segments, Labels, Selection state",Material Design 3,https://m3.material.io/components/segmented-buttons
+Card (Elevated/Filled/Outlined),Containment,All,"Container, Content area, Shadow/Border",Material Design 3,https://m3.material.io/components/cards
+Carousel,Containment,All,"Items, Navigation indicators",Material Design 3,https://m3.material.io/components/carousel
+Bottom Sheet,Containment,Android,"Handle, Container, Content area",Material Design 3,https://m3.material.io/components/bottom-sheets
+Side Sheet,Containment,Web/Android,"Container, Content area, Dismissal",Material Design 3,https://m3.material.io/components/side-sheets
+Dialog (Basic/Full-screen),Containment,All,"Title, Content, Action buttons",Material Design 3,https://m3.material.io/components/dialogs
+Divider,Containment,All,"Horizontal/Vertical line",Material Design 3,https://m3.material.io/components/divider
+List Item,Layout,All,"Leading icon/image, Headline, Supporting text, Trailing icon",Material Design 3,https://m3.material.io/components/lists
+Checkbox,Selection,All,"Container, Checkmark, Label",Material Design 3,https://m3.material.io/components/checkbox
+Radio Button,Selection,All,"Circular container, Selection state, Label",Material Design 3,https://m3.material.io/components/radio-button
+Switch,Selection,All,"Track, Thumb, Icon (Optional)",Material Design 3,https://m3.material.io/components/switch
+Slider,Selection,All,"Track, Thumb, Value label",Material Design 3,https://m3.material.io/components/sliders
+Chip (Assist/Filter/Input/Suggestion),Selection,All,"Label, Container, Icon",Material Design 3,https://m3.material.io/components/chips
+Date Picker,Selection/Input,All,"Calendar grid, Input field",Material Design 3,https://m3.material.io/components/date-pickers
+Time Picker,Selection/Input,All,"Clock face, Input field",Material Design 3,https://m3.material.io/components/time-pickers
+Text Field (Filled/Outlined),Selection/Input,All,"Label, Input text, Leading/Trailing icons",Material Design 3,https://m3.material.io/components/text-fields
+Badge,Communication,All,"Container (Small/Large), Label (Large only)",Material Design 3,https://m3.material.io/components/badges
+Snackbar,Communication,All,"Text, Action button (Optional), Container",Material Design 3,https://m3.material.io/components/snackbar
+Tooltip,Communication,All,"Container, Text label",Material Design 3,https://m3.material.io/components/tooltips
+Progress Indicator (Linear/Circular),Communication,All,"Track, Indicator",Material Design 3,https://m3.material.io/components/progress-indicators
+Search,Navigation,All,"Search bar, Input, Results",Material Design 3,https://m3.material.io/components/search
+Tabs,Navigation,All,"Labels, Icons, Selection indicator",Material Design 3,https://m3.material.io/components/tabs
+Menu,Actions,All,"Menu items, Container",Material Design 3,https://m3.material.io/components/menus
+Banner,Communication,Web/Android,"Text, Action buttons, Icon",Material Design 3,https://m3.material.io/components/banners
+Loading Indicator,Communication,All,"Visual animation",Material Design 3,https://m3.material.io/components/loading-indicator
+Search Bar,Navigation,Android,"Container, Input, Leading/Trailing icons",Material Design 3,https://m3.material.io/components/search
+Modal Bottom Sheet,Containment,Android,"Scrim, Sheet container",Material Design 3,https://m3.material.io/components/bottom-sheets
+Standard Bottom Sheet,Containment,Android,"Sheet container",Material Design 3,https://m3.material.io/components/bottom-sheets
+Assist Chip,Selection,All,"Label, Icon",Material Design 3,https://m3.material.io/components/chips
+Filter Chip,Selection,All,"Label, Checkmark icon",Material Design 3,https://m3.material.io/components/chips
+Input Chip,Selection,All,"Label, Remove icon",Material Design 3,https://m3.material.io/components/chips
+Suggestion Chip,Selection,All,"Label",Material Design 3,https://m3.material.io/components/chips
+Filled Text Field,Selection/Input,All,"Label, Input, Bottom line",Material Design 3,https://m3.material.io/components/text-fields
+Outlined Text Field,Selection/Input,All,"Label, Input, Outline border",Material Design 3,https://m3.material.io/components/text-fields
+Primary Tab,Navigation,All,"Label, Icon, Indicator",Material Design 3,https://m3.material.io/components/tabs
+Secondary Tab,Navigation,All,"Label, Indicator",Material Design 3,https://m3.material.io/components/tabs

@@ -1,0 +1,51 @@
+pattern_name,category,platform,anatomy,source,url
+Onboarding,User Flow,Mobile,"Welcome screen, Walkthrough, Signup",Pttrns,https://www.pttrns.com/category/onboarding/
+Login,User Flow,Mobile,"Input fields, Social login, Forgot password",Pttrns,https://www.pttrns.com/category/login/
+Search,UX Pattern,Mobile,"Search bar, Recent searches, Filters",Pttrns,https://www.pttrns.com/category/search/
+Settings,UX Pattern,Mobile,"Lists, Toggles, Grouping",Pttrns,https://www.pttrns.com/category/settings/
+Profile,UX Pattern,Mobile,"Avatar, Bio, Stats, Edit button",Pttrns,https://www.pttrns.com/category/profile/
+Feed,UX Pattern,Mobile,"Cards, Scrolling, Interaction buttons",Pttrns,https://www.pttrns.com/category/feed/
+Checkout,User Flow,Mobile,"Cart, Shipping, Payment, Confirmation",Pttrns,https://www.pttrns.com/category/checkout/
+Empty State,UX Pattern,Mobile,"Illustration, Helpful text, Call to action",Pttrns,https://www.pttrns.com/category/empty-states/
+Activity Feed,UX Pattern,Mobile,"Timeline, Notifications, Timestamps",Pttrns,https://www.pttrns.com/category/activity/
+Navigation,UX Pattern,Mobile,"Tab bar, Side menu, Gesture navigation",Pttrns,https://www.pttrns.com/category/navigation/
+Lists,UX Pattern,Mobile,"Vertical list, Horizontal list, Grid",Pttrns,https://www.pttrns.com/category/lists/
+Detail View,UX Pattern,Mobile,"Image gallery, Description, Actions",Pttrns,https://www.pttrns.com/category/details/
+Filters,UX Pattern,Mobile,"Sort options, Checkboxes, Sliders",Pttrns,https://www.pttrns.com/category/filters/
+Popups,UX Pattern,Mobile,"Alerts, Modals, Action sheets",Pttrns,https://www.pttrns.com/category/popups/
+Maps,UX Pattern,Mobile,"Map view, Pins, Location info",Pttrns,https://www.pttrns.com/category/maps/
+Calendar,UX Pattern,Mobile,"Month view, Day view, Events",Pttrns,https://www.pttrns.com/category/calendar/
+Chat,User Flow,Mobile,"Message bubbles, Input, Attachments",Pttrns,https://www.pttrns.com/category/chat/
+Music Player,User Flow,Mobile,"Playback controls, Album art, Playlist",Pttrns,https://www.pttrns.com/category/music/
+Article,UX Pattern,Mobile,"Typography, Reading mode, Share",Pttrns,https://www.pttrns.com/category/articles/
+Graphs,UX Pattern,Mobile,"Charts, Stats, Data visualization",Pttrns,https://www.pttrns.com/category/graphs/
+Forms,UX Pattern,Mobile,"Input fields, Validation, Submit",Pttrns,https://www.pttrns.com/category/forms/
+Tutorials,User Flow,Mobile,"Steps, Tooltips, Progress",Pttrns,https://www.pttrns.com/category/tutorials/
+Walkthroughs,User Flow,Mobile,"Swipe screens, Skip button",Pttrns,https://www.pttrns.com/category/walkthroughs/
+Splash Screens,User Flow,Mobile,"Logo, Animation",Pttrns,https://www.pttrns.com/category/splash-screens/
+Notifications,UX Pattern,Mobile,"Push, In-app, Settings",Pttrns,https://www.pttrns.com/category/notifications/
+Invite Friends,User Flow,Mobile,"Contacts, Referral link",Pttrns,https://www.pttrns.com/category/invite-friends/
+About,UX Pattern,Mobile,"Company info, Version, Links",Pttrns,https://www.pttrns.com/category/about/
+Camera,User Flow,Mobile,"Shutter, Flash, Gallery access",Pttrns,https://www.pttrns.com/category/camera/
+Scan,User Flow,Mobile,"QR code, Barcode, Finder",Pttrns,https://www.pttrns.com/category/scan/
+Dashboard,UX Pattern,Mobile,"Overview, Widgets, Key metrics",Pttrns,https://www.pttrns.com/category/dashboards/
+Shopping Cart,User Flow,Mobile,"Items list, Total, Checkout button",Pttrns,https://www.pttrns.com/category/shopping-cart/
+Wishlist,UX Pattern,Mobile,"Save for later, Heart icon",Pttrns,https://www.pttrns.com/category/wishlists/
+Comments,UX Pattern,Mobile,"Replies, Likes, Input",Pttrns,https://www.pttrns.com/category/comments/
+Sharing,UX Pattern,Mobile,"Social icons, Native share sheet",Pttrns,https://www.pttrns.com/category/sharing/
+Login & Signup,User Flow,Mobile,"Combined flow, Toggle",Pttrns,https://www.pttrns.com/category/login-signup/
+Verification,User Flow,Mobile,"OTP, Email link, Biometrics",Pttrns,https://www.pttrns.com/category/verification/
+Search Results,UX Pattern,Mobile,"Empty results, Suggestions",Pttrns,https://www.pttrns.com/category/search-results/
+Multi-step Forms,UX Pattern,Mobile,"Progress bar, Next/Back buttons",Pttrns,https://www.pttrns.com/category/multi-step-forms/
+Pickers,UX Pattern,Mobile,"Date picker, Time picker, Custom picker",Pttrns,https://www.pttrns.com/category/pickers/
+Pull to Refresh,UX Pattern,Mobile,"Animation, Loading state",Pttrns,https://www.pttrns.com/category/pull-to-refresh/
+Swipe Actions,UX Pattern,Mobile,"Delete, Archive, Icons",Pttrns,https://www.pttrns.com/category/swipe-actions/
+Cards,UX Pattern,Mobile,"Container, Shadow, Action area",Pttrns,https://www.pttrns.com/category/cards/
+Tab Bars,UX Pattern,Mobile,"Icons, Active state",Pttrns,https://www.pttrns.com/category/tab-bars/
+Side Menus,UX Pattern,Mobile,"Hamburger icon, List",Pttrns,https://www.pttrns.com/category/side-menus/
+Toolbars,UX Pattern,Mobile,"Icons, Contextual actions",Pttrns,https://www.pttrns.com/category/toolbars/
+Bottom Sheets,UX Pattern,Mobile,"Handle, Overlay",Pttrns,https://www.pttrns.com/category/bottom-sheets/
+Action Sheets,UX Pattern,Mobile,"Options list, Cancel",Pttrns,https://www.pttrns.com/category/action-sheets/
+Modals,UX Pattern,Mobile,"Dismiss button, Backdrop",Pttrns,https://www.pttrns.com/category/modals/
+Alerts,UX Pattern,Mobile,"Title, Message, Actions",Pttrns,https://www.pttrns.com/category/alerts/
+Popovers,UX Pattern,Mobile,"Anchor, Arrow",Pttrns,https://www.pttrns.com/category/popovers/

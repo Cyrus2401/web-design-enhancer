@@ -260,6 +260,10 @@ If the gate fails → fix immediately by consulting `references/antipatterns-gui
 | `references/antipatterns-guide.md` | Concrete ❌ vs ✅ examples |
 | `references/gsap-best-practices.md` | GSAP guide |
 | `references/threejs-best-practices.md` | Three.js guide — critical WebGL antipatterns (§10) |
+| `references/mobile-references.md` | Mobile UX references — open CSV index + walled sources (Mobbin / Page Flows / Screenlane) |
+| `data/apple-hig-patterns.csv` | 50 Apple HIG component anatomies (iOS / iPadOS / macOS) — queryable via `--domain apple-hig` |
+| `data/material-design-3-patterns.csv` | 49 Material Design 3 component anatomies (Android / cross-platform) — queryable via `--domain material-design-3` |
+| `data/pttrns-patterns.csv` | 50 Pttrns mobile UX pattern categories with anatomy — queryable via `--domain pttrns` |
 | `scripts/validate_design.py` | DESIGN.md validation + WCAG AA + §4 ranges + §10 Three.js |
 | `scripts/detect_ai_slop.py` | Antipattern detection in code |
 | `scripts/audit_spacing.py` | 8px grid audit |

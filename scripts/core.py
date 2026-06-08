@@ -69,6 +69,21 @@ CSV_CONFIG = {
         "file": "google-fonts.csv",
         "search_cols": ["Family", "Category", "Stroke", "Classifications", "Keywords", "Subsets", "Designers"],
         "output_cols": ["Family", "Category", "Stroke", "Classifications", "Styles", "Variable Axes", "Subsets", "Designers", "Popularity Rank", "Google Fonts URL"]
+    },
+    "apple-hig": {
+        "file": "apple-hig-patterns.csv",
+        "search_cols": ["pattern_name", "category", "platform", "anatomy"],
+        "output_cols": ["pattern_name", "category", "platform", "anatomy", "source", "url"]
+    },
+    "material-design-3": {
+        "file": "material-design-3-patterns.csv",
+        "search_cols": ["pattern_name", "category", "platform", "anatomy"],
+        "output_cols": ["pattern_name", "category", "platform", "anatomy", "source", "url"]
+    },
+    "pttrns": {
+        "file": "pttrns-patterns.csv",
+        "search_cols": ["pattern_name", "category", "platform", "anatomy"],
+        "output_cols": ["pattern_name", "category", "platform", "anatomy", "source", "url"]
     }
 }
 
@@ -210,7 +225,10 @@ def detect_domain(query):
         "google-fonts": ["google font", "font family", "font weight", "font style", "variable font", "noto", "font for", "find font", "font subset", "font language", "monospace font", "serif font", "sans serif font", "display font", "handwriting font", "font", "typography", "serif", "sans"],
         "icons": ["icon", "icons", "lucide", "heroicons", "symbol", "glyph", "pictogram", "svg icon"],
         "react": ["react", "next.js", "nextjs", "suspense", "memo", "usecallback", "useeffect", "rerender", "bundle", "waterfall", "barrel", "dynamic import", "rsc", "server component"],
-        "web": ["aria", "focus", "outline", "semantic", "virtualize", "autocomplete", "form", "input type", "preconnect"]
+        "web": ["aria", "focus", "outline", "semantic", "virtualize", "autocomplete", "form", "input type", "preconnect"],
+        "apple-hig": ["ios", "ipad", "ipados", "macos", "swiftui", "uikit", "hig", "apple", "tab bar", "navigation bar", "action sheet", "sf symbols", "dynamic island", "live activity", "widget"],
+        "material-design-3": ["android", "material", "jetpack compose", "m3", "fab", "floating action", "snackbar", "navigation drawer", "navigation rail", "bottom sheet", "chip", "tonal"],
+        "pttrns": ["onboarding flow", "empty state", "pull to refresh", "swipe action", "splash screen", "walkthrough", "mobile pattern", "side menu", "tab bars"]
     }
 
     scores = {domain: sum(1 for kw in keywords if re.search(r'\b' + re.escape(kw) + r'\b', query_lower)) for domain, keywords in domain_keywords.items()}
