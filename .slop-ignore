@@ -1,43 +1,43 @@
-# .slop-ignore — Whitelist anti-faux positifs pour detect_ai_slop.py
+# .slop-ignore — Anti-false-positive whitelist for detect_ai_slop.py
 #
-# Déclarer ici les patterns légitimes du projet pour éviter les faux positifs.
-# Syntaxe : une règle par ligne.
-# Commentaires : lignes commençant par #
-# Sections : [icons], [buzzwords], [gradients], [badges], [fonts]
+# Declare here legitimate project patterns to avoid false positives.
+# Syntax: one rule per line.
+# Comments: lines starting with #
+# Sections: [icons], [buzzwords], [gradients], [badges], [fonts]
 #
-# Exemple :
+# Example:
 #   [icons]
-#   search          # icône de recherche fonctionnelle dans la barre de navigation
-#   check           # icône de validation dans les formulaires
+#   search          # functional search icon in the navigation bar
+#   check           # validation icon in forms
 #
 #   [buzzwords]
-#   premium         # utilisé comme nom de plan tarifaire réel (plan Premium)
+#   premium         # used as a real pricing plan name (Premium plan)
 #
-# ─────────────────────────────────────────────────────────────────────────────
-# RÈGLE : Toute entrée doit être justifiée par un commentaire.
-# Sans commentaire = la règle est ignorée.
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
+# RULE: every entry must be justified by a comment.
+# No comment = the rule is ignored.
+# -----------------------------------------------------------------------------
 
 [icons]
-# Ajouter ici les icônes Lucide/Heroicons utilisées fonctionnellement
-# search       # barre de recherche de la nav principale
-# check        # état de validation des formulaires
-# mail         # lien mailto du contact
+# Add here Lucide/Heroicons icons used functionally
+# search       # search bar in the main nav
+# check        # form validation state
+# mail         # contact mailto link
 
 [buzzwords]
-# Ajouter ici les buzzwords qui ont un sens précis dans ce projet
-# premium      # nom du plan tarifaire (pas un adjectif vague)
+# Add here buzzwords that have a precise meaning in this project
+# premium      # pricing plan name (not a vague adjective)
 
 [gradients]
-# Ajouter ici les gradients intentionnels avec justification
-# gradient     # gradient mesh statique inspiré de Stripe (refs/antipatterns-guide.md §4)
+# Add here intentional gradients with justification
+# gradient     # static mesh gradient inspired by Stripe (refs/antipatterns-guide.md §4)
 
 [badges]
-# Ajouter ici les patterns de badges statut légitimes
-# LIVE         # indicateur en direct sur le dashboard analytics (donnée réelle)
+# Add here legitimate status badge patterns
+# LIVE         # live indicator on the analytics dashboard (real data)
 
 [files]
-# Ajouter ici les fichiers ou dossiers à ignorer complètement
-# scripts/     # les scripts internes du skill (search.py, core.py...)
+# Add here files or folders to ignore completely
+# scripts/     # internal skill scripts (search.py, core.py...)
 # node_modules/
 # dist/

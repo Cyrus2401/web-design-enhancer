@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-AI Slop Detector - Détecte les antipatterns courants du design généré par IA
+AI Slop Detector - Detects common antipatterns of AI-generated design
 
-Détecte:
-- Icônes génériques (Lucide, FontAwesome)
-- Gradients clichés
-- Sections template (Hero, Features, CTA)
-- Buzzwords vagues
-- Polices génériques
-- Couleurs non-justifiées
-- Espacements incohérents
+Detects:
+- Generic icons (Lucide, FontAwesome)
+- Cliche gradients
+- Template sections (Hero, Features, CTA)
+- Vague buzzwords
+- Generic fonts
+- Unjustified colors
+- Inconsistent spacings
 
 Usage:
     python3 detect_ai_slop.py --design DESIGN.md --code ./client/src
@@ -23,9 +23,9 @@ from collections import Counter
 
 
 class AISloPDetector:
-    """Détecteur d'antipatterns AI slop"""
+    """AI slop antipattern detector"""
 
-    # Icônes génériques et artefacts "Odeur d'IA" — web et mobile
+    # Generic icons and "AI smell" artifacts - web and mobile
     GENERIC_ICONS = {
         # Web (Lucide / FontAwesome)
         "sparkles", "zap", "cog", "network", "arrow", "check", "star",
@@ -34,186 +34,186 @@ class AISloPDetector:
         "eye", "lock", "unlock", "calendar", "clock", "map", "phone",
         "play", "pause", "volume", "wifi", "battery", "sun", "moon",
         "magic", "stars", "bot", "robot", "ai", "brain",
-        # Mobile — SF Symbols génériques (iOS)
+        # Mobile - generic SF Symbols (iOS)
         "person.fill", "house.fill", "gear", "bell.fill", "magnifyingglass",
         "ellipsis", "xmark", "chevron.right", "arrow.right", "plus.circle",
-        # Mobile — Material Icons génériques (Android)
+        # Mobile - generic Material Icons (Android)
         "Icons.Default.Home", "Icons.Default.Person", "Icons.Default.Settings",
         "Icons.Default.Notifications", "Icons.Default.Search", "Icons.Default.Menu",
         "Icons.Default.Add", "Icons.Default.Close", "Icons.Default.ArrowBack",
-        # Mobile — Expo Icons génériques (React Native)
+        # Mobile - generic Expo Icons (React Native)
         "Ionicons.home", "Ionicons.person", "Ionicons.settings",
         "MaterialIcons.home", "MaterialIcons.person",
     }
 
-    # Antipatterns mobiles spécifiques
+    # Mobile-specific antipatterns
     MOBILE_SLOP_PATTERNS = [
         # Hardcoded screen dimensions (iPhone 13 = 390, Pixel 6 = 412...)
-        (r"width\s*[:=]\s*(?:375|390|393|414|375\.0|390\.0)",
-         "Largeur d'écran iPhone hardcodée — utiliser .frame(maxWidth: .infinity) ou LayoutBuilder"),
-        (r"width\s*[:=]\s*(?:360|393|412|411)",
-         "Largeur d'écran Android hardcodée — utiliser responsive layout"),
-        # Touch targets trop petits
-        (r"\.frame\s*\(.*?(?:width|height)\s*:\s*([1-3]\d)",
-         "Touch target probablement trop petit (< 40pt) — minimum iOS HIG 44pt"),
-        # Status bar hardcodée
-        (r"(?:padding|margin).*?(?:top)\s*:\s*(?:44|20|47)",
-         "Hauteur de status bar hardcodée — utiliser SafeAreaInsets ou useSafeAreaInsets()"),
-        # Couleurs hardcodées au lieu de system colors
+        (r"width\s*[:=]\s*(?:375|390|393|414|375\.0|390\.0)",
+         "Hardcoded iPhone screen width - use .frame(maxWidth: .infinity) or LayoutBuilder"),
+        (r"width\s*[:=]\s*(?:360|393|412|411)",
+         "Hardcoded Android screen width - use responsive layout"),
+        # Touch targets too small
+        (r"\.frame\s*\(.*?(?:width|height)\s*:\s*([1-3]\d)",
+         "Touch target probably too small (< 40pt) - iOS HIG minimum is 44pt"),
+        # Hardcoded status bar
+        (r"(?:padding|margin).*?(?:top)\s*:\s*(?:44|20|47)",
+         "Hardcoded status bar height - use SafeAreaInsets or useSafeAreaInsets()"),
+        # Hardcoded colors instead of system colors
         (r"Color\(red:\s*\d+,\s*green:\s*\d+",
-         "Couleur RGB hardcodée SwiftUI — préférer Color(.systemBackground) ou les semantic colors"),
-        # Pas d'adaptive colors (dark mode non géré)
-        (r"backgroundColor\s*=\s*UIColor\.white",
-         "backgroundColor blanc fixe — utiliser .systemBackground pour le dark mode automatique"),
+         "Hardcoded SwiftUI RGB color - prefer Color(.systemBackground) or semantic colors"),
+        # No adaptive colors (dark mode not handled)
+        (r"backgroundColor\s*=\s*UIColor\.white",
+         "Fixed white backgroundColor - use .systemBackground for automatic dark mode"),
     ]
 
-    # Patterns pour détecter les logos inventés ou placeholders graphiques
+    # Patterns to detect invented logos or graphic placeholders
     LOGO_PLACEHOLDERS = [
-        (r"logo-placeholder", "Placeholder de logo générique"),
-        (r"your-logo", "Texte de logo par défaut"),
-        (r"brandname", "Nom de marque générique"),
-        (r"company-name", "Nom d'entreprise générique"),
+        (r"logo-placeholder", "Generic logo placeholder"),
+        (r"your-logo", "Default logo text"),
+        (r"brandname", "Generic brand name"),
+        (r"company-name", "Generic company name"),
     ]
 
-    # Patterns pour détecter l'utilisation par défaut de shadcn/ui (sans personnalisation)
+    # Patterns to detect default shadcn/ui usage (no customization)
     SHADCN_DEFAULT_PATTERNS = [
-        (r"<Button\s*[^>]*?variant=\"default\"", "Bouton shadcn/ui avec variant par défaut"),
-        (r"<Input(?!\s[^>]*className)[^>]*/?>", "Input shadcn/ui sans className de personnalisation"),
+        (r"<Button\s*[^>]*?variant=\"default\"", "shadcn/ui Button with default variant"),
+        (r"<Input(?!\s[^>]*className)[^>]*/?>", "shadcn/ui Input without customization className"),
     ]
 
-    # Badges statut IA non demandés — ● ATMOSPHÈRE EXCELLENTE, LIVE NOW, etc.
+    # AI status badges that were never requested - ATMOSPHERE EXCELLENT, LIVE NOW, etc.
     STATUS_BADGE_PATTERNS = [
-        # Badges statut ponctuels
+        # One-off status badges
         (r"[●•◉]\s*[A-ZÀ-ÖØ-Þ][A-ZÀ-ÖØ-Þ\s]{4,}",
-         "Point coloré + texte statut majuscule"),
+         "Colored dot + uppercase status text"),
         (r"\b(?:PREMIUM\s+QUALITY|ULTRA\s+FAST|HIGH\s+PERFORMANCE|LIVE\s+NOW|TOP\s+RATED|ATMOSPHÈRE\s+\w+)\b",
-         "Syntagme statut IA (jamais un label de données légitime)"),
+         "AI status phrase (never a legitimate data label)"),
         (r"w-2\s+h-2\s+rounded-full\s+bg-(?:green|emerald|lime|teal)-\d{3}",
-         "Point vert décoratif Tailwind (indicateur statut IA)"),
+         "Decorative green dot Tailwind (AI status indicator)"),
         (r"animate-pulse[^\"]*rounded-full|rounded-full[^\"]*animate-pulse",
-         "Point animé (pulse) décoratif — signal IA fréquent"),
-        # Badges statut système inventés (JSX/TSX pattern)
-        # Restreint au contexte JSX (entre > et <) pour éviter les faux positifs
-        # sur les enums TypeScript (PaymentStatus.PAID: SUCCESS), les commentaires
-        # de code SQL/CSS (SELECT NAME:, MEDIA QUERIES:), ou les constantes JS.
+         "Animated (pulse) decorative dot - frequent AI signal"),
+        # Invented system status badges (JSX/TSX pattern)
+        # Restricted to JSX context (between > and <) to avoid false positives
+        # on TypeScript enums (PaymentStatus.PAID: SUCCESS), SQL/CSS code comments
+        # (SELECT NAME:, MEDIA QUERIES:), or JS constants.
         (r">[\s]*[A-Z][A-Z_]{3,}\s*:\s*[A-Z][A-Z_]+[\s]*<",
-         "Badge statut système inventé ex: '<span>SYNC_NODE: STABLE</span>' — jamais des données réelles"),
+         "Invented system status badge e.g. '<span>SYNC_NODE: STABLE</span>' - never real data"),
         (r"\b(?:sync_node|sys_info|sys_status|sync_status)\b",
-         "Indicateur statut système générique — signal IA fort"),
-        # ALL_CAPS sur boutons et labels (uniquement dans contexte JSX/composant)
-        # Évite les faux positifs sur CSS legit (badges utilitaires, .uppercase Tailwind seul)
+         "Generic system status indicator - strong AI signal"),
+        # ALL_CAPS on buttons and labels (only in JSX/component context)
+        # Avoids false positives on legitimate CSS (utility badges, .uppercase Tailwind alone)
         (r"text-transform\s*:\s*uppercase[^}]{0,200}(?:button|\.btn|\.cta|nav-link|menu-item)",
-         "text-transform: uppercase sur bouton/CTA — pattern AI slop (ENVOYER UN MAIL, GET STARTED)"),
+         "text-transform: uppercase on button/CTA - AI slop pattern (ENVOYER UN MAIL, GET STARTED)"),
         (r"(?:className|class)\s*=\s*\"[^\"]*\b(?:uppercase|tracking-widest)\b[^\"]*\b(?:btn|button|cta|nav-link)\b",
-         "Classe uppercase sur bouton/CTA — MAJUSCULES sur CTA = pattern IA fréquent"),
-        # Stars/likes badges décoratifs GitHub
+         "Uppercase class on button/CTA - ALL CAPS on CTAs = frequent AI pattern"),
+        # Decorative GitHub stars/likes badges
         (r"<(?:Star|StarIcon|StarFilled)\s*/>",
-         "Icône étoile JSX sans contexte fonctionnel — badge GitHub stars décoratif"),
+         "JSX star icon with no functional context - decorative GitHub stars badge"),
         (r"(?:starCount|star_count|stargazers_count).*?\d+",
-         "Compteur de stars GitHub hardcodé — donnée statique non liée à l'API"),
-        # Labels ALL_CAPS non justifiés dans les cartes
-        # Restreint au contexte JSX visible (entre > et <) pour éviter les faux positifs
-        # sur SQL ("SELECT NAME:"), CSS comments ("MEDIA QUERIES:"), JSDoc, env files.
+         "Hardcoded GitHub star counter - static data not tied to any API"),
+        # Unjustified ALL_CAPS labels inside cards
+        # Restricted to visible JSX context (between > and <) to avoid false positives
+        # on SQL ("SELECT NAME:"), CSS comments ("MEDIA QUERIES:"), JSDoc, env files.
         (r">\s*[A-Z][A-Z ]{6,}\s*:\s*<",
-         "Label ALL_CAPS dans une carte ex: '>COMMANDE INSTALLATION:<' — non documenté dans le DESIGN.md"),
-        # Identifiants système inventés — uniquement si NON précédés par process.env.,
-        # import.meta.env., un slash (chemin), ou un point (accès propriété).
-        # Préserve les usages légitimes : process.env.API_KEY, NODE_ENV, API_URL en constante.
-        # Cible : SYS_*, NODE_* (hors NODE_ENV), API_* utilisés comme badges textuels JSX.
+         "ALL_CAPS label inside a card e.g. '>COMMANDE INSTALLATION:<' - not documented in DESIGN.md"),
+        # Invented system identifiers - only if NOT preceded by process.env.,
+        # import.meta.env., a slash (path), or a dot (property access).
+        # Preserves legitimate usage: process.env.API_KEY, NODE_ENV, API_URL as a constant.
+        # Targets: SYS_*, NODE_* (except NODE_ENV), API_* used as JSX text badges.
         (r"(?<![.\w/])\b(?:SYS_INFO|SYS_STATUS|SYS_NODE|SYS_PING|NODE_STATUS|API_HEALTH|API_LIVE)\b",
-         "Identifiant système inventé — signal AI slop fort"),
-        # Texte bouton ALL_CAPS (ENVOYER UN MAIL, GET STARTED, etc.)
-        # Exclut les abréviations courantes (ID, URL, API, FAQ, CTA, OK, NEW, PRO)
-        # et les patterns courts d'accessibilité (ARIA labels en majuscule).
+         "Invented system identifier - strong AI slop signal"),
+        # ALL_CAPS button text (ENVOYER UN MAIL, GET STARTED, etc.)
+        # Excludes common abbreviations (ID, URL, API, FAQ, CTA, OK, NEW, PRO)
+        # and short accessibility patterns (ARIA labels in uppercase).
         (r">\s*(?!(?:ID|URL|API|FAQ|CTA|OK|NEW|PRO|VIP|GDPR|RGPD|ALL|TOP|HOT|END|YES|NO|ON|OFF)\s*<)"
          r"[A-Z][A-Z\s]{5,30}<",
-         "Texte de bouton en ALL_CAPS dans le HTML — MAJUSCULES sur CTA = pattern IA"),
+         "ALL_CAPS button text in HTML - ALL CAPS on CTAs = AI pattern"),
         # Star icon JSX patterns
         (r"<(?:Star|StarIcon|StarFilled|FaStar|BsStar)\s*[^>]*/?>",
-         "Icône étoile JSX — badge GitHub stars décoratif"),
-        # Gradient radial non documenté dans §1
+         "JSX star icon - decorative GitHub stars badge"),
+        # Radial gradient not documented in §1
         (r"radial-gradient\s*\([^)]{20,}\)",
-         "Gradient radial dans le CSS — documenter dans §1 si intentionnel"),
-        # Variantes de cartes featured non documentées
+         "Radial gradient in CSS - document in §1 if intentional"),
+        # Featured card variants not documented
         (r"(?:border|ring)-(?:blue|accent|primary)-\d{3}[^;]*(?:card|Card|projet|project)",
-         "Carte avec bordure colorée featured — variante non documentée dans §6"),
+         "Card with colored 'featured' border - variant not documented in §6"),
     ]
 
-    # Gradients clichés
+    # Cliche gradients
     CLICHE_GRADIENTS = [
-        (r"(?:from|to).*?blue.*?(?:from|to).*?purple|purple.*?blue", "bleu→violet"),
-        (r"(?:from|to).*?pink.*?(?:from|to).*?purple|purple.*?pink", "rose→violet"),
-        (r"(?:from|to).*?cyan.*?(?:from|to).*?blue|blue.*?cyan", "cyan→bleu"),
-        (r"(?:from|to).*?red.*?(?:from|to).*?orange|orange.*?red", "rouge→orange"),
+        (r"(?:from|to).*?blue.*?(?:from|to).*?purple|purple.*?blue", "blue->purple"),
+        (r"(?:from|to).*?pink.*?(?:from|to).*?purple|purple.*?pink", "pink->purple"),
+        (r"(?:from|to).*?cyan.*?(?:from|to).*?blue|blue.*?cyan", "cyan->blue"),
+        (r"(?:from|to).*?red.*?(?:from|to).*?orange|orange.*?red", "red->orange"),
     ]
 
 
-    # Antipatterns Three.js — détectés dans .js/.ts/.jsx/.tsx
+    # Three.js antipatterns - detected in .js/.ts/.jsx/.tsx
     THREEJS_SLOP_PATTERNS = [
-        # Geometry dans animate() = VRAM leak critique
+        # Geometry inside animate() = critical VRAM leak
         (r"new\s+THREE\.\w+Geometry\s*\([^)]*\)[^}]{0,200}requestAnimationFrame",
-         "Geometry créée dans animate() — new buffer GPU à chaque frame, VRAM exhausted en secondes"),
+         "Geometry created inside animate() - new GPU buffer each frame, VRAM exhausted in seconds"),
         (r"requestAnimationFrame[^}]{0,200}new\s+THREE\.\w+Geometry",
-         "Geometry créée dans la boucle de rendu — VRAM leak critique"),
-        # Renderer recréé = épuise les GPU contexts (limite 8-16)
+         "Geometry created inside the render loop - critical VRAM leak"),
+        # Renderer recreated = exhausts GPU contexts (limit 8-16)
         (r"function\s+\w+\s*\([^)]*\)[^}]{0,300}new\s+THREE\.WebGLRenderer",
-         "WebGLRenderer créé dans une fonction appelée répétitivement — GPU context leak"),
+         "WebGLRenderer created inside a repeatedly-called function - GPU context leak"),
         (r"useEffect[^}]{0,400}new\s+THREE\.WebGLRenderer",
-         "WebGLRenderer dans useEffect sans cleanup — recréé à chaque render React"),
-        # Pixel ratio sans cap = coût GPU x2.25 sur Retina 3x
+         "WebGLRenderer in useEffect without cleanup - recreated on every React render"),
+        # Pixel ratio with no cap = GPU cost x2.25 on Retina 3x
         (r"setPixelRatio\s*\(\s*window\.devicePixelRatio\s*\)",
-         "setPixelRatio sans cap — Retina 3x = 9 px/CSS px. Utiliser Math.min(devicePixelRatio, 2)"),
-        # Raycaster créé dans l'event handler = allocation par mousemove
+         "setPixelRatio without cap - Retina 3x = 9 px/CSS px. Use Math.min(devicePixelRatio, 2)"),
+        # Raycaster created inside the event handler = allocation per mousemove
         (r"addEventListener.{0,20}(?:mousemove|pointermove).{0,200}new THREE.Raycaster",
-         "new THREE.Raycaster() dans mousemove — 200+ allocations/sec. Créer une fois, réutiliser"),
-        # Material dupliqué dans une boucle
+         "new THREE.Raycaster() inside mousemove - 200+ allocations/sec. Create once, reuse"),
+        # Material duplicated in a loop
         (r"for\s*\([^)]+\)[^}]{0,200}new\s+THREE\.Mesh(?:Standard|Phong|Lambert)Material",
-         "Material recréé dans une boucle — partager une instance unique entre meshes identiques"),
-        # CapsuleGeometry sur r128 = crash certain
+         "Material recreated in a loop - share a single instance across identical meshes"),
+        # CapsuleGeometry on r128 = guaranteed crash
         (r"new\s+THREE\.CapsuleGeometry",
-         "THREE.CapsuleGeometry n'existe pas en r128 (ajouté en r142) — construire avec CylinderGeometry + SphereGeometry"),
-        # Pas de dispose sur teardown
+         "THREE.CapsuleGeometry does not exist in r128 (added in r142) - build with CylinderGeometry + SphereGeometry"),
+        # No dispose on teardown
         (r"scene\.remove\s*\([^)]+\)(?![^}]{0,200}\.dispose\s*\(\))",
-         "scene.remove() sans dispose() — geometry/material/textures restent en VRAM indéfiniment"),
-        # Segment count trop élevé sur éléments de fond
+         "scene.remove() without dispose() - geometry/material/textures stay in VRAM indefinitely"),
+        # Segment count too high on background elements
         (r"new\s+THREE\.SphereGeometry\s*\([^,]+,\s*(?:128|256|512)\s*,",
-         "SphereGeometry avec 128+ segments — budget excessif. Hero: 32-64, Background: 8-16"),
-        # Shadows sur tout = double pass GPU
+         "SphereGeometry with 128+ segments - excessive budget. Hero: 32-64, Background: 8-16"),
+        # Shadows on everything = double GPU pass
         (r"for\s*\([^)]+\)[^}]{0,200}\.castShadow\s*=\s*true",
-         "castShadow activé en boucle sur tous les objets — shadow map pass sur chaque mesh, très coûteux"),
-        # CDN non versionné = casse silencieux
+         "castShadow enabled in a loop on every object - shadow map pass per mesh, very expensive"),
+        # Unversioned CDN = silent breakage
         (r"unpkg\.com/three@latest|cdnjs\.cloudflare\.com.*three.*latest",
-         "CDN Three.js non versionné — casse silencieusement quand unpkg/cdnjs met à jour. Épingler r128"),
-        # Pas de lookAt initial = scène potentiellement vide
+         "Unversioned Three.js CDN - silently breaks when unpkg/cdnjs updates. Pin to r128"),
+        # No initial lookAt = potentially empty scene
         (r"new\s+THREE\.PerspectiveCamera[^}]{0,500}renderer\.render",
-         # Heuristique légère — vérifier la présence de lookAt
-         "PerspectiveCamera sans camera.lookAt() apparent — scène potentiellement invisible"),
+         # Light heuristic - check for presence of lookAt
+         "PerspectiveCamera with no apparent camera.lookAt() - scene may be invisible"),
     ]
 
-    # Buzzwords vagues
+    # Vague buzzwords
     BUZZWORDS = {
-        "premium": "Remplacer par description précise (ex: 'Contraste élevé, espacements généreux')",
-        "moderne": "Remplacer par description précise (ex: 'Minimaliste', 'Géométrique')",
-        "élégant": "Remplacer par description précise (ex: 'Espacements généreux', 'Typographie hiérarchisée')",
-        "magnifique": "Remplacer par description précise",
-        "incroyable": "Remplacer par description précise",
-        "unique": "Remplacer par description précise",
-        "innovant": "Remplacer par description précise",
-        "futuriste": "Utiliser si justifié par choix visuels concrets",
+        "premium": "Replace with a precise description (e.g. 'High contrast, generous spacings')",
+        "moderne": "Replace with a precise description (e.g. 'Minimalist', 'Geometric')",
+        "elegant": "Replace with a precise description (e.g. 'Generous spacings', 'Hierarchical typography')",
+        "magnifique": "Replace with a precise description",
+        "incroyable": "Replace with a precise description",
+        "unique": "Replace with a precise description",
+        "innovant": "Replace with a precise description",
+        "futuriste": "Use only if justified by concrete visual choices",
     }
 
-    # Sections template génériques
+    # Generic template sections
     TEMPLATE_SECTIONS = {
-        "hero": "Section héroïque",
-        "features": "Grille de fonctionnalités",
-        "testimonials": "Section témoignages",
-        "cta": "Appel à l'action",
-        "pricing": "Tarification",
+        "hero": "Hero section",
+        "features": "Feature grid",
+        "testimonials": "Testimonials section",
+        "cta": "Call to action",
+        "pricing": "Pricing",
         "faq": "FAQ",
-        "footer": "Pied de page",
+        "footer": "Footer",
     }
 
-    # Polices génériques
+    # Generic fonts
     GENERIC_FONTS = {
         "helvetica", "arial", "times new roman", "georgia", "verdana",
         "courier", "comic sans", "impact", "trebuchet", "palatino",
@@ -223,19 +223,19 @@ class AISloPDetector:
         self.design_file = Path(design_file) if design_file else None
         self.code_dir = Path(code_dir) if code_dir else None
         self.issues: List[Dict] = []
-        self.score = 100  # Score de qualité (0-100)
+        self.score = 100  # Quality score (0-100)
 
-        # Whitelist .slop-ignore — chargée depuis la racine du projet
+        # .slop-ignore whitelist - loaded from the project root
         self._whitelist = self._load_slop_ignore()
 
-    # ── .slop-ignore ──────────────────────────────────────────────────────────
+    # -- .slop-ignore -----------------------------------------------------------
 
     def _load_slop_ignore(self) -> Dict[str, List[str]]:
-        """Charge le fichier .slop-ignore depuis la racine du projet."""
+        """Load the .slop-ignore file from the project root."""
         whitelist: Dict[str, List[str]] = {
             "icons": [], "buzzwords": [], "gradients": [], "badges": [], "files": []
         }
-        # Chercher dans le répertoire courant et les parents immédiats
+        # Look in the current directory and immediate parents
         candidates = [
             Path(".slop-ignore"),
             Path("../.slop-ignore"),
@@ -250,27 +250,27 @@ class AISloPDetector:
             line = raw_line.strip()
             if not line or line.startswith("#"):
                 continue
-            # Section header : [icons]
+            # Section header: [icons]
             section_match = re.match(r"^\[(\w+)\]$", line)
             if section_match:
                 current_section = section_match.group(1).lower()
                 continue
-            # Entrée : "search  # justification"
+            # Entry: "search  # justification"
             if current_section and current_section in whitelist:
-                token = line.split("#")[0].strip()  # retirer le commentaire inline
+                token = line.split("#")[0].strip()  # strip inline comment
                 justification = line.split("#")[1].strip() if "#" in line else ""
-                # Règle : sans justification, l'entrée est ignorée (sécurité)
+                # Rule: entries without justification are ignored (safety)
                 if token and justification:
                     whitelist[current_section].append(token.lower())
 
         if any(whitelist.values()):
             loaded = sum(len(v) for v in whitelist.values())
-            print(f"  📋 .slop-ignore chargé — {loaded} exemption(s)")
+            print(f"  [INFO] .slop-ignore loaded - {loaded} exemption(s)")
 
         return whitelist
 
     def _add_issue(self, issue_type: str, message: str, suggestion: str = "", severity: int = 1):
-        """Helper unifié pour ajouter un problème et déduire le score."""
+        """Unified helper to record an issue and deduct from the score."""
         self.issues.append({
             "type": issue_type.lower(),
             "severity": "warning" if severity == 1 else "error",
@@ -280,11 +280,11 @@ class AISloPDetector:
         self.score -= 5 * severity
 
     def _is_whitelisted(self, section: str, token: str) -> bool:
-        """Retourne True si le token est exempté dans la section donnée."""
+        """Return True if the token is exempt in the given section."""
         return token.lower() in self._whitelist.get(section, [])
 
     def _file_is_ignored(self, path) -> bool:
-        """Retourne True si le fichier est dans la liste d'ignorés."""
+        """Return True if the file is in the ignore list."""
         path_str = str(path).replace("\\", "/")
         for pattern in self._whitelist.get("files", []):
             if pattern.rstrip("/") in path_str:
@@ -293,10 +293,10 @@ class AISloPDetector:
 
 
     def _detect_mobile_slop(self, content: str, file_path: Path = None):
-        """Détecte les antipatterns mobiles natifs dans le code."""
+        """Detect native mobile antipatterns in code."""
         ctx = str(file_path.name) if file_path else "code"
 
-        # Détecter si c'est du code mobile natif
+        # Detect whether this is native mobile code
         is_swift    = file_path and file_path.suffix in {".swift"}
         is_kotlin   = file_path and file_path.suffix in {".kt", ".kts"}
         is_dart     = file_path and file_path.suffix in {".dart"}
@@ -307,7 +307,7 @@ class AISloPDetector:
                     )
 
         if not (is_swift or is_kotlin or is_dart or is_rn):
-            return  # Pas du code mobile natif — skip
+            return  # Not native mobile code - skip
 
         import re as _re
 
@@ -316,53 +316,53 @@ class AISloPDetector:
                 self._add_issue(
                     "MOBILE_SLOP",
                     f"{description} [{ctx}]",
-                    "Utiliser les composants et APIs natifs de la plateforme",
+                    "Use the platform's native components and APIs",
                     severity=2
                 )
 
-        # Vérification dark mode adaptatif
+        # Adaptive dark mode check
         if is_swift and "Color.white" in content and "colorScheme" not in content:
             self._add_issue(
                 "MOBILE_SLOP",
-                f"Couleur blanche fixe sans adaptation dark mode [{ctx}]",
-                "Utiliser Color(.systemBackground) ou @Environment(.colorScheme)",
+                f"Fixed white color with no dark mode adaptation [{ctx}]",
+                "Use Color(.systemBackground) or @Environment(.colorScheme)",
                 severity=1
             )
 
         if is_kotlin and "Color.White" in content and "isSystemInDarkTheme" not in content:
             self._add_issue(
                 "MOBILE_SLOP",
-                f"Color.White fixe sans dark mode adaptatif [{ctx}]",
-                "Utiliser MaterialTheme.colorScheme.background",
+                f"Fixed Color.White with no adaptive dark mode [{ctx}]",
+                "Use MaterialTheme.colorScheme.background",
                 severity=1
             )
 
-        # Vérification accessibilité minimale
+        # Minimal accessibility check
         if is_swift and "Image(" in content:
             has_label = "accessibilityLabel" in content or "Label(" in content
             if not has_label:
                 self._add_issue(
                     "MOBILE_SLOP",
-                    f"Image SwiftUI sans accessibilityLabel [{ctx}]",
-                    "Ajouter .accessibilityLabel(String) sur chaque Image",
+                    f"SwiftUI Image without accessibilityLabel [{ctx}]",
+                    "Add .accessibilityLabel(String) to every Image",
                     severity=1
                 )
 
         if is_kotlin and "Image(" in content and "contentDescription" not in content:
             self._add_issue(
                 "MOBILE_SLOP",
-                f"Image Compose sans contentDescription [{ctx}]",
-                "Ajouter contentDescription = String ou null si decoratif",
+                f"Compose Image without contentDescription [{ctx}]",
+                "Add contentDescription = String or null if decorative",
                 severity=1
             )
 
 
     def _detect_threejs_slop(self, content: str, file_path: Path = None):
-        """Détecte les antipatterns Three.js dans le code JS/TS/JSX/TSX."""
+        """Detect Three.js antipatterns in JS/TS/JSX/TSX code."""
         import re as _re
         ctx = file_path.name if file_path else "code"
 
-        # Vérifier si Three.js est utilisé dans ce fichier
+        # Check if Three.js is used in this file
         is_three = any(k in content for k in [
             "THREE.", "from 'three'", 'from "three"',
             "WebGLRenderer", "PerspectiveCamera", "BufferGeometry"
@@ -371,15 +371,15 @@ class AISloPDetector:
             return
 
         for pattern, description in self.THREEJS_SLOP_PATTERNS:
-            # Exclure le pattern lookAt trop bruité
-            if "PerspectiveCamera sans camera.lookAt" in description:
+            # Exclude the noisy lookAt pattern
+            if "PerspectiveCamera with no apparent camera.lookAt" in description:
                 has_camera = "PerspectiveCamera" in content
                 has_lookat = "lookAt" in content
                 if has_camera and not has_lookat:
                     self._add_issue(
                         "THREEJS_SLOP",
                         f"{description} [{ctx}]",
-                        "Ajouter camera.lookAt(scene.position) ou camera.lookAt(target) avant le premier render",
+                        "Add camera.lookAt(scene.position) or camera.lookAt(target) before the first render",
                         severity=1
                     )
                 continue
@@ -388,12 +388,12 @@ class AISloPDetector:
                 self._add_issue(
                     "THREEJS_SLOP",
                     f"{description} [{ctx}]",
-                    "Voir references/threejs-best-practices.md",
+                    "See references/threejs-best-practices.md",
                     severity=2
                 )
 
     def run(self) -> bool:
-        """Exécute la détection complète"""
+        """Run the full detection"""
         if self.design_file:
             self._check_design_file()
 
@@ -401,67 +401,67 @@ class AISloPDetector:
             self._check_code_directory()
 
         self._print_report()
-        return self.score >= 80  # Passe si score ≥ 80
+        return self.score >= 80  # Passes if score >= 80
 
     def _check_design_file(self):
-        """Vérifie le fichier DESIGN.md"""
+        """Check the DESIGN.md file"""
         if not self.design_file.exists():
-            print(f"❌ Fichier non trouvé: {self.design_file}")
+            print(f"[ERROR] File not found: {self.design_file}")
             return
 
         content = self.design_file.read_text(encoding="utf-8")
 
-        # Détecte l'utilisation par défaut de shadcn/ui
+        # Detect default shadcn/ui usage
         self._detect_shadcn_defaults(content)
 
-        # Détecte les placeholders de logo
+        # Detect logo placeholders
         self._detect_logo_placeholders(content)
 
-        # Détecte les buzzwords
+        # Detect buzzwords
         self._detect_buzzwords(content)
 
-        # Détecte les icônes génériques
+        # Detect generic icons
         self._detect_generic_icons(content)
 
-        # Détecte les gradients clichés
+        # Detect cliche gradients
         self._detect_cliche_gradients(content)
 
-        # Détecte les polices génériques
+        # Detect generic fonts
         self._detect_generic_fonts(content)
 
-        # Détecte les badges statut IA
+        # Detect AI status badges
         self._detect_status_badges(content)
 
     def _check_code_directory(self):
-        """Vérifie les fichiers de code"""
+        """Check code files"""
         if not self.code_dir.exists():
-            print(f"❌ Répertoire non trouvé: {self.code_dir}")
+            print(f"[ERROR] Directory not found: {self.code_dir}")
             return
 
-        # Vérifie les fichiers web (TSX/JSX) et mobile natif (Swift/Kotlin/Dart)
+        # Check web (TSX/JSX) and native mobile (Swift/Kotlin/Dart) files
         mobile_web_exts = ["*.tsx", "*.jsx", "*.js", "*.ts", "*.swift", "*.kt", "*.kts", "*.dart"]
         for ext in mobile_web_exts:
             for file_path in self.code_dir.rglob(ext):
                 if not self._file_is_ignored(file_path):
                     self._check_code_file(file_path)
 
-        # Détecte l'utilisation par défaut de shadcn/ui dans le code
+        # Detect default shadcn/ui usage in the code
         for file_path in self.code_dir.rglob("*.tsx"):
             self._detect_shadcn_defaults(file_path.read_text(encoding="utf-8", errors="ignore"), file_path)
         for file_path in self.code_dir.rglob("*.jsx"):
             self._detect_shadcn_defaults(file_path.read_text(encoding="utf-8", errors="ignore"), file_path)
 
-        # Détecte les badges statut IA dans le code
+        # Detect AI status badges in the code
         for file_path in self.code_dir.rglob("*.tsx"):
             self._detect_status_badges(file_path.read_text(encoding="utf-8", errors="ignore"), file_path)
         for file_path in self.code_dir.rglob("*.jsx"):
             self._detect_status_badges(file_path.read_text(encoding="utf-8", errors="ignore"), file_path)
 
     def _check_code_file(self, file_path: Path):
-        """Vérifie un fichier de code"""
+        """Check a single code file"""
         content = file_path.read_text(encoding="utf-8", errors="ignore")
 
-        # Détecte les imports Lucide
+        # Detect Lucide imports
         lucide_imports = re.findall(r"from\s+['\"]lucide-react['\"].*?import\s+{([^}]+)}", content)
         if lucide_imports:
             icons = [i.strip() for i in lucide_imports[0].split(",")]
@@ -472,41 +472,41 @@ class AISloPDetector:
                     "type": "generic_icons",
                     "file": str(file_path),
                     "severity": "warning",
-                    "message": f"Icônes Lucide génériques: {', '.join(generic)}",
-                    "suggestion": "Utiliser custom SVG ou pack d'icônes cohérent"
+                    "message": f"Generic Lucide icons: {', '.join(generic)}",
+                    "suggestion": "Use custom SVG or a coherent icon pack"
                 })
                 self.score -= 5 * len(generic)
 
-        # Détecte les sections template
+        # Detect template sections
         template_count = sum(1 for section in self.TEMPLATE_SECTIONS if section in content.lower())
         if template_count >= 4:
             self.issues.append({
                 "type": "template_structure",
                 "file": str(file_path),
                 "severity": "warning",
-                "message": f"Structure template générique ({template_count} sections)",
-                "suggestion": "Considérer une approche plus unique"
+                "message": f"Generic template structure ({template_count} sections)",
+                "suggestion": "Consider a more distinctive approach"
             })
             self.score -= 10
 
-        # Détecte les antipatterns mobiles natifs
+        # Detect native mobile antipatterns
         self._detect_mobile_slop(content, file_path)
 
-        # Détecte les antipatterns Three.js
+        # Detect Three.js antipatterns
         self._detect_threejs_slop(content, file_path)
 
 
     def _detect_status_badges(self, content: str, file_path: Path = None):
-        """Détecte les badges statut IA non demandés (● ATMOSPHÈRE EXCELLENTE, LIVE NOW, etc.)"""
+        """Detect AI status badges that were never requested (ATMOSPHERE EXCELLENT, LIVE NOW, etc.)"""
         for pattern, message in self.STATUS_BADGE_PATTERNS:
             if re.search(pattern, content, re.IGNORECASE):
                 issue = {
                     "type": "status_badge",
                     "severity": "warning",
-                    "message": f"Badge statut IA: {message}",
+                    "message": f"AI status badge: {message}",
                     "suggestion": (
-                        "Supprimer ce badge — non demandé, signal IA immédiat. "
-                        "Si un statut est fonctionnellement nécessaire, le justifier dans DESIGN.md."
+                        "Remove this badge - never requested, immediate AI signal. "
+                        "If a status is functionally required, justify it in DESIGN.md."
                     )
                 }
                 if file_path:
@@ -515,7 +515,7 @@ class AISloPDetector:
                 self.score -= 8
 
     def _detect_buzzwords(self, content: str):
-        """Détecte les buzzwords vagues"""
+        """Detect vague buzzwords"""
         for buzzword, suggestion in self.BUZZWORDS.items():
             if self._is_whitelisted("buzzwords", buzzword):
                 continue
@@ -523,13 +523,13 @@ class AISloPDetector:
                 self.issues.append({
                     "type": "buzzword",
                     "severity": "warning",
-                    "message": f"Buzzword vague: '{buzzword}'",
+                    "message": f"Vague buzzword: '{buzzword}'",
                     "suggestion": suggestion
                 })
                 self.score -= 3
 
     def _detect_generic_icons(self, content: str):
-        """Détecte les icônes génériques"""
+        """Detect generic icons"""
         for icon in self.GENERIC_ICONS:
             if self._is_whitelisted("icons", icon):
                 continue
@@ -537,14 +537,14 @@ class AISloPDetector:
                 self.issues.append({
                     "type": "generic_icon",
                     "severity": "info",
-                    "message": f"Icône générique: {icon}",
-                    "suggestion": "Considérer custom SVG si utilisée de manière non-standard"
+                    "message": f"Generic icon: {icon}",
+                    "suggestion": "Consider custom SVG if used in a non-standard way"
                 })
                 self.score -= 1
 
     def _detect_undocumented_gradients(self, content: str):
-        """Détecte les gradients présents dans le code mais non documentés en §1 du DESIGN.md."""
-        # Chercher background-image avec gradient ou radial-gradient
+        """Detect gradients present in the code but not documented in §1 of DESIGN.md."""
+        # Look for background-image with gradient or radial-gradient
         grad_patterns = [
             r"radial-gradient\s*\(",
             r"linear-gradient\s*\(",
@@ -564,45 +564,45 @@ class AISloPDetector:
                 if not design_mentions:
                     self._add_issue(
                         "UNDOCUMENTED_GRADIENT",
-                        f"Gradient détecté dans le code mais non documenté dans §1 du DESIGN.md.",
-                        "Documenter le gradient dans §1 'Effets autorisés' avec justification visuelle.",
+                        f"Gradient detected in code but not documented in §1 of DESIGN.md.",
+                        "Document the gradient in §1 'Allowed effects' with a visual justification.",
                         severity=1
                     )
-                break  # Un seul warning même si plusieurs gradients
+                break  # Single warning even if multiple gradients
 
     def _detect_cliche_gradients(self, content: str):
-        """Détecte les gradients clichés"""
+        """Detect cliche gradients"""
         for pattern, name in self.CLICHE_GRADIENTS:
             if re.search(pattern, content, re.IGNORECASE):
                 self.issues.append({
                     "type": "cliche_gradient",
                     "severity": "warning",
-                    "message": f"Gradient cliché: {name}",
-                    "suggestion": "Justifier par rôle sémantique ou considérer alternative"
+                    "message": f"Cliche gradient: {name}",
+                    "suggestion": "Justify by semantic role or consider an alternative"
                 })
                 self.score -= 5
 
     def _detect_generic_fonts(self, content: str):
-        """Détecte les polices génériques"""
+        """Detect generic fonts"""
         for font in self.GENERIC_FONTS:
             if re.search(rf"\b{font}\b", content, re.IGNORECASE):
                 self.issues.append({
                     "type": "generic_font",
                     "severity": "error",
-                    "message": f"Police générique: {font}",
-                    "suggestion": "Utiliser Google Fonts ou custom font"
+                    "message": f"Generic font: {font}",
+                    "suggestion": "Use Google Fonts or a custom font"
                 })
                 self.score -= 10
 
     def _detect_logo_placeholders(self, content: str, file_path: Path = None):
-        """Détecte les placeholders de logo ou noms génériques"""
+        """Detect logo placeholders or generic names"""
         for pattern, message in self.LOGO_PLACEHOLDERS:
             if re.search(pattern, content, re.IGNORECASE):
                 issue = {
                     "type": "logo_placeholder",
                     "severity": "error",
-                    "message": f"Logo/Nom générique détecté: {message}",
-                    "suggestion": "Utiliser un logo textuel stylisé (font-bold tracking-tight uppercase) si aucun logo n'est fourni."
+                    "message": f"Generic logo/name detected: {message}",
+                    "suggestion": "Use a stylized text logo (font-bold tracking-tight uppercase) if no logo is provided."
                 }
                 if file_path:
                     issue["file"] = str(file_path)
@@ -610,14 +610,14 @@ class AISloPDetector:
                 self.score -= 10
 
     def _detect_shadcn_defaults(self, content: str, file_path: Path = None):
-        """Détecte l'utilisation par défaut de shadcn/ui"""
+        """Detect default shadcn/ui usage"""
         for pattern, message in self.SHADCN_DEFAULT_PATTERNS:
             if re.search(pattern, content):
                 issue = {
                     "type": "shadcn_default",
                     "severity": "warning",
-                    "message": f"Shadcn/ui par défaut: {message}",
-                    "suggestion": "Personnaliser les composants shadcn/ui via Tailwind CSS et les tokens de design."
+                    "message": f"Default shadcn/ui: {message}",
+                    "suggestion": "Customize shadcn/ui components via Tailwind CSS and design tokens."
                 }
                 if file_path:
                     issue["file"] = str(file_path)
@@ -625,17 +625,17 @@ class AISloPDetector:
                 self.score -= 5
 
     def _print_report(self):
-        """Affiche le rapport de détection"""
+        """Print the detection report"""
         print("\n" + "=" * 70)
-        print("🚨 AI SLOP DETECTION REPORT")
+        print("AI SLOP DETECTION REPORT")
         print("=" * 70)
 
         if not self.issues:
-            print("\n✅ AUCUN ANTIPATTERN DÉTECTÉ!")
+            print("\n[OK] NO ANTIPATTERN DETECTED!")
         else:
-            print(f"\n⚠️  {len(self.issues)} problèmes détectés:\n")
+            print(f"\n[WARN] {len(self.issues)} issues detected:\n")
 
-            # Groupe par type
+            # Group by type
             by_type = {}
             for issue in self.issues:
                 issue_type = issue["type"]
@@ -644,26 +644,26 @@ class AISloPDetector:
                 by_type[issue_type].append(issue)
 
             for issue_type in sorted(by_type.keys()):
-                print(f"\n🔴 {issue_type.upper()}:")
+                print(f"\n[{issue_type.upper()}]")
                 for issue in by_type[issue_type]:
                     severity = issue.get("severity", "info")
-                    emoji = {"error": "❌", "warning": "⚠️", "info": "ℹ️"}.get(severity, "•")
+                    tag = {"error": "[ERROR]", "warning": "[WARN]", "info": "[INFO]"}.get(severity, "-")
 
-                    print(f"  {emoji} {issue['message']}")
+                    print(f"  {tag} {issue['message']}")
                     if "file" in issue:
-                        print(f"     Fichier: {issue['file']}")
-                    print(f"     💡 {issue['suggestion']}")
+                        print(f"     File: {issue['file']}")
+                    print(f"     -> {issue['suggestion']}")
 
-        # Score final
+        # Final score
         print("\n" + "-" * 70)
-        print(f"📊 SCORE DE QUALITÉ: {self.score}/100")
+        print(f"QUALITY SCORE: {self.score}/100")
 
         if self.score >= 80:
-            print("✅ RÉSULTAT: BON - Prêt pour la livraison")
+            print("[OK] RESULT: GOOD - Ready for delivery")
         elif self.score >= 60:
-            print("⚠️  RÉSULTAT: ACCEPTABLE - Corriger les avertissements")
+            print("[WARN] RESULT: ACCEPTABLE - Fix the warnings")
         else:
-            print("❌ RÉSULTAT: FAIBLE - Revoir la conception")
+            print("[ERROR] RESULT: POOR - Revisit the design")
 
         print("=" * 70 + "\n")
 
@@ -671,9 +671,9 @@ class AISloPDetector:
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(description="Détecteur d'antipatterns AI slop")
-    parser.add_argument("--design", help="Fichier DESIGN.md à vérifier")
-    parser.add_argument("--code", help="Répertoire de code à auditer")
+    parser = argparse.ArgumentParser(description="AI slop antipattern detector")
+    parser.add_argument("--design", help="DESIGN.md file to check")
+    parser.add_argument("--code", help="Code directory to audit")
 
     args = parser.parse_args()
 

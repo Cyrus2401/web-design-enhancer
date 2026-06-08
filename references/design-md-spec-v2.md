@@ -1,214 +1,214 @@
-# Spécification DESIGN.md — Format v3
+# DESIGN.md Specification — Format v3
 
-Le fichier `DESIGN.md` est le **contrat de design unique** du projet. Il est lu par les agents IA avant toute implémentation, et validé mécaniquement par `validate_design.py` avant tout code.
+The `DESIGN.md` file is the project's **single design contract**. It is read by AI agents before any implementation, and mechanically validated by `validate_design.py` before any code is written.
 
-> **Règle fondamentale :** Si le DESIGN.md n'est pas valide, aucun code ne doit être écrit.
-> `check.py --gate 1` bloque l'avancement si `validate_design.py` retourne une erreur.
-
----
-
-## Philosophie
-
-Le DESIGN.md n'est pas un document de référence passif — c'est un **contrat d'exécution**.
-Chaque section correspond à une règle mécanique vérifiable automatiquement.
-L'objectif : rendre impossible la production de "AI slop" même avec un agent non supervisé.
-
-**3 principes :**
-1. **Explicite > implicite** — tout ce qui n'est pas écrit sera inventé par l'IA
-2. **Vérifiable > subjectif** — chaque règle doit pouvoir être testée par un script
-3. **Minimal > exhaustif** — un contrat trop long n'est pas lu
+> **Fundamental rule:** If DESIGN.md is not valid, no code should be written.
+> `check.py --gate 1` blocks progress if `validate_design.py` returns an error.
 
 ---
 
-## Structure complète (§0 à §8)
+## Philosophy
+
+DESIGN.md is not a passive reference document — it is an **execution contract**.
+Each section corresponds to a mechanical rule that can be verified automatically.
+The goal: make it impossible to produce "AI slop" even with an unsupervised agent.
+
+**3 principles:**
+1. **Explicit > implicit** — anything not written will be invented by the AI
+2. **Verifiable > subjective** — every rule must be testable by a script
+3. **Minimal > exhaustive** — a contract that is too long does not get read
+
+---
+
+## Full structure (§0 to §10)
 
 ### § 0 — Sources Phase 0
 
-**Obligatoire.** Prouve que le design est ancré dans des références réelles, pas dans le training data de l'IA.
+**Mandatory.** Proves that the design is anchored in real references, not in the AI's training data.
 
 ```markdown
 ## 0. Sources Phase 0
 
-- **Brand utilisée :** [NomBrand]
-- **Commande exécutée :** `npx getdesign@latest add [brand]`
-- **Requête exécutée :** `python3 scripts/search.py "[requête]" --design-system -p "[Projet]"`
-- **Style retenu :** [Style]
-- **Justification :** [Pourquoi ce style pour ce projet]
+- **Brand used:** [BrandName]
+- **Command executed:** `npx getdesign@latest add [brand]`
+- **Query executed:** `python3 scripts/search.py "[query]" --design-system -p "[Project]"`
+- **Chosen style:** [Style]
+- **Justification:** [Why this style for this project]
 ```
 
-**Validé par :** `check.py --gate 0`
-**Bloque si :** fichiers `getdesign-*.md` ou `design-system-output*.md` manquants, ou placeholders non remplacés (`[NomBrand]`, `TODO`, `à remplir`).
+**Validated by:** `check.py --gate 0`
+**Blocks if:** `getdesign-*.md` or `design-system-output*.md` files are missing, or placeholders are not replaced (`[BrandName]`, `TODO`, `to fill in`).
 
 ---
 
-### § 1 — Thème Visuel & Concept
+### § 1 — Theme & Visual Concept
 
-**Obligatoire.** Définit l'intention — le "pourquoi" du design.
+**Mandatory.** Defines the intent — the "why" of the design.
 
 ```markdown
-## 1. Thème Visuel & Concept
+## 1. Theme & Visual Concept
 
-- **Concept :** [Description précise de l'identité visuelle]
-- **Mots-clés :** [3–5 mots, pas de buzzwords génériques]
-- **Références :** [Sites/produits réels, avec justification]
+- **Concept:** [Precise description of the visual identity]
+- **Keywords:** [3–5 words, no generic buzzwords]
+- **References:** [Real sites/products, with justification]
 ```
 
-**Règles :**
-- Les thèmes suivants sont **interdits** (détectés et bloquants) :
+**Rules:**
+- The following themes are **forbidden** (detected and blocking):
   `glassmorphism`, `dark cyberpunk`, `particle background`, `typewriter effect`, `glow cursor`, `neon glow`, `grid background`, `aurora borealis`
-- Les mots-clés génériques sont **interdits** : `moderne`, `élégant`, `premium`, `futuriste`, `immersif`
-- Les références doivent être des sites réels — pas des adjectifs abstraits
+- Generic keywords are **forbidden**: `modern`, `elegant`, `premium`, `futuristic`, `immersive`
+- References must be real sites — not abstract adjectives
 
-**Validé par :** `validate_design.py` → `_validate_theme_originality()`
+**Validated by:** `validate_design.py` → `_validate_theme_originality()`
 
 ---
 
-### § 2 — Palette de Couleurs
+### § 2 — Color Palette
 
-**Obligatoire.** Le seul endroit où les hex sont définis.
+**Mandatory.** The only place where hex values are defined.
 
 ```markdown
-## 2. Palette de Couleurs
+## 2. Color Palette
 
-| Rôle | Hex | Utilisation |
+| Role | Hex | Usage |
 | :--- | :--- | :--- |
-| Primaire   | #XXXXXX | [Usage précis] |
-| Secondaire | #XXXXXX | [Usage précis] |
-| Fond       | #XXXXXX | Arrière-plan principal |
-| Texte      | #XXXXXX | Corps de texte principal |
-| Accent     | #XXXXXX | [Usage précis] |
-| Succès     | #XXXXXX | [Usage précis] |
-| Attention  | #XXXXXX | [Usage précis] |
-| Danger     | #XXXXXX | Actions destructives, erreurs |
+| Primary    | #XXXXXX | [Specific usage] |
+| Secondary  | #XXXXXX | [Specific usage] |
+| Background | #XXXXXX | Main background |
+| Text       | #XXXXXX | Main body text |
+| Accent     | #XXXXXX | [Specific usage] |
+| Success    | #XXXXXX | [Specific usage] |
+| Warning    | #XXXXXX | [Specific usage] |
+| Danger     | #XXXXXX | Destructive actions, errors |
 ```
 
-**Règles :**
-- **4 à 8 hex** dans cette section — pas plus (les hex dans §6, §7, §8 ne sont pas comptés)
-- Ne pas écrire les hex dans le texte WCAG de cette section — les calculer séparément
-- Rôles `Fond` et `Texte` **obligatoires** — utilisés pour le calcul WCAG automatique
-- **WCAG AA obligatoire :** Texte/Fond ≥ 4.5:1, Primaire/Fond ≥ 3.0:1
+**Rules:**
+- **4 to 8 hex values** in this section — no more (hex values in §6, §7, §8 are not counted)
+- Do not write hex values in the WCAG text of this section — compute them separately
+- `Background` and `Text` roles are **mandatory** — used for automatic WCAG calculation
+- **WCAG AA mandatory:** Text/Background >= 4.5:1, Primary/Background >= 3.0:1
 
-**Validé par :** `validate_design.py` → `_validate_colors()` + `_validate_wcag_contrast()`
+**Validated by:** `validate_design.py` → `_validate_colors()` + `_validate_wcag_contrast()`
 
-**Calcul de contraste rapide :**
+**Quick contrast calculation:**
 ```
-L = 0.2126×R + 0.7152×G + 0.0722×B  (valeurs 0–1 linearisées)
-Contraste = (L_clair + 0.05) / (L_sombre + 0.05)
+L = 0.2126xR + 0.7152xG + 0.0722xB  (values 0-1 linearized)
+Contrast = (L_light + 0.05) / (L_dark + 0.05)
 ```
 
 ---
 
-### § 3 — Typographie
+### § 3 — Typography
 
-**Obligatoire.** Max 2 familles de polices.
+**Mandatory.** Max 2 font families.
 
 ```markdown
-## 3. Typographie
+## 3. Typography
 
-- **NomPolice** (Display) — [justification du choix]
-- **NomPolice** (Body) — [justification du choix]
+- **FontName** (Display) — [justification for choice]
+- **FontName** (Body) — [justification for choice]
 
 ```css
 @import url('https://fonts.googleapis.com/...');
 ```
 ```
 
-**Règles :**
-- **Exactement 1 ou 2 polices** — jamais plus
-- Format obligatoire : `**NomPolice** (Display)` ou `**NomPolice** (Body)`
-  → Ce pattern exact est celui que `validate_design.py` détecte
-- Si une seule police : variation de poids pour la hiérarchie (300/400/600/700)
-- Polices système autorisées : `Inter`, `system-ui`, `-apple-system` (pas besoin d'import)
+**Rules:**
+- **Exactly 1 or 2 fonts** — never more
+- Mandatory format: `**FontName** (Display)` or `**FontName** (Body)`
+  → This exact pattern is what `validate_design.py` detects
+- If a single font: use weight variations for hierarchy (300/400/600/700)
+- Allowed system fonts: `Inter`, `system-ui`, `-apple-system` (no import needed)
 
-**Validé par :** `validate_design.py` → `_validate_typography()`
+**Validated by:** `validate_design.py` → `_validate_typography()`
 
 ---
 
-### § 4 — Hiérarchie Typographique
+### § 4 — Typography Hierarchy
 
-**Obligatoire.** Définit les tailles exactes — supprime toute ambiguïté pour l'IA.
+**Mandatory.** Defines exact sizes — removes all ambiguity for the AI.
 
 ```markdown
-## 4. Hiérarchie Typographique
+## 4. Typography Hierarchy
 
-- **H1 :** [px] / [weight] / [line-height]
-- **H2 :** [px] / [weight] / [line-height]
-- **H3 :** [px] / [weight] / [line-height]
-- **P :**  [px] / [weight] / [line-height]
-- **Small :** [px] / [weight] / [line-height]
+- **H1**: [px] / [weight] / [line-height]
+- **H2**: [px] / [weight] / [line-height]
+- **H3**: [px] / [weight] / [line-height]
+- **P**:  [px] / [weight] / [line-height]
+- **Small**: [px] / [weight] / [line-height]
 ```
 
-**Règles :**
-- H1 entre 28px et 80px
-- P entre 13px et 18px
-- Small entre 11px et 14px
-- Pas de font-size à 16px pour tout — c'est le signal d'une hiérarchie non pensée
+**Rules:**
+- H1 between 28px and 80px
+- P between 13px and 18px
+- Small between 11px and 14px
+- No font-size at 16px for everything — that's the signal of a hierarchy that wasn't thought through
 
-**Non validé automatiquement** — vérification humaine.
+**Not automatically validated** — human verification required.
 
 ---
 
-### § 5 — Espacement et Grille
+### § 5 — Spacing & Grid
 
-**Obligatoire.** Définit la grille de base et tous les espacements.
+**Mandatory.** Defines the base grid and all spacing.
 
 ```markdown
-## 5. Espacement et Grille
+## 5. Spacing & Grid
 
-- **Base de la grille :** 8px
-- **[Padding/Gap/Hauteur] :** [valeur]px
-- **Radius :** [valeur]px
+- **Grid base:** 8px
+- **[Padding/Gap/Height]:** [value]px
+- **Radius:** [value]px
 ```
 
-**Règles :**
-- **Toutes les valeurs en px doivent être multiples de 8** (exception : 4px pour micro-espacements)
-- `audit_spacing.py` scanne le code CSS/JSX et signale les valeurs non conformes
-- Le radius 0px est autorisé (style Neo-Brutalism)
-- Mentionner explicitement "Base de la grille : 8px" — `validate_design.py` le cherche
+**Rules:**
+- **All px values must be multiples of 8** (exception: 4px for micro-spacing)
+- `audit_spacing.py` scans the CSS/JSX code and flags non-conforming values
+- A 0px radius is allowed (Neo-Brutalism style)
+- Explicitly mention "Grid base: 8px" — `validate_design.py` looks for it
 
-**Validé par :** `validate_design.py` → `_validate_spacing()` + `audit_spacing.py` sur le code
+**Validated by:** `validate_design.py` → `_validate_spacing()` + `audit_spacing.py` on code
 
 ---
 
-### § 6 — Composants et États
+### § 6 — Components & States
 
-**Obligatoire.** Définit les composants UI et tous leurs états.
+**Mandatory.** Defines UI components and all of their states.
 
 ```markdown
-## 6. Composants et États
+## 6. Components & States
 
-### Boutons
-- **Primaire (Normal) :** [description]
-- **Primaire (Hover) :** [description]
-- **Secondaire (Normal) :** [description]
-- **Ghost (Normal) :** [description]
+### Buttons
+- **Primary (Normal):** [description]
+- **Primary (Hover):** [description]
+- **Secondary (Normal):** [description]
+- **Ghost (Normal):** [description]
 
-### Cartes (Cards)
-- **Structure :** [description]
-- **Padding Interne :** [valeur]px
-- **Ombre :** [valeur ou "aucune"]
+### Cards
+- **Structure:** [description]
+- **Inner Padding:** [value]px
+- **Shadow:** [value or "none"]
 ```
 
-**Règles :**
-- **Maximum 3 variantes de boutons** dans cette section
-- Chaque état (normal, hover, disabled) doit être documenté
-- Les couleurs dans §6 utilisent les hex définis en §2 — pas de nouvelles couleurs
+**Rules:**
+- **Maximum 3 button variants** in this section
+- Each state (normal, hover, disabled) must be documented
+- Colors in §6 use the hex values defined in §2 — no new colors
 
-**Validé par :** `validate_design.py` → `_validate_components()`
+**Validated by:** `validate_design.py` → `_validate_components()`
 
 ---
 
-### § 7 — Motion et Animations
+### § 7 — Motion & Animations
 
-**Obligatoire.** Définit le comportement dynamique.
+**Mandatory.** Defines dynamic behavior.
 
 ```markdown
-## 7. Motion et Animations
+## 7. Motion & Animations
 
-- **Transitions générales :** [durée]ms ease-out
-- **Hover états :** [durée]ms ease-in-out
-- **Entrées stagger :** duration [durée]ms, stagger [durée]ms
-- **Accessibilité :** `prefers-reduced-motion` obligatoire.
+- **General transitions:** [duration]ms ease-out
+- **Hover states:** [duration]ms ease-in-out
+- **Stagger entries:** duration [duration]ms, stagger [duration]ms
+- **Accessibility:** `prefers-reduced-motion` mandatory.
 
 ```css
 @media (prefers-reduced-motion: reduce) {
@@ -220,49 +220,49 @@ Contraste = (L_clair + 0.05) / (L_sombre + 0.05)
 ```
 ```
 
-**Règles :**
-- **Toutes les durées ≤ 400ms** — au-delà c'est perçu comme lent
-- Exception documentée dans §1 si une animation longue est intentionnelle (ex: gradient mesh ≤30s)
-- `prefers-reduced-motion` doit être mentionné explicitement dans §7
-- `diff_design_vs_code.py` scanne le code réel et signale les durées dépassant le max de §7
+**Rules:**
+- **All durations <= 400ms** — beyond that it is perceived as slow
+- Exception documented in §1 if a long animation is intentional (e.g. gradient mesh <= 30s)
+- `prefers-reduced-motion` must be mentioned explicitly in §7
+- `diff_design_vs_code.py` scans the actual code and flags durations exceeding the max defined in §7
 
-**Validé par :** `validate_design.py` → `_validate_animations()` + `diff_design_vs_code.py`
+**Validated by:** `validate_design.py` → `_validate_animations()` + `diff_design_vs_code.py`
 
 ---
 
 ### § 8 — Dark Mode
 
-**Obligatoire depuis v3.** Le dark mode improvisé est la principale source de régression post-livraison.
+**Mandatory since v3.** Improvised dark mode is the main source of post-delivery regressions.
 
 ```markdown
 ## 8. Dark Mode
 
-| Rôle | Hex | Équivalent Light |
+| Role | Hex | Light Equivalent |
 | :--- | :--- | :--- |
-| Fond       | #XXXXXX | #XXXXXX |
-| Surface    | #XXXXXX | #XXXXXX |
-| Texte      | #XXXXXX | #XXXXXX |
-| Texte secondaire | #XXXXXX | #XXXXXX |
-| Bordure    | #XXXXXX | #XXXXXX |
-| Primaire   | #XXXXXX | #XXXXXX |
-| Accent     | #XXXXXX | #XXXXXX |
+| Background       | #XXXXXX | #XXXXXX |
+| Surface          | #XXXXXX | #XXXXXX |
+| Text             | #XXXXXX | #XXXXXX |
+| Secondary text   | #XXXXXX | #XXXXXX |
+| Border           | #XXXXXX | #XXXXXX |
+| Primary          | #XXXXXX | #XXXXXX |
+| Accent           | #XXXXXX | #XXXXXX |
 
-**Règles dark mode :**
-- [Vérification luminosité fond]
-- [Vérification contraste texte/fond]
-- [Stratégie : prefers-color-scheme vs toggle JS]
+**Dark mode rules:**
+- [Background luminance check]
+- [Text/background contrast check]
+- [Strategy: prefers-color-scheme vs JS toggle]
 ```
 
-**Règles :**
-- **≥ 3 couleurs** dans le tableau dark mode
-- Rôles `fond`, `texte`, `surface` **obligatoires**
-- **Fond dark : luminosité relative < 9%** — soit approximativement < #333333
-  Exemples conformes : `#0A0A0A`, `#0F172A`, `#111827`, `#1C1C1E`
-  Exemples non conformes : `#4A4A4A`, `#555555`, `#666666`
-- Texte dark sur fond dark ≥ 4.5:1 WCAG AA
-- Recommandé : `prefers-color-scheme: dark` uniquement — pas de toggle JS non demandé
+**Rules:**
+- **>= 3 colors** in the dark mode table
+- `background`, `text`, `surface` roles are **mandatory**
+- **Dark background: relative luminance < 9%** — i.e. approximately < #333333
+  Compliant examples: `#0A0A0A`, `#0F172A`, `#111827`, `#1C1C1E`
+  Non-compliant examples: `#4A4A4A`, `#555555`, `#666666`
+- Dark text on dark background >= 4.5:1 WCAG AA
+- Recommended: `prefers-color-scheme: dark` only — no JS toggle unless requested
 
-**Validé par :** `validate_design.py` → `_validate_dark_mode()`
+**Validated by:** `validate_design.py` → `_validate_dark_mode()`
 
 ---
 
@@ -271,88 +271,99 @@ Contraste = (L_clair + 0.05) / (L_sombre + 0.05)
 
 ### § 9 — Mobile
 
-**Optionnel pour les projets web-only. Obligatoire dès qu'une app native ou hybrid est dans le scope.**
+**Optional for web-only projects. Mandatory as soon as a native or hybrid app is in scope.**
 
-`validate_design.py` valide automatiquement cette section si elle est présente.
+`validate_design.py` automatically validates this section if it is present.
 
-**Règles vérifiées automatiquement :**
+**Automatically verified rules:**
 
-| Règle | Bloquant | Script |
+| Rule | Blocking | Script |
 | :--- | :--- | :--- |
-| Touch targets ≥ 44pt (iOS) / 48dp (Android) mentionnés | ⚠️ Warning | `validate_design.py` |
-| Safe Areas documentées | ⚠️ Warning | `validate_design.py` |
-| Unités natives (pt/dp) au lieu de px | ⚠️ Warning | `validate_design.py` |
-| Accessibilité mobile mentionnée (VoiceOver/TalkBack) | ⚠️ Warning | `validate_design.py` |
+| Touch targets >= 44pt (iOS) / 48dp (Android) mentioned | Warning | `validate_design.py` |
+| Safe Areas documented | Warning | `validate_design.py` |
+| Native units (pt/dp) instead of px | Warning | `validate_design.py` |
+| Mobile accessibility mentioned (VoiceOver/TalkBack) | Warning | `validate_design.py` |
 
-**Antipatterns détectés dans le code par `detect_ai_slop.py` :**
+**Antipatterns detected in code by `detect_ai_slop.py`:**
 
-| Pattern | Signal | Remède |
+| Pattern | Signal | Remedy |
 | :--- | :--- | :--- |
-| Largeurs d'écran hardcodées (375, 390, 412px) | Dimension iPhone/Android fixe | `.frame(maxWidth: .infinity)` / `LayoutBuilder` |
-| `Color.white` fixe sans `colorScheme` | Dark mode non géré | `Color(.systemBackground)` / `MaterialTheme.colorScheme.background` |
-| `Image` sans `accessibilityLabel` / `contentDescription` | VoiceOver/TalkBack inaccessible | Ajouter le label obligatoire |
-| Touch target < 40pt en dur | Zone tactile trop petite | `.frame(width: 44, height: 44)` minimum |
-| Icônes SF Symbols / Material Icons génériques | Signal IA identique au web | Icônes fonctionnelles justifiées uniquement |
+| Hardcoded screen widths (375, 390, 412px) | Fixed iPhone/Android dimension | `.frame(maxWidth: .infinity)` / `LayoutBuilder` |
+| Hardcoded `Color.white` without `colorScheme` | Dark mode not handled | `Color(.systemBackground)` / `MaterialTheme.colorScheme.background` |
+| `Image` without `accessibilityLabel` / `contentDescription` | VoiceOver/TalkBack inaccessible | Add the mandatory label |
+| Hardcoded touch target < 40pt | Touch area too small | `.frame(width: 44, height: 44)` minimum |
+| Generic SF Symbols / Material Icons | AI signal identical to web | Only justified functional icons |
 
-**Unités par plateforme :**
+**Units per platform:**
 
 ```
-iOS / SwiftUI       → pt    (points)      — grille 4pt
-Android / Compose   → dp    (density-ind) — grille 4dp
-Flutter             → px    (logical)     — grille 4
-React Native        → dp    (auto-scaled) — grille 4
+iOS / SwiftUI       -> pt    (points)       -- 4pt grid
+Android / Compose   -> dp    (density-ind)  -- 4dp grid
+Flutter             -> px    (logical)      -- 4 grid
+React Native        -> dp    (auto-scaled)  -- 4 grid
 ```
 
-**Format minimal valide :**
+**Minimal valid format:**
 
 ```markdown
 ## 9. Mobile
 
-- **Stack :** SwiftUI
-- **Plateformes :** iOS 16+
-- **Touch targets :** Boutons ≥ 44×44pt, zones tactiles étendues sur icônes
-- **Safe Areas :** .safeAreaInset() pour le contenu, fond ignoreSafeArea()
-- **Animations :** spring() pour les interactions, animation système pour navigation
-- **Dark mode :** Color(.systemBackground), Color(.label) — semantic colors uniquement
-- **Accessibilité :** .accessibilityLabel() sur toutes les Images, Dynamic Type supporté
+- **Stack:** SwiftUI
+- **Platforms:** iOS 16+
+- **Touch targets:** Buttons >= 44x44pt, extended touch areas on icons
+- **Safe Areas:** .safeAreaInset() for content, background ignoreSafeArea()
+- **Animations:** spring() for interactions, system animation for navigation
+- **Dark mode:** Color(.systemBackground), Color(.label) — semantic colors only
+- **Accessibility:** .accessibilityLabel() on all Images, Dynamic Type supported
 ```
-
-## Checklist finale (résumé)
-
-| § | Section | Validator | Bloquant |
-| :--- | :--- | :--- | :--- |
-| 0 | Sources Phase 0 | `check.py --gate 0` | ✅ Oui |
-| 1 | Thème & Concept | `validate_design.py` | ✅ Oui (thèmes interdits) |
-| 2 | Palette | `validate_design.py` | ✅ Oui (4–8 hex, WCAG) |
-| 3 | Typographie | `validate_design.py` | ✅ Oui (max 2 polices) |
-| 4 | Hiérarchie | — | ⚠️ Manuel |
-| 5 | Espacement | `validate_design.py` + `audit_spacing.py` | ✅ Oui (multiples 8px) |
-| 6 | Composants | `validate_design.py` | ✅ Oui (max 3 variantes) |
-| 7 | Motion | `validate_design.py` + `diff_design_vs_code.py` | ✅ Oui (≤ 400ms) |
-| 8 | Dark Mode | `validate_design.py` | ⚠️ Warning si absent |
-| 9 | Mobile | `validate_design.py` | ⚠️ Optionnel, validé si présent |
 
 ---
 
-## Erreurs fréquentes
+### § 10 — Three.js
 
-**"Trop de couleurs (X > 8)"**
-→ Des hex dans le texte WCAG de §2 sont comptabilisés. Écrire les ratios en texte pur sans hex : `Texte sur Fond : 9.2:1` au lieu de `#1E3A8A sur #F8FAFC : 9.2:1`.
+**Optional.** Required only if the project includes 3D scenes rendered with Three.js / React Three Fiber.
 
-**"Polices insuffisantes (0)"**
-→ Le format doit être exactement `**NomPolice** (Display)` ou `**NomPolice** (Body)`.
-Formats non reconnus : `- Display: **Fira Code**` ou `- Font: Fira Code`.
+See `references/threejs-best-practices.md` for detailed guidance on performance, lighting, and asset handling.
 
-**"Icône générique détectée : check"**
-→ Faux positif inévitable causé par le mot "Checklist". Ajouter dans `.slop-ignore` :
+---
+
+## Final checklist (summary)
+
+| § | Section | Validator | Blocking |
+| :--- | :--- | :--- | :--- |
+| 0 | Sources Phase 0 | `check.py --gate 0` | Yes |
+| 1 | Theme & Concept | `validate_design.py` | Yes (forbidden themes) |
+| 2 | Palette | `validate_design.py` | Yes (4–8 hex, WCAG) |
+| 3 | Typography | `validate_design.py` | Yes (max 2 fonts) |
+| 4 | Hierarchy | — | Manual |
+| 5 | Spacing | `validate_design.py` + `audit_spacing.py` | Yes (multiples of 8px) |
+| 6 | Components | `validate_design.py` | Yes (max 3 variants) |
+| 7 | Motion | `validate_design.py` + `diff_design_vs_code.py` | Yes (<= 400ms) |
+| 8 | Dark Mode | `validate_design.py` | Warning if missing |
+| 9 | Mobile | `validate_design.py` | Optional, validated if present |
+| 10 | Three.js | manual | Optional, validated if present |
+
+---
+
+## Common errors
+
+**"Too many colors (X > 8)"**
+-> Hex values in the WCAG text of §2 are being counted. Write ratios as plain text without hex: `Text on Background: 9.2:1` instead of `#1E3A8A on #F8FAFC: 9.2:1`.
+
+**"Not enough fonts (0)"**
+-> The format must be exactly `**FontName** (Display)` or `**FontName** (Body)`.
+Unrecognized formats: `- Display: **Fira Code**` or `- Font: Fira Code`.
+
+**"Generic icon detected: check"**
+-> Unavoidable false positive caused by the word "Checklist". Add to `.slop-ignore`:
 ```ini
 [icons]
-check           # mot "check" dans "Checklist" — faux positif connu du validateur
+check           # the word "check" inside "Checklist" — known validator false positive
 ```
 
-**"Section Dark Mode absente"**
-→ Warning (non bloquant). Ajouter `## 8. Dark Mode` avec ≥ 3 couleurs, fond sombre, rôles `fond`/`texte`/`surface`.
+**"Dark Mode section missing"**
+-> Warning (non-blocking). Add `## 8. Dark Mode` with >= 3 colors, dark background, `background`/`text`/`surface` roles.
 
-**"Animation Xms dépasse le max"**
-→ `diff_design_vs_code.py` a détecté une durée dans le code dépassant le max de §7.
-Si c'est intentionnel (ex: animation de fond décorative), documenter l'exception dans §1 et §7.
+**"Animation Xms exceeds max"**
+-> `diff_design_vs_code.py` detected a duration in the code exceeding the max from §7.
+If intentional (e.g. decorative background animation), document the exception in §1 and §7.

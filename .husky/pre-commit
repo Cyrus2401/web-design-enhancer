@@ -1,35 +1,35 @@
 #!/usr/bin/env sh
 # web-design-enhancer-pro — pre-commit hook
-# Bloque le commit si DESIGN.md n'est pas valide.
+# Blocks the commit if DESIGN.md is invalid.
 #
-# Installation : npx husky install && chmod +x .husky/pre-commit
-# Désactivation ponctuelle : git commit --no-verify  (à n'utiliser qu'en dernier recours)
+# Install: npx husky install && chmod +x .husky/pre-commit
+# Bypass (last resort only): git commit --no-verify
 
 . "$(dirname -- "$0")/_/husky.sh" 2>/dev/null || true
 
 PY="${PYTHON:-python3}"
 
 if [ ! -f "DESIGN.md" ]; then
-  echo "ℹ️  Aucun DESIGN.md à la racine — skip web-design-enhancer pre-commit."
+  echo "[INFO] No DESIGN.md at repo root - skipping web-design-enhancer pre-commit."
   exit 0
 fi
 
-echo "🔍 web-design-enhancer — validation DESIGN.md (gate 1)..."
+echo "[CHECK] web-design-enhancer - validating DESIGN.md (gate 1)..."
 
-# Gate 0 (vérifie que la Phase 0 a été exécutée)
+# Gate 0 (verify Phase 0 was executed)
 "$PY" scripts/check.py --gate 0 || {
   echo ""
-  echo "❌ Commit bloqué : Phase 0 non prouvée."
-  echo "   → Exécuter Phase 0 (getdesign.md + UI/UX Pro Max) puis relancer."
+  echo "[BLOCKED] Commit blocked: Phase 0 not proven."
+  echo "   -> Run Phase 0 (getdesign.md + UI/UX Pro Max) then retry."
   exit 1
 }
 
-# Gate 1 (valide le contrat DESIGN.md)
+# Gate 1 (validate the DESIGN.md contract)
 "$PY" scripts/check.py --gate 1 || {
   echo ""
-  echo "❌ Commit bloqué : DESIGN.md invalide."
-  echo "   → Corriger les erreurs ci-dessus et relancer git commit."
+  echo "[BLOCKED] Commit blocked: DESIGN.md invalid."
+  echo "   -> Fix the errors above then retry git commit."
   exit 1
 }
 
-echo "✅ DESIGN.md valide — commit autorisé."
+echo "[OK] DESIGN.md valid - commit authorized."

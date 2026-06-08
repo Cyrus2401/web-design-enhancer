@@ -1,19 +1,19 @@
 /**
- * Design System Template - À personnaliser selon votre DESIGN.md
- * 
+ * Design System Template - customize from your DESIGN.md
+ *
  * INSTRUCTIONS:
- * 1. Remplacer les couleurs par celles de votre brand-kit.json
- * 2. Importer les polices Google Fonts dans votre HTML
- * 3. Adapter les espacements selon votre grille
- * 4. Valider avec: python3 audit_spacing.py --file design-system.css
+ * 1. Replace colors with those from your brand-kit.json
+ * 2. Import Google Fonts in your HTML
+ * 3. Adapt spacing to your grid
+ * 4. Validate with: python3 audit_spacing.py --file design-system.css
  */
 
 /* ============================================
-   1. VARIABLES CSS - PERSONNALISER
+   1. CSS VARIABLES - CUSTOMIZE
    ============================================ */
 
 :root {
-  /* Couleurs - À PERSONNALISER */
+  /* Colors - CUSTOMIZE */
   --color-primary: #3B82F6;
   --color-primary-dark: #2563EB;
   --color-secondary: #06B6D4;
@@ -25,12 +25,12 @@
   --color-border: #E2E8F0;
   --color-muted: #CBD5E1;
 
-  /* Typographie - À PERSONNALISER */
+  /* Typography - CUSTOMIZE */
   --font-display: 'Sora', sans-serif;
   --font-body: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Espacements - GRILLE 8PX */
+  /* Spacing - 8PX GRID */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
@@ -39,13 +39,13 @@
   --spacing-2xl: 48px;
   --spacing-3xl: 64px;
 
-  /* Rayons - MULTIPLES DE 4PX */
+  /* Radii - MULTIPLES OF 4PX */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
 
-  /* Ombres */
+  /* Shadows */
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
@@ -68,7 +68,7 @@
 }
 
 /* ============================================
-   2. RESET ET BASE
+   2. RESET AND BASE
    ============================================ */
 
 * {
@@ -90,7 +90,7 @@ body {
 }
 
 /* ============================================
-   3. TYPOGRAPHIE
+   3. TYPOGRAPHY
    ============================================ */
 
 h1 {
@@ -148,7 +148,7 @@ code, pre {
 }
 
 /* ============================================
-   4. BOUTONS
+   4. BUTTONS
    ============================================ */
 
 button, [role="button"] {
@@ -161,7 +161,7 @@ button, [role="button"] {
   font-weight: 500;
 }
 
-/* Variante Primary */
+/* Primary variant */
 .btn-primary {
   background-color: var(--color-primary);
   color: white;
@@ -177,7 +177,7 @@ button, [role="button"] {
   transform: scale(0.97);
 }
 
-/* Variante Secondary */
+/* Secondary variant */
 .btn-secondary {
   background-color: var(--color-border);
   color: var(--color-foreground);
@@ -187,7 +187,7 @@ button, [role="button"] {
   background-color: var(--color-muted);
 }
 
-/* Variante Ghost */
+/* Ghost variant */
 .btn-ghost {
   background-color: transparent;
   border: 2px solid var(--color-primary);
@@ -199,7 +199,7 @@ button, [role="button"] {
   color: white;
 }
 
-/* État Disabled */
+/* Disabled state */
 button:disabled,
 [role="button"][aria-disabled="true"] {
   opacity: 0.5;
@@ -207,7 +207,7 @@ button:disabled,
 }
 
 /* ============================================
-   5. CARTES
+   5. CARDS
    ============================================ */
 
 .card {
@@ -229,7 +229,7 @@ button:disabled,
 }
 
 /* ============================================
-   6. ENTRÉES (INPUT)
+   6. INPUTS
    ============================================ */
 
 input, textarea, select {
@@ -249,7 +249,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================================
-   7. CONTENEUR
+   7. CONTAINER
    ============================================ */
 
 .container {
@@ -272,7 +272,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================================
-   8. GRILLE
+   8. GRID
    ============================================ */
 
 .grid {
@@ -312,7 +312,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================================
-   10. ESPACEMENTS
+   10. SPACING
    ============================================ */
 
 /* Padding */
@@ -352,7 +352,7 @@ input:focus, textarea:focus, select:focus {
   animation: fadeIn var(--duration-transition) var(--ease-out);
 }
 
-/* Respecter prefers-reduced-motion */
+/* Respect prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
@@ -362,7 +362,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================================
-   12. UTILITAIRES
+   12. UTILITIES
    ============================================ */
 
 .text-center { text-align: center; }
@@ -385,15 +385,15 @@ input:focus, textarea:focus, select:focus {
    VALIDATION CHECKLIST
    ============================================
 
-   ✅ Tous les espacements = multiples de 8px
-   ✅ Tous les rayons = multiples de 4px
-   ✅ Animations ≤ 400ms
-   ✅ Respecte prefers-reduced-motion
-   ✅ Typographie hiérarchisée (max 7 niveaux)
-   ✅ Couleurs avec rôles sémantiques
-   ✅ Transitions cohérentes
-   ✅ Ombres en 4 niveaux
+   [OK] All spacings = multiples of 8px
+   [OK] All radii = multiples of 4px
+   [OK] Animations <= 400ms
+   [OK] Respects prefers-reduced-motion
+   [OK] Hierarchical typography (max 7 levels)
+   [OK] Colors with semantic roles
+   [OK] Consistent transitions
+   [OK] Shadows in 4 levels
 
-   Exécuter: python3 audit_spacing.py --file design-system.css
+   Run: python3 audit_spacing.py --file design-system.css
 
    ============================================ */

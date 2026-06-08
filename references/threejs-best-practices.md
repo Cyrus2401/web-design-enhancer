@@ -1,29 +1,29 @@
-# Three.js — Best Practices pour UI Web
+# Three.js — Best Practices for Web UI
 
-Guide de référence pour intégrer Three.js dans un projet web sans régresser en termes de performance, accessibilité ou maintenabilité.
+Reference guide for integrating Three.js into a web project without regressing in performance, accessibility, or maintainability.
 
 ---
 
 ## 1. Setup & Versioning
 
-**Épingler la version CDN.** Ne jamais utiliser `@latest` — il casse silencieusement.
+**Pin the CDN version.** Never use `@latest` — it breaks silently.
 
 ```html
-<!-- ✅ Version épinglée -->
+<!-- ✅ Pinned version -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-<!-- ❌ Flottant — casse dès que cdnjs met à jour -->
+<!-- ❌ Floating — breaks as soon as cdnjs updates -->
 <script src="https://unpkg.com/three@latest"></script>
 ```
 
-**Un seul renderer par page.** Les navigateurs limitent à 8–16 contextes GPU.
+**One renderer per page.** Browsers limit you to 8–16 GPU contexts.
 
 ```js
-// ✅ Créé une fois, lifetime = page
+// ✅ Created once, lifetime = page
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap obligatoire
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Mandatory cap
 
-// ❌ Recréé à chaque appel — épuise les contextes GPU
+// ❌ Recreated on every call — exhausts GPU contexts
 function initScene() {
   const renderer = new THREE.WebGLRenderer(); // context leak
 }
@@ -31,72 +31,72 @@ function initScene() {
 
 ---
 
-## 2. Pixel Ratio — Cap à 2
+## 2. Pixel Ratio — Cap at 2
 
-Retina 3x = 9 pixels par CSS pixel = coût GPU ×2.25 sans gain visible.
+Retina 3x = 9 pixels per CSS pixel = 2.25× GPU cost with no visible gain.
 
 ```js
-// ✅ Toujours capé
+// ✅ Always capped
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-// ❌ Nu — sur iPhone Pro Max : 3× = coût GPU inutile
+// ❌ Bare — on iPhone Pro Max: 3× = wasted GPU cost
 renderer.setPixelRatio(window.devicePixelRatio);
 ```
 
 ---
 
-## 3. Géométrie — Règles critiques
+## 3. Geometry — Critical Rules
 
-**Jamais dans `animate()`.** Chaque `new THREE.XxxGeometry()` dans la boucle = nouveau buffer GPU = VRAM exhausted en secondes.
+**Never inside `animate()`.** Each `new THREE.XxxGeometry()` in the loop = a new GPU buffer = VRAM exhausted in seconds.
 
 ```js
-// ✅ Créé une fois avant la boucle
+// ✅ Created once before the loop
 const geo = new THREE.SphereGeometry(1, 32, 32);
 const mesh = new THREE.Mesh(geo, mat);
 scene.add(mesh);
 
 function animate() {
   requestAnimationFrame(animate);
-  mesh.rotation.y += 0.01;       // ✅ Muter, pas recréer
+  mesh.rotation.y += 0.01;       // ✅ Mutate, don't recreate
   renderer.render(scene, camera);
 }
 
-// ❌ VRAM leak critique
+// ❌ Critical VRAM leak
 function animate() {
   requestAnimationFrame(animate);
-  const geo = new THREE.SphereGeometry(1, 32, 32); // nouveau buffer GPU chaque frame
+  const geo = new THREE.SphereGeometry(1, 32, 32); // new GPU buffer every frame
 }
 ```
 
-**Budget segments.**
+**Segment budget.**
 
-| Rôle | Segments |
+| Role | Segments |
 | :--- | :--- |
 | Hero foreground | 32–64 |
 | Background / ambient | 8–16 |
 | Particles stand-in | 6–8 |
 
-**Partager la géométrie** entre meshes identiques.
+**Share geometry** across identical meshes.
 
 ```js
-// ✅ Un buffer GPU pour 200 objets
+// ✅ One GPU buffer for 200 objects
 const geo = new THREE.BoxGeometry(1, 1, 1);
 for (let i = 0; i < 200; i++) {
-  const m = new THREE.Mesh(geo, mat); // même géo, transforms différents
+  const m = new THREE.Mesh(geo, mat); // same geo, different transforms
   scene.add(m);
 }
 
-// ❌ 200 buffers GPU identiques
+// ❌ 200 identical GPU buffers
 for (let i = 0; i < 200; i++) {
   const geo = new THREE.BoxGeometry(1, 1, 1);
   scene.add(new THREE.Mesh(geo, mat));
 }
 ```
 
-**`CapsuleGeometry` n'existe pas en r128** (ajouté en r142).
+**`CapsuleGeometry` does not exist in r128** (added in r142).
 
 ```js
-// ✅ Capsule construite à la main
+// ✅ Capsule built by hand
 const body = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 1, 16), mat);
 const top  = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 8), mat);
 const bot  = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 8), mat);
@@ -112,23 +112,23 @@ const cap = new THREE.CapsuleGeometry(0.5, 1, 4, 8);
 
 ## 4. Materials & Textures
 
-**Partager les materials** identiques.
+**Share identical materials.**
 
 ```js
-// ✅ Une instance partagée
+// ✅ One shared instance
 const mat = new THREE.MeshStandardMaterial({ color: 0x4f46e5, roughness: 0.4 });
 meshA.material = mat;
 meshB.material = mat;
 
-// ❌ N instances inutiles
+// ❌ N unnecessary instances
 for (const m of meshes) {
   m.material = new THREE.MeshStandardMaterial({ color: 0x4f46e5 });
 }
 ```
 
-**`MeshBasicMaterial`** pour les éléments décoratifs plats — pas besoin de lights.
+**`MeshBasicMaterial`** for flat decorative elements — no lights needed.
 
-**Dispose explicite.** Three.js ne libère jamais la VRAM automatiquement.
+**Explicit dispose.** Three.js never releases VRAM automatically.
 
 ```js
 function removeMesh(mesh) {
@@ -143,32 +143,32 @@ function removeMesh(mesh) {
 
 ---
 
-## 5. Caméra
+## 5. Camera
 
-**Toujours `lookAt()` avant le premier render.**
+**Always `lookAt()` before the first render.**
 
 ```js
 camera.position.set(0, 1.5, 5);
-camera.lookAt(new THREE.Vector3(0, 0, 0)); // scène visible dès le premier frame
+camera.lookAt(new THREE.Vector3(0, 0, 0)); // scene visible from the first frame
 ```
 
-**Mettre à jour l'aspect sur resize.**
+**Update aspect on resize.**
 
 ```js
 window.addEventListener('resize', () => {
   camera.aspect = canvas.clientWidth / canvas.clientHeight;
-  camera.updateProjectionMatrix();             // obligatoire après aspect change
+  camera.updateProjectionMatrix();             // mandatory after aspect change
   renderer.setSize(canvas.clientWidth, canvas.clientHeight);
 });
 ```
 
-**FOV :** 45–75°. En dessous = compression télé, au-dessus = fisheye.
+**FOV:** 45–75°. Below = telephoto compression, above = fisheye.
 
 ---
 
 ## 6. Lighting
 
-Minimum pour `MeshStandardMaterial` ou `MeshPhongMaterial` :
+Minimum for `MeshStandardMaterial` or `MeshPhongMaterial`:
 
 ```js
 scene.add(new THREE.AmbientLight(0xffffff, 0.4));  // fill
@@ -177,37 +177,37 @@ key.position.set(5, 10, 7.5);
 scene.add(key);
 ```
 
-Shadows — coûteux, activer sélectivement :
+Shadows — expensive, enable selectively:
 
 ```js
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-key.castShadow = true;               // seulement la key light
-heroMesh.castShadow = true;          // seulement le hero
+key.castShadow = true;               // only the key light
+heroMesh.castShadow = true;          // only the hero
 ground.receiveShadow = true;
-// particles, background meshes : pas de shadow
+// particles, background meshes: no shadow
 ```
 
 ---
 
 ## 7. Raycasting
 
-**Un seul `Raycaster` réutilisé.** Stocker les coords dans `pointermove`, caster dans `animate()`.
+**One reusable `Raycaster`.** Store coords in `pointermove`, cast inside `animate()`.
 
 ```js
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 canvas.addEventListener('pointermove', e => {
-  // ✅ Seulement stocker — pas de raycasting ici
+  // ✅ Only store — no raycasting here
   mouse.x =  (e.clientX / canvas.clientWidth)  * 2 - 1;
-  mouse.y = -(e.clientY / canvas.clientHeight) * 2 + 1; // Y inversé
+  mouse.y = -(e.clientY / canvas.clientHeight) * 2 + 1; // Y inverted
 });
 
 function animate() {
   requestAnimationFrame(animate);
   raycaster.setFromCamera(mouse, camera);          // update ray
-  const hits = raycaster.intersectObjects(targets, true); // recursive pour Groups
+  const hits = raycaster.intersectObjects(targets, true); // recursive for Groups
   document.body.style.cursor = hits.length > 0 ? 'pointer' : 'auto';
   renderer.render(scene, camera);
 }
@@ -217,22 +217,22 @@ function animate() {
 
 ## 8. GSAP + Three.js (Scroll-Driven)
 
-La règle ≤ 400ms du DESIGN.md s'applique aux **transitions UI**, pas aux animations Three.js scroll-driven.
+The ≤ 400ms rule from DESIGN.md applies to **UI transitions**, not to scroll-driven Three.js animations.
 
 ```js
-// ✅ Caméra scroll-driven — pas une transition UI
+// ✅ Scroll-driven camera — not a UI transition
 gsap.to(camera.position, {
   z: 2,
   scrollTrigger: { trigger: '.scene', scrub: 1 }
 });
 
-// ✅ UI transition — s'applique la règle 400ms
+// ✅ UI transition — the 400ms rule applies
 gsap.to('.overlay', { opacity: 0, duration: 0.3 });
 ```
 
-**OrbitControls vs GSAP rig :**
-- `OrbitControls` → model viewer, exploration libre
-- GSAP scroll rig → product reveal, storytelling scripted
+**OrbitControls vs GSAP rig:**
+- `OrbitControls` → model viewer, free exploration
+- GSAP scroll rig → product reveal, scripted storytelling
 
 ---
 
@@ -244,32 +244,32 @@ const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').mat
 function animate() {
   requestAnimationFrame(animate);
   if (!prefersReduced) {
-    mesh.rotation.y += clock.getDelta() * 0.8; // animation normale
+    mesh.rotation.y += clock.getDelta() * 0.8; // normal animation
   }
-  // renderer toujours actif — la scène est visible mais figée
+  // renderer still active — the scene is visible but frozen
   renderer.render(scene, camera);
 }
 ```
 
 ---
 
-## 10. Accessibilité WebGL
+## 10. WebGL Accessibility
 
 ```html
-<!-- Canvas avec rôle et label -->
+<!-- Canvas with role and label -->
 <canvas id="three-canvas"
         role="img"
-        aria-label="Visualisation 3D de l'infrastructure réseau"
+        aria-label="3D visualization of the network infrastructure"
         aria-describedby="three-desc">
 </canvas>
 <p id="three-desc" class="sr-only">
-  Schéma interactif des nœuds réseau. Survoler pour explorer.
+  Interactive diagram of network nodes. Hover to explore.
 </p>
 ```
 
 ---
 
-## 11. Fallback WebGL
+## 11. WebGL Fallback
 
 ```js
 function hasWebGL() {
@@ -287,18 +287,18 @@ if (!hasWebGL()) {
 
 ---
 
-## Antipatterns détectés automatiquement par `detect_ai_slop.py`
+## Antipatterns automatically detected by `detect_ai_slop.py`
 
-| Pattern | Sévérité | Règle |
+| Pattern | Severity | Rule |
 | :--- | :--- | :--- |
-| `new THREE.XxxGeometry()` dans `animate()` | Critique | VRAM leak |
-| `setPixelRatio(window.devicePixelRatio)` nu | Haute | Cap à 2 obligatoire |
-| `new THREE.WebGLRenderer()` dans une fonction | Haute | GPU context leak |
-| `new THREE.Raycaster()` dans `mousemove` | Haute | 200+ allocations/sec |
-| Material recréé dans une boucle | Haute | Partager les instances |
-| `THREE.CapsuleGeometry` (r128) | Critique | N'existe pas avant r142 |
-| `scene.remove()` sans `dispose()` | Haute | VRAM leak permanent |
-| SphereGeometry 128+ segments | Moyenne | Budget excessif |
-| `castShadow` en boucle sur tous les objets | Haute | Double pass GPU |
-| CDN `@latest` non versionné | Critique | Casse silencieux |
-| `PerspectiveCamera` sans `lookAt()` | Moyenne | Scène potentiellement vide |
+| `new THREE.XxxGeometry()` inside `animate()` | Critical | VRAM leak |
+| Bare `setPixelRatio(window.devicePixelRatio)` | High | Cap at 2 mandatory |
+| `new THREE.WebGLRenderer()` inside a function | High | GPU context leak |
+| `new THREE.Raycaster()` inside `mousemove` | High | 200+ allocations/sec |
+| Material recreated inside a loop | High | Share instances |
+| `THREE.CapsuleGeometry` (r128) | Critical | Does not exist before r142 |
+| `scene.remove()` without `dispose()` | High | Permanent VRAM leak |
+| SphereGeometry 128+ segments | Medium | Excessive budget |
+| `castShadow` looped over every object | High | Double GPU pass |
+| Unversioned `@latest` CDN | Critical | Silent breakage |
+| `PerspectiveCamera` without `lookAt()` | Medium | Scene potentially empty |

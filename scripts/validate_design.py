@@ -2,13 +2,13 @@
 """
 Design Validation Script for web-design-enhancer
 
-Valide un fichier DESIGN.md pour éviter le "AI slop":
-- Vérifie les espacements (multiples de 8px)
-- Valide la typographie (max 2 polices)
-- Contrôle les couleurs (rôles sémantiques)
-- Audit les animations (≤ 400ms) — gère ms ET secondes
-- Valide le contraste WCAG AA (4.5:1 texte, 3.0:1 UI)
-- Détecte les antipatterns (gradients clichés, icônes génériques)
+Validates a DESIGN.md file to prevent "AI slop":
+- Checks spacings (multiples of 8px)
+- Validates typography (max 2 fonts)
+- Audits colors (semantic roles)
+- Audits animations (<= 400ms) — handles ms AND seconds
+- Validates WCAG AA contrast (4.5:1 text, 3.0:1 UI)
+- Detects antipatterns (cliche gradients, generic icons)
 
 Usage:
     python3 validate_design.py DESIGN.md
@@ -21,69 +21,76 @@ import json
 from pathlib import Path
 from typing import List, Dict, Tuple
 
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 
 class DesignValidator:
-    """Validateur de DESIGN.md"""
+    """DESIGN.md validator."""
 
     def __init__(self, filepath: str, strict: bool = False):
         self.filepath = Path(filepath)
         self.strict = strict
         self.errors: List[str] = []
         self.warnings: List[str] = []
-        self._has_threejs: bool = False  # Three.js en scope
+        self._has_threejs: bool = False  # Three.js in scope
         self.content = ""
         self.sections = {}
 
     def run(self) -> bool:
-        """Exécute la validation complète. Retourne True si OK."""
+        """Run the full validation. Returns True if OK."""
         if not self.filepath.exists():
-            print(f"❌ Erreur: Fichier {self.filepath} non trouvé")
+            print(f"[ERROR] File {self.filepath} not found")
             return False
 
         self.content = self.filepath.read_text(encoding="utf-8")
         self._parse_sections()
 
         # Validations
-        self._validate_phase0_evidence()    # Gate 0 — preuve d'exécution Phase 0
+        self._validate_phase0_evidence()    # Gate 0 — proof Phase 0 was executed
         self._validate_structure()
-        self._validate_theme_originality()  # Niveau 1 — bloquer dès le DESIGN.md
+        self._validate_theme_originality()  # Level 1 — block at DESIGN.md stage
         self._validate_typography()
-        self._validate_hierarchy()  # §4 — plages H1/H2/H3/P/Small (WCAG + lisibilité)
+        self._validate_hierarchy()  # §4 — H1/H2/H3/P/Small ranges (WCAG + readability)
         self._validate_colors()
         self._validate_wcag_contrast()
         self._validate_spacing()
         self._validate_animations()
         self._validate_components()
         self._detect_antipatterns()
-        self._validate_dark_mode()  # Section dark mode obligatoire
-        self._validate_ux_completeness()  # Règles UX issues de l'audit visuel
-        self._validate_mobile()      # Section mobile (optionnelle mais validée si présente)
-        self._validate_dark_mode_required()  # §8 obligatoire si fond sombre
-        self._validate_section_density()     # Densité Contact/CTA + grille N impair
-        self._validate_threejs()           # §10 Three.js (optionnel, validé si présent)
+        self._validate_dark_mode()  # Dark mode section mandatory
+        self._validate_ux_completeness()  # UX rules from real visual audit
+        self._validate_mobile()      # Mobile section (optional, validated if present)
+        self._validate_dark_mode_required()  # §8 mandatory if dark background
+        self._validate_section_density()     # Contact/CTA density + odd N grid
+        self._validate_threejs()           # §10 Three.js (optional, validated if present)
 
-        # Dédupliquer les erreurs identiques
+        # Deduplicate identical errors
         self.errors   = list(dict.fromkeys(self.errors))
         self.warnings = list(dict.fromkeys(self.warnings))
 
-        # Rapport
+        # Report
         self._print_report()
         return len(self.errors) == 0
 
     def _parse_sections(self):
-        """Parse les sections principales du DESIGN.md"""
+        """Parse main DESIGN.md sections (English headings)."""
         sections = {
-            "theme": r"## 1\. Thème Visuel.*?(?=\n## |\Z)",
-            "colors": r"## 2\. Palette de Couleurs.*?(?=\n## |\Z)",
-            "typography": r"## 3\. Typographie.*?(?=\n## |\Z)",
-            "hierarchy": r"## 4\. Hiérarchie Typographique.*?(?=\n## |\Z)",
-            "spacing": r"## 5\. Espacement et Grille.*?(?=\n## |\Z)",
-            "components": r"## 6\. Composants et États.*?(?=\n## |\Z)",
-            "animations": r"## 7\. Motion et Animations.*?(?=\n## |\Z)",
-            "checklist": r"## ✅ Checklist.*?(?=\\n## |\\Z)",
-            "darkmode": r"## 8\. Dark Mode.*?(?=\n## |\Z)",
-            "mobile": r"## 9\. Mobile.*?(?=\n## |\Z)",
-            "threejs": r"## 10\. Three\.js.*?(?=\n## |\Z)",
+            "theme":      r"## 1\. Theme.*?(?=\n## |\Z)",
+            "colors":     r"## 2\. Color Palette.*?(?=\n## |\Z)",
+            "typography": r"## 3\. Typography\b.*?(?=\n## |\Z)",
+            "hierarchy":  r"## 4\. Typography Hierarchy.*?(?=\n## |\Z)",
+            "spacing":    r"## 5\. Spacing.*?(?=\n## |\Z)",
+            "components": r"## 6\. Components.*?(?=\n## |\Z)",
+            "animations": r"## 7\. Motion.*?(?=\n## |\Z)",
+            "checklist":  r"## .*?Checklist.*?(?=\n## |\Z)",
+            "darkmode":   r"## 8\. Dark Mode.*?(?=\n## |\Z)",
+            "mobile":     r"## 9\. Mobile.*?(?=\n## |\Z)",
+            "threejs":    r"## 10\. Three\.js.*?(?=\n## |\Z)",
         }
 
         for name, pattern in sections.items():
@@ -92,33 +99,33 @@ class DesignValidator:
 
     def _validate_phase0_evidence(self):
         """
-        Gate 0 — Vérifie que Phase 0 a été réellement exécutée.
-        Sans preuve dans le DESIGN.md → bloque tout le reste.
-        Empêche l'IA de sauter Phase 0 et d'inventer le DESIGN.md depuis son training data.
+        Gate 0 — Verify Phase 0 was actually executed.
+        Without evidence in DESIGN.md -> block everything else.
+        Prevents the AI from skipping Phase 0 and fabricating DESIGN.md from training data.
         """
         missing = []
 
-        # Section obligatoire
+        # Mandatory section
         if "## 0. Sources Phase 0" not in self.content:
             self.errors.append(
-                "[PHASE 0 MANQUANTE] La section '## 0. Sources Phase 0' est absente du DESIGN.md. "
-                "Phase 0 (getdesign.md + UI/UX Pro Max) doit être exécutée avant tout code. "
-                "Utiliser templates/design-md-template.md comme base."
+                "[PHASE 0 MISSING] Section '## 0. Sources Phase 0' is absent from DESIGN.md. "
+                "Phase 0 (getdesign.md + UI/UX Pro Max) must be executed before any code. "
+                "Use templates/design-md-template.md as a base."
             )
-            return  # Inutile de continuer — preuve totalement absente
+            return  # No point continuing — evidence totally absent
 
-        # Vérifier que les placeholders ont été remplacés par de vraies valeurs
+        # Verify placeholders have been replaced with real values
         placeholder_patterns = [
-            (r"\[Ex:", "Contient encore des placeholders non remplis '[Ex: ...]'"),
-            (r"Brand utilisée\s*:\s*\[", "Brand getdesign.md non renseignée"),
-            (r"Commande exécutée\s*:\s*`npx getdesign@latest add <brand>`",
-             "Commande getdesign.md non exécutée (placeholder '<brand>' non remplacé)"),
-            (r"Requête exécutée\s*:\s*`python3 scripts/search\.py \"<description>\"",
-             "Commande UI/UX Pro Max non exécutée (placeholder non remplacé)"),
-            (r"Style retenu\s*:\s*\[",
-             "Style UI/UX Pro Max non renseigné — search.py doit être lancé"),
-            (r"Justification.*?:\s*\[",
-             "Justification du thème non renseignée"),
+            (r"\[Ex:", "Still contains unfilled placeholders '[Ex: ...]'"),
+            (r"Brand used\s*:\s*\[", "getdesign.md brand not filled in"),
+            (r"Command executed\s*:\s*`npx getdesign@latest add <brand>`",
+             "getdesign.md command not run ('<brand>' placeholder not replaced)"),
+            (r"Query executed\s*:\s*`python3 scripts/search\.py \"<description>\"",
+             "UI/UX Pro Max command not run (placeholder not replaced)"),
+            (r"Style chosen\s*:\s*\[",
+             "UI/UX Pro Max style not filled in — search.py must be run"),
+            (r"Rationale.*?:\s*\[",
+             "Theme rationale not filled in"),
         ]
 
         for pattern, message in placeholder_patterns:
@@ -126,44 +133,44 @@ class DesignValidator:
                 missing.append(message)
 
         for msg in missing:
-            self.errors.append(f"[PHASE 0 INCOMPLÈTE] {msg}")
+            self.errors.append(f"[PHASE 0 INCOMPLETE] {msg}")
 
         if missing:
             self.errors.append(
-                "→ Exécuter Phase 0 avant de continuer : "
+                "-> Execute Phase 0 before continuing: "
                 "(1) npx getdesign@latest add <brand>  "
-                "(2) python3 scripts/search.py '<description>' --design-system -p '<Projet>'  "
-                "(3) Remplir la section '## 0. Sources Phase 0' avec les vraies valeurs."
+                "(2) python3 scripts/search.py '<description>' --design-system -p '<Project>'  "
+                "(3) Fill section '## 0. Sources Phase 0' with real values."
             )
 
     def _validate_theme_originality(self):
         """
-        Niveau 1 — Détecte les thèmes et concepts IA clichés directement dans le DESIGN.md.
-        Bloque avant que le code soit écrit.
+        Level 1 — Detect AI-cliche themes and concepts directly in DESIGN.md.
+        Blocks before any code is written.
         """
         FORBIDDEN_THEMES = [
             (r"\bdark\s+cyberpunk\b",
-             "'dark cyberpunk' — cliché IA #1 portfolios tech. Décrire la texture réelle à la place."),
+             "'dark cyberpunk' — AI cliche #1 for tech portfolios. Describe the real texture instead."),
             (r"\bcyberneti[cq]",
-             "'cybernétique/cybernetic' — esthétique IA générique. Spécifier les vrais tokens visuels."),
+             "'cybernetic' — generic AI aesthetic. Specify the real visual tokens."),
             (r"\bglow[\s-]cursor\b",
-             "Glow cursor — effet non demandé, signal IA fort. Supprimer du DESIGN.md."),
+             "Glow cursor — unsolicited effect, strong AI signal. Remove from DESIGN.md."),
             (r"\bgrid[\s-]background\b",
-             "Grid background — fond grille présent dans 90% des portfolios dev IA. Utiliser fond uni."),
+             "Grid background — present in 90% of AI dev portfolios. Use a solid background."),
             (r"\bglassmorphism\b",
-             "Glassmorphism — tendance épuisée. Autoriser uniquement pour modals/dropdowns fonctionnels."),
+             "Glassmorphism — exhausted trend. Allow only for functional modals/dropdowns."),
             (r"\bneon[\s-]glow\b|\bneon[\s-]accent",
-             "Neon glow/accents — signal IA cyberpunk immédiat."),
+             "Neon glow/accents — immediate AI cyberpunk signal."),
             (r"\bparticle(?:s)?[\s-](?:background|effect|js)\b",
-             "Particles background — overdone depuis 2018, signal IA fort."),
+             "Particles background — overdone since 2018, strong AI signal."),
             (r"\btyp(?:ewriter|ed)[\s-]effect\b|\btyped\.js\b",
-             "Typewriter/typed effect — cliché portfolio dev. Titre statique uniquement."),
+             "Typewriter/typed effect — dev portfolio cliche. Static title only."),
             (r"\bsys[_\s]status\b",
-             "SYS_STATUS badge — injection IA non demandée. Doit être justifié dans le brief."),
+             "SYS_STATUS badge — unsolicited AI injection. Must be justified in the brief."),
             (r"\bhero[\s-]badge\b",
-             "Hero badge décoratif — l'information est déjà dans le H1/H2. Supprimer."),
+             "Decorative hero badge — the info is already in H1/H2. Remove."),
             (r"\bstyle\s+(?:monitoring|grafana|datadog)\b",
-             "Style Monitoring/Grafana comme thème — générique IA pour profils sysadmin."),
+             "Monitoring/Grafana style as a theme — generic AI choice for sysadmin profiles."),
         ]
 
         found = []
@@ -172,29 +179,29 @@ class DesignValidator:
                 found.append(message)
 
         for msg in found:
-            self.errors.append(f"[THÈME INTERDIT] {msg}")
+            self.errors.append(f"[FORBIDDEN THEME] {msg}")
 
         if found:
             self.errors.append(
-                "→ Corriger le DESIGN.md avant tout code. "
-                "Chaque concept interdit doit être remplacé par une description "
-                "spécifique au projet réel, pas au secteur."
+                "-> Fix DESIGN.md before any code. "
+                "Each forbidden concept must be replaced with a description "
+                "specific to the real project, not the sector."
             )
 
     def _validate_structure(self):
-        """Vérifie que toutes les sections obligatoires existent"""
+        """Verify all mandatory sections exist."""
         required = ["theme", "colors", "typography", "spacing", "components", "animations"]
         for section in required:
             if not self.sections.get(section):
-                self.errors.append(f"❌ Section obligatoire manquante: {section}")
+                self.errors.append(f"[ERROR] Mandatory section missing: {section}")
 
     def _validate_typography(self):
-        """Valide la typographie (max 2 polices)"""
+        """Validate typography (max 2 fonts)."""
         typography_section = self.sections.get("typography", "")
 
-        # Détecte les polices mentionnées
+        # Detect mentioned fonts
         font_patterns = [
-            r"(?:Font|Police|Typeface):\s*([A-Za-z\s]+?)(?:\n|,|$)",
+            r"(?:Font|Typeface):\s*([A-Za-z\s]+?)(?:\n|,|$)",
             r"\*\*([A-Za-z\s]+?)\*\*.*?(?:Display|Body|Monospace)",
         ]
 
@@ -203,50 +210,50 @@ class DesignValidator:
             matches = re.findall(pattern, typography_section, re.IGNORECASE)
             fonts.update(m.strip() for m in matches if m.strip())
 
-        # Exclure les mots-clés non-polices
-        exclude = {"font", "police", "typeface", "raison", "utilisation", "poids", "espacement"}
+        # Exclude non-font keywords
+        exclude = {"font", "typeface", "reason", "usage", "weight", "spacing"}
         fonts = {f for f in fonts if f.lower() not in exclude and len(f) > 2}
 
-        # Max 2 familles — la police monospace compte comme 3e famille
-        # Justification : 3 familles = signal AI slop (le générateur ajoute toujours une mono)
-        # Si une mono est nécessaire, elle doit remplacer display ou body, pas s'y ajouter
+        # Max 2 families — monospace counts as the 3rd family
+        # Rationale: 3 families = AI slop signal (the generator always adds a mono)
+        # If a mono is needed, it must replace display or body, not add to them.
         if len(fonts) > 2:
             self.errors.append(
-                f"❌ Trop de polices ({len(fonts)}): {', '.join(sorted(fonts))}. "
-                f"Max 2 familles — la police monospace compte comme 3e. "
-                f"Si JetBrains Mono / Fira Code est nécessaire, remplacer display ou body, pas s'ajouter."
+                f"[ERROR] Too many fonts ({len(fonts)}): {', '.join(sorted(fonts))}. "
+                f"Max 2 families — monospace counts as the 3rd. "
+                f"If JetBrains Mono / Fira Code is needed, replace display or body, do not add."
             )
         elif len(fonts) < 2:
-            self.warnings.append(f"⚠️  Polices insuffisantes ({len(fonts)}): Minimum 2 requises")
+            self.warnings.append(f"[WARN] Insufficient fonts ({len(fonts)}): minimum 2 required")
 
-        # Vérifie les polices génériques (antipattern)
+        # Generic font check (antipattern)
         generic_fonts = {"helvetica", "arial", "times new roman", "georgia", "verdana"}
         for font in fonts:
             if font.lower() in generic_fonts:
-                self.errors.append(f"❌ Police générique détectée: {font}. Utiliser Google Fonts ou custom")
+                self.errors.append(f"[ERROR] Generic font detected: {font}. Use Google Fonts or custom")
 
     def _validate_hierarchy(self):
-        """§4 — Valide les plages de tailles typographiques.
+        """§4 — Validate typography size ranges.
 
-        Sources :
-        - H1 28–80px  : plage display lisible (en-dessous = pas de hiérarchie, au-dessus = AI slop hero géant)
-        - H2 22–60px  : plage sous-titre de section
-        - H3 18–36px  : plage titre de carte / sous-section
-        - P  13–18px  : plage WCAG lisibilité corps de texte (en-dessous = inaccessible, au-dessus = signal IA)
-        - Small 11–14px : caption / méta
+        Sources:
+        - H1 28–80px  : readable display range (below = no hierarchy, above = AI-slop giant hero)
+        - H2 22–60px  : section subtitle range
+        - H3 18–36px  : card/sub-section title range
+        - P  13–18px  : WCAG body-text readability (below = inaccessible, above = AI signal)
+        - Small 11–14px : caption / meta
 
-        Le §4 doit être présent. Cette validation ferme la dernière brèche subjective
-        du pipeline ("vérifiable > subjectif").
+        §4 must be present. This validation closes the last subjective gap
+        in the pipeline ("verifiable > subjective").
         """
         hierarchy_section = self.sections.get("hierarchy", "")
         if not hierarchy_section:
             self.warnings.append(
-                "⚠️  Section '## 4. Hiérarchie Typographique' absente. "
-                "Définir H1/H2/H3/P/Small avec tailles px pour validation automatique."
+                "[WARN] Section '## 4. Typography Hierarchy' missing. "
+                "Define H1/H2/H3/P/Small with px sizes for automated validation."
             )
             return
 
-        # Plages recommandées en px (min, max)
+        # Recommended ranges in px (min, max)
         RANGES = {
             "h1":    (28, 80),
             "h2":    (22, 60),
@@ -255,9 +262,9 @@ class DesignValidator:
             "small": (11, 14),
         }
 
-        # Matche les lignes du type "- **H1**: 48px / 700 / 1.2"
-        # ou "- **P (Paragraphe)**: 16px ..." — on capture le label et la première valeur px
-        # Le label peut contenir un chiffre (H1, H2, H3) — d'où [A-Za-z]\w*
+        # Matches lines like "- **H1**: 48px / 700 / 1.2"
+        # or "- **P (Paragraph)**: 16px ..." — capture the label and the first px value
+        # The label can contain a digit (H1, H2, H3) — hence [A-Za-z]\w*
         line_pattern = re.compile(
             r"^\s*-\s*\*\*\s*([A-Za-z]\w*)(?:\s*\([^)]+\))?\s*\*\*\s*:\s*(\d+)\s*px",
             re.MULTILINE
@@ -273,143 +280,143 @@ class DesignValidator:
             lo, hi = RANGES[label]
             if val < lo:
                 self.errors.append(
-                    f"❌ §4 Hiérarchie : {label.upper()} trop petit ({val}px). "
-                    f"Plage attendue : {lo}–{hi}px."
+                    f"[ERROR] §4 Hierarchy: {label.upper()} too small ({val}px). "
+                    f"Expected range: {lo}-{hi}px."
                 )
             elif val > hi:
                 self.errors.append(
-                    f"❌ §4 Hiérarchie : {label.upper()} trop grand ({val}px). "
-                    f"Plage attendue : {lo}–{hi}px."
+                    f"[ERROR] §4 Hierarchy: {label.upper()} too large ({val}px). "
+                    f"Expected range: {lo}-{hi}px."
                 )
 
-        # Vérifier qu'au minimum H1 et P sont déclarés avec des valeurs px
+        # At minimum H1 and P must be declared with px values
         if "h1" not in found_levels:
             self.warnings.append(
-                "⚠️  §4 Hiérarchie : H1 absent ou sans valeur en px. "
-                "Format attendu : '- **H1**: 48px / 700 / 1.2'."
+                "[WARN] §4 Hierarchy: H1 missing or without a px value. "
+                "Expected format: '- **H1**: 48px / 700 / 1.2'."
             )
         if "p" not in found_levels:
             self.warnings.append(
-                "⚠️  §4 Hiérarchie : P (corps de texte) absent ou sans valeur en px. "
-                "Format attendu : '- **P**: 16px / 400 / 1.6'."
+                "[WARN] §4 Hierarchy: P (body text) missing or without a px value. "
+                "Expected format: '- **P**: 16px / 400 / 1.6'."
             )
 
     def _validate_colors(self):
-        """Valide la palette de couleurs"""
+        """Validate the color palette."""
         colors_section = self.sections.get("colors", "")
 
-        # Détecte les couleurs hex
+        # Detect hex colors
         hex_pattern = r"#[0-9A-Fa-f]{6}"
         colors = re.findall(hex_pattern, colors_section)
 
         if len(colors) < 4:
-            self.errors.append(f"❌ Trop peu de couleurs ({len(colors)}). Minimum 4 requises")
+            self.errors.append(f"[ERROR] Too few colors ({len(colors)}). Minimum 4 required")
         elif len(colors) > 8:
-            self.errors.append(f"❌ Trop de couleurs ({len(colors)}). Maximum 8 recommandé")
+            self.errors.append(f"[ERROR] Too many colors ({len(colors)}). Maximum 8 recommended")
 
-        # Vérifie les rôles sémantiques — liste élargie avec tous les synonymes usuels
+        # Check semantic roles
         roles = [
-            "primaire", "primary",
-            "secondaire", "secondary",
+            "primary",
+            "secondary",
             "accent",
-            "fond", "background", "bg",
-            "texte", "foreground", "text",
-            "succès", "success", "succes",
-            "attention", "warning", "avertissement",
-            "danger", "destruction", "error", "erreur",
-            "muet", "muted", "border", "bordure", "surface",
+            "background", "bg",
+            "foreground", "text",
+            "success",
+            "warning",
+            "danger", "destructive", "error",
+            "muted", "border", "surface",
             "ring", "card",
         ]
         found_roles = sum(1 for role in roles if role.lower() in colors_section.lower())
 
         if found_roles < 4:
-            self.warnings.append(f"⚠️  Rôles sémantiques insuffisants ({found_roles}). Minimum 4 recommandé")
+            self.warnings.append(f"[WARN] Insufficient semantic roles ({found_roles}). Minimum 4 recommended")
 
-        # Détecte les gradients clichés
+        # Cliche gradients
         cliche_gradients = [
-            (r"bleu.*?violet|blue.*?purple", "bleu→violet"),
-            (r"rose.*?violet|pink.*?purple", "rose→violet"),
-            (r"rose.*?rouge|pink.*?red", "rose→rouge"),
-            (r"cyan.*?bleu|cyan.*?blue", "cyan→bleu"),
+            (r"blue.*?purple", "blue->purple"),
+            (r"pink.*?purple", "pink->purple"),
+            (r"pink.*?red", "pink->red"),
+            (r"cyan.*?blue", "cyan->blue"),
         ]
 
         for pattern, name in cliche_gradients:
             if re.search(pattern, colors_section, re.IGNORECASE):
-                self.warnings.append(f"⚠️  Gradient cliché détecté: {name}. Justifier par rôle sémantique")
+                self.warnings.append(f"[WARN] Cliche gradient detected: {name}. Justify by semantic role")
 
     def _validate_spacing(self):
-        """Valide que tous les espacements sont multiples de 8px"""
+        """Validate that all spacings are multiples of 8px."""
         spacing_section = self.sections.get("spacing", "")
 
-        # Détecte les valeurs de spacing
+        # Detect spacing values
         spacing_pattern = r"(\d+)\s*px"
         spacings = re.findall(spacing_pattern, spacing_section)
 
         invalid_spacings = []
         for spacing in spacings:
             value = int(spacing)
-            if value % 8 != 0 and value != 4:  # 4px acceptable pour micro-espacements
+            if value % 8 != 0 and value != 4:  # 4px acceptable for micro-spacings
                 invalid_spacings.append(value)
 
         if invalid_spacings:
             self.errors.append(
-                f"❌ Espacements non-multiples de 8px: {invalid_spacings}. "
-                f"Utiliser: 4, 8, 16, 24, 32, 48, 64"
+                f"[ERROR] Spacings not multiples of 8px: {invalid_spacings}. "
+                f"Use: 4, 8, 16, 24, 32, 48, 64"
             )
 
-        # Vérifie la présence de la grille 8px
+        # 8px grid mentioned?
         if "8px" not in spacing_section and "8 px" not in spacing_section:
-            self.warnings.append("⚠️  Grille 8px non mentionnée explicitement")
+            self.warnings.append("[WARN] 8px grid not explicitly mentioned")
 
     def _validate_animations(self):
-        """Valide les animations (durée ≤ 400ms) — gère ms et s séparément."""
+        """Validate animations (duration <= 400ms) — handles ms and s separately."""
         animations_section = self.sections.get("animations", "")
 
-        # Durées explicitement en millisecondes (ex: 200ms, 300ms, 50ms)
+        # Explicit millisecond durations (e.g. 200ms, 300ms, 50ms)
         ms_raw = re.findall(r"(\d+(?:\.\d+)?)\s*ms\b", animations_section)
         ms_values = [(float(v), f"{v}ms") for v in ms_raw]
 
-        # Durées en secondes (ex: 0.3s, 1s, 2s) — exclut le mot "seconds"
-        # Le pattern ne matche PAS "Nms" car après N vient 'm', pas 's' directement
+        # Durations in seconds (e.g. 0.3s, 1s, 2s) — exclude the word "seconds"
+        # The pattern does NOT match "Nms" because after N comes 'm', not 's' directly.
         s_raw = re.findall(r"(\d+(?:\.\d+)?)\s*s(?!econds)\b", animations_section)
-        s_values = [(float(v) * 1000, f"{v}s → {float(v)*1000:.0f}ms") for v in s_raw]
+        s_values = [(float(v) * 1000, f"{v}s -> {float(v)*1000:.0f}ms") for v in s_raw]
 
         all_durations = ms_values + s_values
         invalid_durations = [(ms_val, label) for ms_val, label in all_durations if ms_val > 400]
 
         if invalid_durations:
-            # Exception : si Three.js est dans le scope (§10), les durées longues
-            # sont légitimes pour les scroll scrub, boucles 60fps, etc.
+            # Exception: if Three.js is in scope (§10), long durations are legitimate
+            # for scroll scrub, 60fps loops, etc.
             if getattr(self, "_has_threejs", False):
                 long_ui = [(ms, l) for ms, l in invalid_durations if ms < 5000]
                 if long_ui:
                     labels = [l for _, l in long_ui]
                     self.warnings.append(
-                        f"⚠️  Animations longues (probablement Three.js scroll/loop): {chr(39).join(labels)}. "
-                        f"Si UI transitions : max 400ms. Si Three.js : documenter dans §10."
+                        f"[WARN] Long animations (likely Three.js scroll/loop): {chr(39).join(labels)}. "
+                        f"If UI transitions: max 400ms. If Three.js: document in §10."
                     )
             else:
                 labels = [label for _, label in invalid_durations]
                 self.errors.append(
-                    f"❌ Animations trop longues: {', '.join(labels)}. "
-                    f"Maximum 400ms recommandé"
+                    f"[ERROR] Animations too long: {', '.join(labels)}. "
+                    f"Maximum 400ms recommended"
                 )
 
-        # Vérifie prefers-reduced-motion
+        # prefers-reduced-motion?
         if "prefers-reduced-motion" not in animations_section.lower():
-            self.warnings.append("⚠️  Pas de mention de prefers-reduced-motion")
+            self.warnings.append("[WARN] No mention of prefers-reduced-motion")
 
     # ------------------------------------------------------------------ #
     # WCAG AA Contrast                                                    #
     # ------------------------------------------------------------------ #
 
     def _hex_to_rgb(self, hex_color: str) -> tuple:
-        """Convertit #RRGGBB en tuple (R, G, B) — valeurs 0-255."""
+        """Convert #RRGGBB to (R, G, B) tuple — 0-255."""
         h = hex_color.lstrip("#")
         return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
 
     def _relative_luminance(self, rgb: tuple) -> float:
-        """Luminance relative WCAG 2.1 (https://www.w3.org/TR/WCAG21/#dfn-relative-luminance)."""
+        """WCAG 2.1 relative luminance (https://www.w3.org/TR/WCAG21/#dfn-relative-luminance)."""
         def linearize(c: int) -> float:
             s = c / 255.0
             return s / 12.92 if s <= 0.04045 else ((s + 0.055) / 1.055) ** 2.4
@@ -417,236 +424,234 @@ class DesignValidator:
         return 0.2126 * r + 0.7152 * g + 0.0722 * b
 
     def _contrast_ratio(self, hex1: str, hex2: str) -> float:
-        """Ratio de contraste WCAG entre deux couleurs hex."""
+        """WCAG contrast ratio between two hex colors."""
         l1 = self._relative_luminance(self._hex_to_rgb(hex1))
         l2 = self._relative_luminance(self._hex_to_rgb(hex2))
         lighter, darker = max(l1, l2), min(l1, l2)
         return (lighter + 0.05) / (darker + 0.05)
 
     def _validate_wcag_contrast(self):
-        """Valide le contraste WCAG AA (texte 4.5:1, éléments UI 3.0:1)."""
+        """Validate WCAG AA contrast (text 4.5:1, UI elements 3.0:1)."""
         colors_section = self.sections.get("colors", "")
         hex_pattern = r"#[0-9A-Fa-f]{6}"
 
-        # Extraire les paires (rôle sémantique, couleur hex) depuis le tableau
+        # Extract (semantic role, hex color) pairs from the table
         role_map: Dict[str, str] = {}
         for line in colors_section.splitlines():
             hexes = re.findall(hex_pattern, line)
             if not hexes:
                 continue
-            line_lower = line.lower()
-            if any(k in line_lower for k in ("texte", "text", "foreground", "corps")):
+            # Parse role from column 1 of the markdown table (between first two pipes)
+            cells = [c.strip() for c in line.split("|")]
+            role_cell = cells[1].lower() if len(cells) > 2 else line.lower()
+            if any(k in role_cell for k in ("text", "foreground", "body")):
                 role_map.setdefault("text", hexes[0])
-            elif any(k in line_lower for k in ("fond", "background", "bg", "arrière")):
+            elif any(k in role_cell for k in ("background", "bg", "surface")):
                 role_map.setdefault("bg", hexes[0])
-            elif any(k in line_lower for k in ("primaire", "primary")):
+            elif "primary" in role_cell:
                 role_map.setdefault("primary", hexes[0])
 
         if "text" not in role_map or "bg" not in role_map:
             self.warnings.append(
-                "⚠️  WCAG: impossible d'identifier Texte/Fond automatiquement. "
-                "Nommez les rôles 'Texte' et 'Fond' explicitement dans le tableau de couleurs."
+                "[WARN] WCAG: cannot identify Text/Background automatically. "
+                "Name the roles 'Text' and 'Background' explicitly in the color table."
             )
             return
 
-        # Contraste Texte / Fond — WCAG AA texte normal: 4.5:1
+        # Text / Background contrast — WCAG AA normal text: 4.5:1
         ratio_text = self._contrast_ratio(role_map["text"], role_map["bg"])
         if ratio_text < 4.5:
             self.errors.append(
-                f"❌ WCAG AA: contraste Texte/Fond insuffisant {ratio_text:.2f}:1 "
-                f"({role_map['text']} sur {role_map['bg']}). Minimum: 4.5:1"
+                f"[ERROR] WCAG AA: insufficient Text/Background contrast {ratio_text:.2f}:1 "
+                f"({role_map['text']} on {role_map['bg']}). Minimum: 4.5:1"
             )
 
-        # Contraste Primaire / Fond — WCAG AA éléments UI: 3.0:1
+        # Primary / Background contrast — WCAG AA UI elements: 3.0:1
         if "primary" in role_map:
             ratio_ui = self._contrast_ratio(role_map["primary"], role_map["bg"])
             if ratio_ui < 3.0:
                 self.errors.append(
-                    f"❌ WCAG AA: contraste Primaire/Fond insuffisant {ratio_ui:.2f}:1 "
-                    f"({role_map['primary']} sur {role_map['bg']}). Minimum UI: 3.0:1"
+                    f"[ERROR] WCAG AA: insufficient Primary/Background contrast {ratio_ui:.2f}:1 "
+                    f"({role_map['primary']} on {role_map['bg']}). UI minimum: 3.0:1"
                 )
 
     def _validate_components(self):
-        """Valide les composants (max 3 variantes)"""
+        """Validate components (max 3 variants)."""
         components_section = self.sections.get("components", "")
 
-        # Détecte les variantes de boutons
-        button_pattern = r"### Variantes.*?(?=###|$)"
+        # Detect button variants
+        button_pattern = r"### Variants.*?(?=###|$)"
         button_section = re.search(button_pattern, components_section, re.DOTALL)
 
         if button_section:
             variants = re.findall(r"\d\.\s+\*\*([^*]+)\*\*", button_section.group(0))
             if len(variants) > 3:
                 self.errors.append(
-                    f"❌ Trop de variantes de boutons ({len(variants)}). Maximum 3 recommandé"
+                    f"[ERROR] Too many button variants ({len(variants)}). Maximum 3 recommended"
                 )
 
     def _detect_antipatterns(self):
-        """Détecte les antipatterns (AI slop)"""
+        """Detect antipatterns (AI slop)."""
         content_lower = self.content.lower()
 
-        # Icônes génériques Lucide
+        # Generic Lucide icons
         lucide_icons = ["sparkles", "zap", "cog", "network", "arrow", "check", "star"]
         found_icons = [icon for icon in lucide_icons if icon in content_lower]
 
         if found_icons:
             self.warnings.append(
-                f"⚠️  Icônes Lucide génériques détectées: {', '.join(found_icons)}. "
-                f"Considérer custom SVG ou pack cohérent"
+                f"[WARN] Generic Lucide icons detected: {', '.join(found_icons)}. "
+                f"Consider custom SVG or a consistent pack"
             )
 
-        # Buzzwords vagues
-        buzzwords = ["premium", "moderne", "élégant", "magnifique", "incroyable"]
+        # Vague buzzwords
+        buzzwords = ["premium", "modern", "elegant", "amazing", "incredible"]
         found_buzzwords = [bw for bw in buzzwords if bw in content_lower]
 
         if found_buzzwords:
             self.warnings.append(
-                f"⚠️  Buzzwords vagues: {', '.join(found_buzzwords)}. "
-                f"Remplacer par descriptions précises"
+                f"[WARN] Vague buzzwords: {', '.join(found_buzzwords)}. "
+                f"Replace with precise descriptions"
             )
 
-        # Sections template génériques
+        # Generic template sections
         template_sections = ["hero", "features", "cta", "testimonials", "footer"]
         found_sections = sum(1 for sec in template_sections if sec in content_lower)
 
         if found_sections >= 4:
             self.warnings.append(
-                f"⚠️  Structure template générique détectée ({found_sections} sections). "
-                f"Considérer une approche plus unique"
+                f"[WARN] Generic template structure detected ({found_sections} sections). "
+                f"Consider a more unique approach"
             )
 
-        # Gradients uniformes
+        # Uniform gradients
         if "gradient" in content_lower:
             gradient_count = len(re.findall(r"gradient", content_lower))
             if gradient_count > 3:
                 self.warnings.append(
-                    f"⚠️  Trop de gradients ({gradient_count}). "
-                    f"Limiter à 2-3 gradients intentionnels"
+                    f"[WARN] Too many gradients ({gradient_count}). "
+                    f"Limit to 2-3 intentional gradients"
                 )
 
 
 
     def _validate_ux_completeness(self):
-        """Vérifie la complétude UX — règles issues de l'audit visuel réel.
-        Détecte les lacunes fréquentes non couvertes par les autres validators."""
+        """Verify UX completeness — rules surfaced by real visual audits.
+        Catches frequent gaps not covered by other validators."""
         components_section = self.sections.get("components", "")
         spacing_section    = self.sections.get("spacing", "")
         animations_section = self.sections.get("animations", "")
 
-        # ── Grille projet N impair ────────────────────────────────────────
-        # Si §6 mentionne une grille de cards/projets, vérifier que le comportement
-        # sur nombre impair est documenté
+        # ── Odd N project grid ────────────────────────────────────────────
+        # If §6 mentions a card/project grid, verify the odd-count behavior
+        # is documented.
         has_grid = any(k in components_section.lower() for k in
-                       ["grid", "grille", "card", "carte", "projet", "project"])
+                       ["grid", "card", "project"])
         has_odd_rule = any(k in components_section.lower() for k in
-                           ["impair", "odd", "last-card", "last card", "full-width",
-                            "dernière carte", "n impair"])
+                           ["odd", "last-card", "last card", "full-width", "2xn"])
         if has_grid and not has_odd_rule:
             self.warnings.append(
-                "⚠️  §6 Composants : grille de cards détectée mais comportement N impair non documenté. "
-                "Ajouter : comportement last-card sur nombre impair "
-                "(ex: last-card full-width, ou left-align, ou grille 2×N)."
+                "[WARN] §6 Components: card grid detected but odd-N behavior undocumented. "
+                "Add: last-card behavior on odd counts "
+                "(e.g. last-card full-width, or left-align, or 2xN grid)."
             )
 
-        # ── Densité section contact ───────────────────────────────────────
-        # Vérifier que la section contact est documentée dans §5 ou §6
+        # ── Contact section density ───────────────────────────────────────
         has_contact = any(k in components_section.lower() for k in
-                          ["contact", "formulaire", "form", "cta", "email"])
+                          ["contact", "form", "cta", "email"])
         if not has_contact:
             self.warnings.append(
-                "⚠️  §6 Composants : section Contact/CTA non documentée. "
-                "Définir la densité minimale (padding vertical max 96px, "
-                "contenu minimum : titre + sous-titre + action)."
+                "[WARN] §6 Components: Contact/CTA section undocumented. "
+                "Define minimum density (max 96px vertical padding, "
+                "minimum content: title + subtitle + action)."
             )
 
-        # ── Scroll cue hero ───────────────────────────────────────────────
+        # ── Hero scroll cue ───────────────────────────────────────────────
         has_scroll_cue = any(k in animations_section.lower() for k in
-                             ["scroll", "chevron", "indicator", "indicateur",
-                              "scroll cue", "next section", "section suivante"])
-        has_hero = any(k in self.content.lower() for k in
-                       ["hero", "section hero", "première section"])
+                             ["scroll", "chevron", "indicator", "scroll cue", "next section"])
+        has_hero = "hero" in self.content.lower()
         if has_hero and not has_scroll_cue:
             self.warnings.append(
-                "⚠️  §7 Motion : hero détecté mais scroll cue non documenté. "
-                "Documenter le signal de transition vers la section suivante "
-                "(chevron animé, ombre de transition, ou parallax subtle)."
+                "[WARN] §7 Motion: hero detected but scroll cue undocumented. "
+                "Document the transition signal to the next section "
+                "(animated chevron, transition shadow, or subtle parallax)."
             )
 
     def _validate_dark_mode(self):
-        """Vérifie que la section Dark Mode est présente et correctement définie."""
+        """Verify Dark Mode section is present and properly defined."""
         darkmode_section = self.sections.get("darkmode", "")
 
         if not darkmode_section:
-            # Si fond principal < #333 → dark-first project → erreur bloquante
+            # If main background < #333 -> dark-first project -> blocking error
             colors_section = self.sections.get("colors", "")
-            fond_hex = None
+            bg_hex = None
             for line in colors_section.splitlines():
-                if any(k in line.lower() for k in ("fond", "background", "bg", "arrière")):
+                if any(k in line.lower() for k in ("background", "bg", "surface")):
                     hexes = re.findall(r"#[0-9A-Fa-f]{6}", line)
                     if hexes:
-                        fond_hex = hexes[0]
+                        bg_hex = hexes[0]
                         break
-            if fond_hex:
-                lum = self._relative_luminance(self._hex_to_rgb(fond_hex))
+            if bg_hex:
+                lum = self._relative_luminance(self._hex_to_rgb(bg_hex))
                 if lum < 0.09:
                     self.errors.append(
-                        f"❌ §8 Dark Mode absent mais fond principal sombre ({fond_hex}, lum={lum:.3f}). "
-                        f"Projet dark-first : §8 est obligatoire. "
-                        f"Documenter surface, texte-secondaire, bordure-dark."
+                        f"[ERROR] §8 Dark Mode missing but main background is dark ({bg_hex}, lum={lum:.3f}). "
+                        f"Dark-first project: §8 is mandatory. "
+                        f"Document surface, secondary-text, dark-border."
                     )
                     return
-            # Fond clair ou non détecté → warning seulement
+            # Light background or undetected -> warning only
             self.warnings.append(
-                "⚠️  Section '## 8. Dark Mode' absente du DESIGN.md. "
-                "Sans contrat dark mode explicite, l'implémentation sera improvisée — "
-                "le slop revient par la fenêtre. "
-                "Ajouter une section avec les tokens inversés (fond-dark, texte-dark, surface-dark)."
+                "[WARN] Section '## 8. Dark Mode' missing from DESIGN.md. "
+                "Without an explicit dark mode contract, the implementation will be improvised — "
+                "slop comes back through the window. "
+                "Add a section with the inverted tokens (dark-bg, dark-text, dark-surface)."
             )
             return
 
-        # Vérifier qu'il y a des hex déclarés dans la section dark
+        # Verify hex declarations in the dark section
         dark_hexes = re.findall(r"#[0-9A-Fa-f]{6}", darkmode_section)
         if len(dark_hexes) < 3:
             self.warnings.append(
-                f"⚠️  Section Dark Mode insuffisante : {len(dark_hexes)} couleur(s) déclarée(s). "
-                f"Minimum 3 requises (fond-dark, texte-dark, surface-dark)."
+                f"[WARN] Dark Mode section insufficient: {len(dark_hexes)} color(s) declared. "
+                f"Minimum 3 required (dark-bg, dark-text, dark-surface)."
             )
 
-        # Vérifier que les rôles minimaux sont présents
-        required_dark_roles = ["fond", "texte", "surface"]
+        # Verify minimal roles are present
+        required_dark_roles = ["background", "text", "surface"]
         missing = [r for r in required_dark_roles if r not in darkmode_section.lower()]
         if missing:
             self.warnings.append(
-                f"⚠️  Rôles dark mode manquants : {', '.join(missing)}. "
-                f"Déclarer explicitement fond-dark, texte-dark et surface-dark."
+                f"[WARN] Missing dark mode roles: {', '.join(missing)}. "
+                f"Explicitly declare dark-bg, dark-text and dark-surface."
             )
 
-        # Vérifier que le fond dark est bien sombre (luminosité < 30%)
+        # Verify dark background is actually dark (luminance < 9%)
         for line in darkmode_section.splitlines():
-            if any(k in line.lower() for k in ("fond", "background", "bg")):
+            if any(k in line.lower() for k in ("background", "bg")):
                 hexes = re.findall(r"#[0-9A-Fa-f]{6}", line)
                 if hexes:
                     lum = self._relative_luminance(self._hex_to_rgb(hexes[0]))
-                    if lum > 0.09:  # luminosité relative > ~30% = pas assez sombre
+                    if lum > 0.09:
                         self.warnings.append(
-                            f"⚠️  Fond dark mode trop clair ({hexes[0]}, luminosité {lum:.2f}). "
-                            f"Recommandé : < #333 pour un dark mode confortable."
+                            f"[WARN] Dark mode background too light ({hexes[0]}, luminance {lum:.2f}). "
+                            f"Recommended: < #333 for comfortable dark mode."
                         )
                     break
 
 
     def _validate_mobile(self):
-        """Valide la section Mobile (§9) si présente.
-        Vérifie les unités natives (pt/dp/sp), touch targets,
-        safe areas, et patterns d'animation système."""
+        """Validate Mobile section (§9) if present.
+        Checks native units (pt/dp/sp), touch targets,
+        safe areas, and system animation patterns."""
         mobile_section = self.sections.get("mobile", "")
 
         if not mobile_section:
-            # Pas une erreur — section optionnelle pour les projets web-only
+            # Not an error — optional section for web-only projects
             return
 
-        # ── Unités natives ───────────────────────────────────────────────
-        # Détecter les px hardcodés dans un contexte mobile natif
+        # ── Native units ─────────────────────────────────────────────────
+        # Detect hardcoded px in native mobile context
         # (iOS = pt, Android = dp, Flutter = logical pixels, RN = dp)
         platform_section = mobile_section.lower()
         is_native = any(k in platform_section for k in [
@@ -655,126 +660,125 @@ class DesignValidator:
         ])
 
         if is_native:
-            # Chercher des px hardcodés hors d'un contexte CSS
+            # Look for hardcoded px outside of a CSS context
             px_in_native = re.findall(
                 r"(?<!font-size:)(?<!padding:)(?<!margin:)\b(\d+)px\b",
                 mobile_section
             )
             if px_in_native:
                 self.warnings.append(
-                    f"⚠️  Unités px dans contexte mobile natif : {px_in_native[:5]}. "
-                    f"Utiliser pt (iOS), dp (Android), ou logical pixels (Flutter/RN)."
+                    f"[WARN] px units in native mobile context: {px_in_native[:5]}. "
+                    f"Use pt (iOS), dp (Android), or logical pixels (Flutter/RN)."
                 )
 
         # ── Touch targets ─────────────────────────────────────────────────
-        # iOS HIG : 44pt min, Android Material : 48dp min
+        # iOS HIG: 44pt min, Android Material: 48dp min
         touch_target_mentioned = any(k in mobile_section.lower() for k in [
             "touch target", "tap target", "44pt", "44dp", "48dp", "48pt",
-            "taille tactile", "zone tactile", "minimum tap"
+            "tap size", "tap area", "minimum tap"
         ])
         if not touch_target_mentioned:
             self.warnings.append(
-                "⚠️  Taille minimale des touch targets non documentée dans §9 Mobile. "
-                "iOS HIG : 44pt min, Material Design : 48dp min."
+                "[WARN] Minimum touch target size undocumented in §9 Mobile. "
+                "iOS HIG: 44pt min, Material Design: 48dp min."
             )
 
-        # ── Safe Areas ────────────────────────────────────────────────────
+        # ── Safe areas ────────────────────────────────────────────────────
         safe_area_mentioned = any(k in mobile_section.lower() for k in [
             "safe area", "safeareainsets", "edgeinsets", "notch", "dynamic island",
             "home indicator", "status bar", "navigation bar", "insets"
         ])
         if not safe_area_mentioned:
             self.warnings.append(
-                "⚠️  Gestion des Safe Areas non documentée dans §9 Mobile. "
-                "Documenter comment le layout respecte notch/Dynamic Island/Home Indicator."
+                "[WARN] Safe Areas handling undocumented in §9 Mobile. "
+                "Document how the layout respects notch/Dynamic Island/Home Indicator."
             )
 
-        # ── Animations mobiles ────────────────────────────────────────────
-        # Les animations système (spring, easeInOut) sont autorisées même > 400ms
-        # car elles respectent le rythme natif de la plateforme
+        # ── Mobile animations ────────────────────────────────────────────
+        # System animations (spring, easeInOut) are allowed even > 400ms
+        # because they respect the platform's native rhythm
         anim_section = mobile_section
         ms_raw = re.findall(r"(\d+(?:\.\d+)?)\s*ms\b", anim_section)
         s_raw  = re.findall(r"(\d+(?:\.\d+)?)\s*s(?!econds)\b", anim_section)
         all_ms = [float(v) for v in ms_raw] + [float(v)*1000 for v in s_raw]
 
-        # Exclure si spring/system mentionné (animations natives sans durée fixe)
+        # Skip if spring/system is mentioned (native animations without fixed duration)
         is_spring = any(k in anim_section.lower() for k in [
             "spring", "uispringtiming", "withspring", "animation.spring",
-            "springanimation", "system animation", "animation système"
+            "springanimation", "system animation"
         ])
         if not is_spring:
-            violations = [v for v in all_ms if v > 500]  # seuil + souple sur mobile
+            violations = [v for v in all_ms if v > 500]  # looser threshold on mobile
             if violations:
                 self.warnings.append(
-                    f"⚠️  Animations mobiles longues : {violations}ms. "
-                    f"Sur mobile, privilégier spring() ou ≤ 400ms pour les transitions."
+                    f"[WARN] Long mobile animations: {violations}ms. "
+                    f"On mobile, prefer spring() or <= 400ms for transitions."
                 )
 
-        # ── Accessibilité mobile ──────────────────────────────────────────
+        # ── Mobile accessibility ──────────────────────────────────────────
         a11y_mentioned = any(k in mobile_section.lower() for k in [
-            "accessibilityLabel", "contentdescription", "talkback", "voiceover",
-            "accessibilité", "accessibility", "a11y", "semantics"
+            "accessibilitylabel", "contentdescription", "talkback", "voiceover",
+            "accessibility", "a11y", "semantics"
         ])
         if not a11y_mentioned:
             self.warnings.append(
-                "⚠️  Accessibilité mobile non documentée dans §9. "
-                "Mentionner VoiceOver (iOS) / TalkBack (Android) et les labels d'accessibilité."
+                "[WARN] Mobile accessibility undocumented in §9. "
+                "Mention VoiceOver (iOS) / TalkBack (Android) and accessibility labels."
             )
 
-        # Si la section est bien remplie, confirmer
+        # If the section is well-filled, confirm silently
         if mobile_section and len(mobile_section) > 200:
-            pass  # Pas de message inutile
+            pass  # No useless message
 
 
     def _validate_dark_mode_required(self):
-        """§8 est obligatoire si le fond principal est sombre (lum < 9%)."""
+        """§8 is mandatory if the main background is dark (lum < 9%)."""
         darkmode_section = self.sections.get("darkmode", "")
         if darkmode_section:
-            return  # Déjà validé par _validate_dark_mode()
+            return  # Already validated by _validate_dark_mode()
 
-        # Chercher le fond dans §2
+        # Look for background in §2
         colors_section = self.sections.get("colors", "")
         hex_pat = r"#[0-9A-Fa-f]{6}"
 
-        # La première ligne avec "Fond" ou "Background" ou "bg"
-        fond_hex = None
+        # First line with "Background" or "bg"
+        bg_hex = None
         for line in colors_section.splitlines():
-            if any(k in line.lower() for k in ("fond", "background", "bg")):
+            if any(k in line.lower() for k in ("background", "bg")):
                 hexes = re.findall(hex_pat, line)
                 if hexes:
-                    fond_hex = hexes[0]
+                    bg_hex = hexes[0]
                     break
 
-        if fond_hex:
-            lum = self._relative_luminance(self._hex_to_rgb(fond_hex))
-            if lum < 0.09:  # fond sombre = projet dark-first
+        if bg_hex:
+            lum = self._relative_luminance(self._hex_to_rgb(bg_hex))
+            if lum < 0.09:  # dark background = dark-first project
                 self.errors.append(
-                    f"❌ §8 Dark Mode absent mais fond principal sombre "
-                    f"({fond_hex}, lum={lum:.3f}). "
-                    f"Projet dark-first : §8 est obligatoire. "
-                    f"Documenter surface, texte-secondaire, bordure-dark."
+                    f"[ERROR] §8 Dark Mode missing but main background is dark "
+                    f"({bg_hex}, lum={lum:.3f}). "
+                    f"Dark-first project: §8 is mandatory. "
+                    f"Document surface, secondary-text, dark-border."
                 )
 
     def _validate_section_density(self):
-        """Vérifie que les sections clés ont une densité suffisante."""
+        """Verify key sections have sufficient density."""
         components_section = self.sections.get("components", "")
 
-        # Vérifier que la section Contact/CTA est documentée dans §6
+        # Verify Contact/CTA section is documented in §6
         has_contact = any(k in components_section.lower() for k in [
-            "contact", "cta", "footer", "coordonnées", "mail", "email",
-            "section contact", "section cta"
+            "contact", "cta", "footer", "mail", "email"
         ])
         if not has_contact:
             self.warnings.append(
-                "⚠️  §6 Composants : section Contact/CTA non documentée. "
-                "Définir la densité minimale (padding vertical max 96px, "
-                "contenu minimum : titre + sous-titre + action)."
+                "[WARN] §6 Components: Contact/CTA section undocumented. "
+                "Define minimum density (max 96px vertical padding, "
+                "minimum content: title + subtitle + action)."
             )
 
 
 
     def _validate_threejs(self):
-        """Valide la section Three.js (§10) si présente."""
+        """Validate Three.js section (§10) if present."""
         threejs_section = self.sections.get("threejs", "")
 
         if not threejs_section:
@@ -785,92 +789,92 @@ class DesignValidator:
             ])
             if three_mentioned:
                 self.warnings.append(
-                    "⚠️  Three.js détecté dans le DESIGN.md mais §10 absent. "
-                    "Ajouter '## 10. Three.js' avec : type de scène, budget géométrie, "
-                    "pixel ratio cap, dispose strategy, fallback WebGL."
+                    "[WARN] Three.js detected in DESIGN.md but §10 missing. "
+                    "Add '## 10. Three.js' with: scene type, geometry budget, "
+                    "pixel ratio cap, dispose strategy, WebGL fallback."
                 )
             return
 
         sec = threejs_section.lower()
-        self._has_threejs = True  # flag pour exempter les durées Three.js dans §7
+        self._has_threejs = True  # flag to exempt Three.js durations in §7
 
-        # Type de scène
+        # Scene type
         if not any(k in sec for k in ["hero", "background", "viewer", "scroll",
                                        "interactive", "particle", "product", "ambient"]):
             self.warnings.append(
-                "⚠️  §10 Three.js : type de scène non documenté. "
-                "Préciser : hero background | interactive viewer | scroll-driven | particles."
+                "[WARN] §10 Three.js: scene type undocumented. "
+                "Specify: hero background | interactive viewer | scroll-driven | particles."
             )
 
         # Pixel ratio cap
         if not any(k in sec for k in ["devicepixelratio", "pixel ratio", "pixelratio",
-                                       "dpr", "math.min", "cap", "capé"]):
+                                       "dpr", "math.min", "cap"]):
             self.warnings.append(
-                "⚠️  §10 Three.js : pixel ratio non documenté. "
-                "Ajouter : Math.min(devicePixelRatio, 2) — cap obligatoire "
-                "(Retina 3x = 9 pixels/CSS px, sans cap GPU coût × 2.25)."
+                "[WARN] §10 Three.js: pixel ratio undocumented. "
+                "Add: Math.min(devicePixelRatio, 2) — cap mandatory "
+                "(Retina 3x = 9 pixels/CSS px, without cap GPU cost x 2.25)."
             )
 
         # Dispose strategy
         if not any(k in sec for k in ["dispose", "teardown", "cleanup",
-                                       "nettoyage", "memory", "vram"]):
+                                       "memory", "vram"]):
             self.warnings.append(
-                "⚠️  §10 Three.js : stratégie dispose non documentée. "
-                "Three.js ne libère jamais la VRAM automatiquement — "
-                "documenter geometry.dispose() + material.dispose() + texture.dispose()."
+                "[WARN] §10 Three.js: dispose strategy undocumented. "
+                "Three.js never frees VRAM automatically — "
+                "document geometry.dispose() + material.dispose() + texture.dispose()."
             )
 
-        # Fallback WebGL
+        # WebGL fallback
         if not any(k in sec for k in ["fallback", "webgl", "support",
-                                       "dégradé", "no-webgl", "image statique"]):
+                                       "no-webgl", "static image"]):
             self.warnings.append(
-                "⚠️  §10 Three.js : fallback WebGL non documenté. "
-                "~2% des utilisateurs n'ont pas WebGL — définir le comportement "
-                "(image statique, canvas 2D, ou message d'erreur)."
+                "[WARN] §10 Three.js: WebGL fallback undocumented. "
+                "~2% of users have no WebGL — define the behavior "
+                "(static image, 2D canvas, or error message)."
             )
 
         # prefers-reduced-motion
         if not any(k in sec for k in ["prefers-reduced-motion", "reduced-motion",
-                                       "reducedmotion", "figé", "statique"]):
+                                       "reducedmotion", "frozen", "static"]):
             self.warnings.append(
-                "⚠️  §10 Three.js : prefers-reduced-motion non documenté. "
-                "Scène figée ou rotation lente si reduced-motion activé."
+                "[WARN] §10 Three.js: prefers-reduced-motion undocumented. "
+                "Frozen scene or slow rotation if reduced-motion is enabled."
             )
 
         # Renderer singleton
         if not any(k in sec for k in ["renderer", "webglrenderer",
                                        "instance", "singleton", "unique"]):
             self.warnings.append(
-                "⚠️  §10 Three.js : stratégie renderer non documentée. "
-                "Un seul WebGLRenderer par page — navigateurs limités à 8-16 contextes GPU."
+                "[WARN] §10 Three.js: renderer strategy undocumented. "
+                "A single WebGLRenderer per page — browsers limit to 8-16 GPU contexts."
             )
 
     def _print_report(self):
-        """Affiche le rapport de validation"""
+        """Print the validation report."""
         print("\n" + "=" * 60)
-        print("🎨 DESIGN VALIDATION REPORT")
+        print("DESIGN VALIDATION REPORT")
         print("=" * 60)
 
         if self.errors:
-            print(f"\n❌ ERREURS ({len(self.errors)}):")
+            print(f"\nERRORS ({len(self.errors)}):")
             for error in self.errors:
                 print(f"  {error}")
 
         if self.warnings:
-            print(f"\n⚠️  AVERTISSEMENTS ({len(self.warnings)}):")
+            print(f"\nWARNINGS ({len(self.warnings)}):")
             for warning in self.warnings:
                 print(f"  {warning}")
 
         if not self.errors and not self.warnings:
-            print("\n✅ VALIDATION RÉUSSIE - Aucune erreur détectée!")
+            print("\nVALIDATION PASSED - No errors detected!")
 
         print("\n" + "=" * 60)
         if self.errors:
-            print(f"❌ RÉSULTAT: ÉCHOUÉ ({len(self.errors)} erreurs)")
+            print(f"RESULT: FAILED ({len(self.errors)} errors)")
         elif self.warnings:
-            print(f"⚠️  RÉSULTAT: RÉUSSI AVEC AVERTISSEMENTS ({len(self.warnings)} avertissements)")
+            print(f"RESULT: PASSED WITH WARNINGS ({len(self.warnings)} warnings)")
         else:
-            print("✅ RÉSULTAT: RÉUSSI - Prêt pour le codage!")
+            print("RESULT: PASSED - Ready to code!")
         print("=" * 60 + "\n")
 
 

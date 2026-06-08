@@ -1,12 +1,12 @@
-# Guide des Antipatterns "AI Slop" - Exemples Concrets
+# "AI Slop" Antipatterns Guide - Concrete Examples
 
-Ce guide montre les antipatterns courants du design généré par IA et comment les éviter.
+This guide shows the common antipatterns of AI-generated design and how to avoid them.
 
 ---
 
-## 1. Icônes Génériques Lucide
+## 1. Generic Lucide Icons
 
-### ❌ MAUVAIS - AI Slop
+### ❌ BAD - AI Slop
 
 ```tsx
 import { Sparkles, Zap, Cog, Network, ArrowRight } from 'lucide-react';
@@ -16,28 +16,28 @@ export function Features() {
     <>
       <div>
         <Sparkles className="w-6 h-6" />
-        <h3>Intelligence Générale</h3>
+        <h3>General Intelligence</h3>
       </div>
       <div>
         <Zap className="w-6 h-6" />
-        <h3>Automatisation</h3>
+        <h3>Automation</h3>
       </div>
       <div>
         <Cog className="w-6 h-6" />
-        <h3>Intégrations</h3>
+        <h3>Integrations</h3>
       </div>
     </>
   );
 }
 ```
 
-**Pourquoi c'est mauvais:**
-- Icônes génériques Lucide = "obviously AI"
-- Pas de cohérence visuelle
-- Aucune justification sémantique
-- Même style que 10,000 autres sites
+**Why it's bad:**
+- Generic Lucide icons = "obviously AI"
+- No visual consistency
+- No semantic justification
+- Same style as 10,000 other sites
 
-### ✅ BON - Custom SVG ou Pack Cohérent
+### ✅ GOOD - Custom SVG or Consistent Pack
 
 **Option 1: Custom SVG**
 ```tsx
@@ -51,166 +51,166 @@ export function BrainIcon() {
 }
 ```
 
-**Option 2: Pack d'icônes cohérent**
+**Option 2: Consistent icon pack**
 ```tsx
-// Utiliser un pack unifié: Feather, Heroicons, Tabler
+// Use a unified pack: Feather, Heroicons, Tabler
 import { Brain, Zap, Link2 } from 'feather-icons-react';
 
-// Ou créer un pack custom:
-// icons/index.ts avec tous les SVG du projet
+// Or build a custom pack:
+// icons/index.ts with all project SVGs
 ```
 
-**Avantages:**
-- ✅ Unique et mémorable
-- ✅ Cohérent avec le design
-- ✅ Pas "obviously AI"
-- ✅ Contrôlable (couleurs, tailles, styles)
+**Benefits:**
+- ✅ Unique and memorable
+- ✅ Consistent with the design
+- ✅ Not "obviously AI"
+- ✅ Controllable (colors, sizes, styles)
 
 ---
 
-## 2. Gradients Clichés
+## 2. Cliché Gradients
 
-### ❌ MAUVAIS - AI Slop
+### ❌ BAD - AI Slop
 
 ```css
-/* Gradients "tech" stéréotypés */
+/* Stereotypical "tech" gradients */
 .hero {
   background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
-  /* Bleu → Violet: vu 10,000 fois */
+  /* Blue → Purple: seen 10,000 times */
 }
 
 .accent {
   background: linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%);
-  /* Rose → Violet: vu 10,000 fois */
+  /* Pink → Purple: seen 10,000 times */
 }
 
 .secondary {
   background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%);
-  /* Cyan → Bleu: vu 10,000 fois */
+  /* Cyan → Blue: seen 10,000 times */
 }
 ```
 
-**Pourquoi c'est mauvais:**
-- Gradients clichés = "obviously AI"
-- Pas de justification sémantique
-- Surcharge visuelle
-- Pas de cohérence avec la palette
+**Why it's bad:**
+- Cliché gradients = "obviously AI"
+- No semantic justification
+- Visual overload
+- No consistency with the palette
 
-### ✅ BON - Gradients Intentionnels
+### ✅ GOOD - Intentional Gradients
 
 ```css
-/* Gradients justifiés par rôle sémantique */
+/* Gradients justified by semantic role */
 
-/* Gradient Hero: Fond primaire → Accent secondaire */
+/* Hero gradient: Primary background → Secondary accent */
 .hero {
   background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-  /* Deep Navy → Slate: Crée de la profondeur sans distraction */
+  /* Deep Navy → Slate: creates depth without distraction */
 }
 
-/* Gradient CTA: Primaire → Secondaire (action) */
+/* CTA gradient: Primary → Secondary (action) */
 .cta-section {
   background: linear-gradient(135deg, #3B82F6 0%, #06B6D4 100%);
-  /* Electric Blue → Cyan: Indique une action, justifié */
+  /* Electric Blue → Cyan: indicates an action, justified */
 }
 
-/* Accent Glow: Primaire avec opacité */
+/* Accent Glow: Primary with opacity */
 .glow {
   background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
-  /* Halo subtil, pas cliché */
+  /* Subtle halo, not cliché */
 }
 ```
 
-**Avantages:**
-- ✅ Chaque gradient a un rôle
-- ✅ Pas de surcharge visuelle
-- ✅ Cohérent avec la palette
-- ✅ Justifié sémantiquement
+**Benefits:**
+- ✅ Each gradient has a role
+- ✅ No visual overload
+- ✅ Consistent with the palette
+- ✅ Semantically justified
 
 ---
 
-## 3. Polices Mal Appariées
+## 3. Poorly Paired Fonts
 
-### ❌ MAUVAIS - AI Slop
+### ❌ BAD - AI Slop
 
 ```html
-<!-- 3+ polices = chaos -->
+<!-- 3+ fonts = chaos -->
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&family=Playfair+Display:wght@700&family=Poppins:wght@600&display=swap" rel="stylesheet">
 
 <style>
-  h1 { font-family: 'Playfair Display'; } /* Serif élégant */
-  h2 { font-family: 'Poppins'; } /* Géométrique rond */
-  h3 { font-family: 'Sora'; } /* Géométrique moderne */
-  p { font-family: 'Inter'; } /* Neutre */
+  h1 { font-family: 'Playfair Display'; } /* Elegant serif */
+  h2 { font-family: 'Poppins'; } /* Rounded geometric */
+  h3 { font-family: 'Sora'; } /* Modern geometric */
+  p { font-family: 'Inter'; } /* Neutral */
   code { font-family: 'JetBrains Mono'; } /* Monospace */
 </style>
 ```
 
-**Pourquoi c'est mauvais:**
-- 5 polices = "obviously AI"
-- Pas de cohérence visuelle
-- Hiérarchie confuse
-- Chargement lent
+**Why it's bad:**
+- 5 fonts = "obviously AI"
+- No visual consistency
+- Confusing hierarchy
+- Slow loading
 
-### ✅ BON - 2 Polices Intentionnelles
+### ✅ GOOD - 2 Intentional Fonts
 
 ```html
-<!-- Exactement 2 polices -->
+<!-- Exactly 2 fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
-  /* Display: Sora (moderne, géométrique) */
+  /* Display: Sora (modern, geometric) */
   h1, h2, h3 { font-family: 'Sora'; font-weight: 600; }
   
-  /* Body: Inter (neutre, lisible) */
+  /* Body: Inter (neutral, readable) */
   p, span, label { font-family: 'Inter'; font-weight: 400; }
   
-  /* Code: Monospace (optionnel) */
-  code { font-family: 'Courier New'; } /* Ou JetBrains Mono si vraiment nécessaire */
+  /* Code: Monospace (optional) */
+  code { font-family: 'Courier New'; } /* Or JetBrains Mono only if really needed */
 </style>
 ```
 
-**Avantages:**
-- ✅ Cohérent et professionnel
-- ✅ Chargement rapide
-- ✅ Hiérarchie claire
-- ✅ Pas "obviously AI"
+**Benefits:**
+- ✅ Consistent and professional
+- ✅ Fast loading
+- ✅ Clear hierarchy
+- ✅ Not "obviously AI"
 
 ---
 
-## 4. Espacements Incohérents
+## 4. Inconsistent Spacing
 
-### ❌ MAUVAIS - AI Slop
+### ❌ BAD - AI Slop
 
 ```css
-/* Espacements aléatoires */
+/* Random spacing values */
 .card {
-  padding: 16px; /* Pas multiple de 8 */
-  margin-bottom: 13px; /* Pas multiple de 8 */
-  border-radius: 6px; /* Pas multiple de 4 */
+  padding: 16px; /* Not a multiple of 8 */
+  margin-bottom: 13px; /* Not a multiple of 8 */
+  border-radius: 6px; /* Not a multiple of 4 */
 }
 
 .button {
-  padding: 11px 18px; /* Pas multiples de 8 */
-  border-radius: 7px; /* Pas multiple de 4 */
-  margin-right: 15px; /* Pas multiple de 8 */
+  padding: 11px 18px; /* Not multiples of 8 */
+  border-radius: 7px; /* Not a multiple of 4 */
+  margin-right: 15px; /* Not a multiple of 8 */
 }
 
 .section {
-  padding: 42px 0; /* Pas multiple de 8 */
-  margin-top: 25px; /* Pas multiple de 8 */
+  padding: 42px 0; /* Not a multiple of 8 */
+  margin-top: 25px; /* Not a multiple of 8 */
 }
 ```
 
-**Pourquoi c'est mauvais:**
-- Espacements aléatoires = "obviously AI"
-- Pas de cohérence visuelle
-- Difficile à maintenir
-- Pas d'harmonie mathématique
+**Why it's bad:**
+- Random spacing = "obviously AI"
+- No visual consistency
+- Hard to maintain
+- No mathematical harmony
 
-### ✅ BON - Grille 8px Stricte
+### ✅ GOOD - Strict 8px Grid
 
 ```css
-/* Tous les espacements = multiples de 8px */
+/* All spacing values = multiples of 8px */
 :root {
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -243,20 +243,20 @@ import { Brain, Zap, Link2 } from 'feather-icons-react';
 }
 ```
 
-**Avantages:**
-- ✅ Harmonie mathématique
-- ✅ Facile à maintenir
-- ✅ Cohérent partout
-- ✅ Pas "obviously AI"
+**Benefits:**
+- ✅ Mathematical harmony
+- ✅ Easy to maintain
+- ✅ Consistent everywhere
+- ✅ Not "obviously AI"
 
 ---
 
-## 5. Structure Template Générique
+## 5. Generic Template Structure
 
-### ❌ MAUVAIS - AI Slop
+### ❌ BAD - AI Slop
 
 ```tsx
-// Structure template classique = "obviously AI"
+// Classic template structure = "obviously AI"
 export default function Home() {
   return (
     <>
@@ -272,151 +272,150 @@ export default function Home() {
 }
 ```
 
-**Pourquoi c'est mauvais:**
-- Structure identique à 10,000 autres sites
-- Pas d'identité unique
+**Why it's bad:**
+- Identical structure to 10,000 other sites
+- No unique identity
 - "Clearly generated"
-- Pas d'intention créative
+- No creative intent
 
-### ✅ BON - Structure Unique et Intentionnelle
+### ✅ GOOD - Unique and Intentional Structure
 
 ```tsx
-// Structure adaptée au projet
+// Structure tailored to the project
 export default function Home() {
   return (
     <>
-      {/* Hero: Présentation unique */}
+      {/* Hero: Unique presentation */}
       <HeroWithAnimatedBackground />
       
-      {/* Capacités: Layout asymétrique */}
+      {/* Capabilities: Asymmetric layout */}
       <CapabilitiesWithScrollReveal />
       
-      {/* Social Proof: Testimonials intégrés */}
+      {/* Social Proof: Integrated testimonials */}
       <IntegratedSocialProof />
       
-      {/* CTA: Personnalisé */}
+      {/* CTA: Customized */}
       <CustomCTAExperience />
       
-      {/* Footer: Minimal et intentionnel */}
+      {/* Footer: Minimal and intentional */}
       <MinimalFooter />
     </>
   );
 }
 ```
 
-**Avantages:**
-- ✅ Unique et mémorable
-- ✅ Intentionnel et réfléchi
-- ✅ Pas "obviously AI"
-- ✅ Identité propre
+**Benefits:**
+- ✅ Unique and memorable
+- ✅ Intentional and thoughtful
+- ✅ Not "obviously AI"
+- ✅ Distinct identity
 
 ---
 
-## 6. Buzzwords Vagues
+## 6. Vague Buzzwords
 
-### ❌ MAUVAIS - AI Slop
-
-```markdown
-# Manus: L'IA Premium et Moderne
-
-Découvrez une expérience **élégante** et **innovante**.
-
-## Capacités Magnifiques
-- Intelligence générale **incroyable**
-- Automatisation **unique**
-- Intégrations **futuristes**
-
-Rejoignez des utilisateurs **satisfaits** pour une expérience **premium**.
-```
-
-**Pourquoi c'est mauvais:**
-- Buzzwords vagues = "obviously AI"
-- Aucune information concrète
-- Pas de différenciation
-- Manque de crédibilité
-
-### ✅ BON - Descriptions Précises
+### ❌ BAD - AI Slop
 
 ```markdown
-# Manus: Intelligence Générale Accessible
+# Manus: The Premium and Modern AI
 
-Automatisez vos tâches avec une IA capable d'accomplir n'importe quelle action sur votre ordinateur.
+Discover an **elegant** and **innovative** experience.
 
-## Capacités Concrètes
-- **Résolution de problèmes complexes**: Analyse de données, génération de code, recherche approfondie
-- **Automatisation de workflows**: Orchestration de tâches, synchronisation d'outils, intégrations API
-- **Création de contenu**: Rédaction, édition, optimisation pour SEO
+## Beautiful Capabilities
+- **Incredible** general intelligence
+- **Unique** automation
+- **Futuristic** integrations
 
-Utilisé par des professionnels pour **économiser 10+ heures par semaine** en automatisation.
+Join **satisfied** users for a **premium** experience.
 ```
 
-**Avantages:**
-- ✅ Descriptions précises
-- ✅ Bénéfices concrets
-- ✅ Crédibilité
-- ✅ Pas "obviously AI"
+**Why it's bad:**
+- Vague buzzwords = "obviously AI"
+- No concrete information
+- No differentiation
+- Lack of credibility
+
+### ✅ GOOD - Precise Descriptions
+
+```markdown
+# Manus: Accessible General Intelligence
+
+Automate your tasks with an AI capable of performing any action on your computer.
+
+## Concrete Capabilities
+- **Complex problem solving**: Data analysis, code generation, deep research
+- **Workflow automation**: Task orchestration, tool synchronization, API integrations
+- **Content creation**: Writing, editing, SEO optimization
+
+Used by professionals to **save 10+ hours per week** through automation.
+```
+
+**Benefits:**
+- ✅ Precise descriptions
+- ✅ Concrete benefits
+- ✅ Credibility
+- ✅ Not "obviously AI"
 
 ---
 
-## 7. Boutons Uniformes
+## 7. Uniform Buttons
 
-### ❌ MAUVAIS - AI Slop
+### ❌ BAD - AI Slop
 
 ```tsx
-// Tous les boutons identiques
-<button className="btn-primary">Cliquer</button>
-<button className="btn-primary">Envoyer</button>
-<button className="btn-primary">Valider</button>
-<button className="btn-primary">Continuer</button>
+// All buttons identical
+<button className="btn-primary">Click</button>
+<button className="btn-primary">Send</button>
+<button className="btn-primary">Confirm</button>
+<button className="btn-primary">Continue</button>
 ```
 
-**Pourquoi c'est mauvais:**
-- Pas de hiérarchie visuelle
-- Pas de variation intentionnelle
+**Why it's bad:**
+- No visual hierarchy
+- No intentional variation
 - "Clearly designed by AI"
 
-### ✅ BON - Hiérarchie Intentionnelle
+### ✅ GOOD - Intentional Hierarchy
 
 ```tsx
-{/* Bouton principal: Action importante */}
-<button className="btn-primary">Essayer Gratuitement</button>
+{/* Primary button: Important action */}
+<button className="btn-primary">Try for Free</button>
 
-{/* Bouton secondaire: Action alternative */}
-<button className="btn-secondary">Voir la Démo</button>
+{/* Secondary button: Alternative action */}
+<button className="btn-secondary">Watch the Demo</button>
 
-{/* Bouton ghost: Action tertiaire */}
+{/* Ghost button: Tertiary action */}
 <button className="btn-ghost">Documentation</button>
 
-{/* Bouton destructif: Action dangereuse */}
-<button className="btn-destructive">Supprimer</button>
+{/* Destructive button: Dangerous action */}
+<button className="btn-destructive">Delete</button>
 ```
 
-**Avantages:**
-- ✅ Hiérarchie claire
-- ✅ Intentionnel
-- ✅ Pas "obviously AI"
+**Benefits:**
+- ✅ Clear hierarchy
+- ✅ Intentional
+- ✅ Not "obviously AI"
 
 ---
 
-## ✅ Checklist Antipatterns
+## ✅ Antipatterns Checklist
 
-Avant livraison, vérifier:
+Before delivery, verify:
 
-- [ ] **Icônes**: Custom SVG ou pack cohérent (pas Lucide random)
-- [ ] **Gradients**: Justifiés par rôle, max 2-3 gradients
-- [ ] **Polices**: Exactement 2 (display + body)
-- [ ] **Espacements**: Tous multiples de 8px
-- [ ] **Rayons**: Tous multiples de 4px
-- [ ] **Structure**: Unique et intentionnelle (pas template)
-- [ ] **Texte**: Descriptions précises (pas buzzwords)
-- [ ] **Boutons**: Hiérarchie claire (3 variantes max)
-- [ ] **Couleurs**: 4-8 avec rôles sémantiques
-- [ ] **Animations**: Toutes ≤ 400ms
+- [ ] **Icons**: Custom SVG or consistent pack (not random Lucide)
+- [ ] **Gradients**: Justified by role, max 2-3 gradients
+- [ ] **Fonts**: Exactly 2 (display + body)
+- [ ] **Spacing**: All multiples of 8px
+- [ ] **Radii**: All multiples of 4px
+- [ ] **Structure**: Unique and intentional (not a template)
+- [ ] **Text**: Precise descriptions (no buzzwords)
+- [ ] **Buttons**: Clear hierarchy (max 3 variants)
+- [ ] **Colors**: 4-8 with semantic roles
+- [ ] **Animations**: All ≤ 400ms
 
-**Exécuter:**
+**Run:**
 ```bash
 python3 scripts/detect_ai_slop.py --design DESIGN.md --code ./client/src
 ```
 
-Score ≥ 80/100 = ✅ Prêt pour livraison
-
+Score ≥ 80/100 = ✅ Ready for delivery

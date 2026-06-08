@@ -1,251 +1,250 @@
 ---
 name: web-design-enhancer
-description: Validateur et enforcer du contrat DESIGN.md. Pilier 3 de l'écosystème design composé de getdesign.md (références visuelles réelles), UI/UX Pro Max (intelligence design par industrie) et shadcn/ui (implémentation). Éradique l'improvisation visuelle de l'IA via 4 scripts de validation automatisée, GSAP et un audit Playwright sur 4 breakpoints.
+description: Validator and enforcer of the DESIGN.md contract. Pillar 3 of the design ecosystem alongside getdesign.md (real visual references) and UI/UX Pro Max (sectoral design intelligence). Eliminates AI visual improvisation through 4 automated validation scripts, GSAP, and a Playwright audit on 4 breakpoints.
 ---
 
 # Web Design Enhancer
 
-Ce skill est le **validateur et enforcer** de l'écosystème design. Il garantit que le code implémenté respecte à la lettre le contrat `DESIGN.md` établi en amont par les deux autres piliers.
+This skill is the **validator and enforcer** of the design ecosystem. It guarantees that implemented code respects the `DESIGN.md` contract established upstream by the two other pillars.
 
 ---
 
-## L'Écosystème — Les 3 Piliers
+## The Ecosystem — 3 Pillars
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│  PILIER 1 — getdesign.md          PILIER 2 — UI/UX Pro Max          │
+│  PILLAR 1 — getdesign.md           PILLAR 2 — UI/UX Pro Max         │
 │                                                                     │
-│  Références visuelles réelles     Intelligence design/industrie     │
-│  "À quoi ressemble mon projet ?"  "Quelles décisions pour mon       │
-│  (72 sites : Stripe, Vercel,       type de produit ?"               │
-│  Linear, Nike, Tesla...)          (161 règles, 67 styles,           │
-│                                    161 palettes, 57 typos)          │
+│  Real visual references            Per-industry design intelligence │
+│  "What should my project          "Which decisions for my product   │
+│   look like?"                       type?"                          │
+│  (72 sites: Stripe, Vercel,        (161 rules, 67 styles,           │
+│  Linear, Nike, Tesla...)            161 palettes, 57 typos)         │
 │                    ↘                      ↙                         │
 │                                                                     │
-│              DESIGN.md  ←  contrat de design du projet              │
+│              DESIGN.md  ←  the project's design contract            │
 │                                                                     │
 │                              ↓                                      │
 │                                                                     │
-│  PILIER 3 — ce skill  +  shadcn/ui  +  GSAP                         │
-│  Implémentation  →  Validation automatisée  →  Livraison            │
+│  PILLAR 3 — this skill  +  shadcn/ui  +  GSAP                       │
+│  Implementation  →  Automated validation  →  Delivery               │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Workflow Complet
+## Complete Workflow
 
-### ⚡ Phase 0 — Orientation Design (Obligatoire, avant tout code)
+### ⚡ Phase 0 — Design Anchoring (mandatory, before any code)
 
-**Ne jamais créer un DESIGN.md de zéro. Nourrir sa création depuis les deux sources.**
+**Never create a DESIGN.md from scratch. Feed its creation from the two sources.**
 
-#### 0a. Référence visuelle — getdesign.md
+#### 0a. Visual reference — getdesign.md
 
-Choisir le site dont l'esthétique est la plus proche du projet. Télécharger son DESIGN.md :
+Pick the site whose aesthetic is closest to the project. Download its DESIGN.md:
 
 ```bash
 npx getdesign@latest add <brand>
 ```
 
-Exemples selon le type de projet :
+Examples by project type:
 
-| Type de projet | Référence recommandée | Commande |
+| Project type | Recommended reference | Command |
 |---|---|---|
-| Fintech, paiement | Stripe | `npx getdesign@latest add stripe` |
+| Fintech, payments | Stripe | `npx getdesign@latest add stripe` |
 | Dev tool, infra | Vercel | `npx getdesign@latest add vercel` |
-| SaaS minimaliste | Linear | `npx getdesign@latest add linear` |
+| Minimalist SaaS | Linear | `npx getdesign@latest add linear` |
 | Workspace, docs | Notion | `npx getdesign@latest add notion` |
 | Open-source, API | Supabase | `npx getdesign@latest add supabase` |
-| E-commerce luxe | Ferrari | `npx getdesign@latest add ferrari` |
+| Luxury e-commerce | Ferrari | `npx getdesign@latest add ferrari` |
 | Crypto, trading | Binance | `npx getdesign@latest add binance` |
-| IA, chatbot | Cursor | `npx getdesign@latest add cursor` |
+| AI, chatbot | Cursor | `npx getdesign@latest add cursor` |
 
-Le fichier `DESIGN.md` de référence est déposé à la racine. **C'est une inspiration, pas un copier-coller.** En extraire les tokens pertinents (couleurs, typo, rayons, ombres) qui correspondent au projet.
+The reference `DESIGN.md` is dropped at the project root. **It is inspiration, not copy-paste.** Extract the relevant tokens (colors, type, radii, shadows) that match the project.
 
-#### 0b. Intelligence design — UI/UX Pro Max
+#### 0b. Design intelligence — UI/UX Pro Max
 
-Générer le système de design adapté au type de produit :
+Generate the design system adapted to the product type:
 
 ```bash
 python3 scripts/search.py \
-  "description du produit" --design-system -p "Nom du projet"
+  "product description" --design-system -p "Project Name"
 ```
 
-Exemples :
+Examples:
 
 ```bash
-# Application bancaire
+# Banking app
 python3 scripts/search.py \
   "fintech banking app" --design-system -p "MyBank"
 
-# Plateforme wellness
+# Wellness platform
 python3 scripts/search.py \
   "beauty spa wellness booking" --design-system -p "Serenity"
 
-# Dashboard SaaS analytics
+# SaaS analytics dashboard
 python3 scripts/search.py \
   "saas analytics dashboard" --design-system -p "DataFlow"
 ```
 
-La sortie contient : Pattern de page recommandé, Style prioritaire, Palette, Typographie, Effets clés, Anti-patterns à éviter absolument pour ce secteur.
+The output contains: recommended page pattern, priority style, palette, typography, key effects, and sectoral antipatterns to avoid at all costs.
 
-#### 0c. Fusion → DESIGN.md du projet
+#### 0c. Merge → project DESIGN.md
 
-Créer le `DESIGN.md` du projet en combinant les deux sources :
+Create the project's `DESIGN.md` by combining both sources:
 
-- **UI/UX Pro Max → décisions structurelles** : palette sémantique, typographie, pattern de page, anti-patterns sectoriels
-- **getdesign.md → affinage stylistique** : tokens précis, rayons, ombres, densité, micro-détails visuels
+- **UI/UX Pro Max → structural decisions**: semantic palette, typography, page pattern, sectoral antipatterns
+- **getdesign.md → stylistic refinement**: precise tokens, radii, shadows, density, visual micro-details
 
-**Règle de priorité en cas de conflit** : UI/UX Pro Max prime (adapté au secteur), getdesign.md affine la texture visuelle.
+**Conflict rule**: UI/UX Pro Max wins (sectoral fit), getdesign.md refines visual texture.
 
-Utiliser `templates/design-md-template.md` comme structure de base.
+Use `templates/design-md-template.md` as the skeleton.
 
-#### 0d. Auto-validation anti-clichés IA (Obligatoire avant de valider le DESIGN.md)
+#### 0d. Self-validation against AI clichés (mandatory before submitting DESIGN.md)
 
-Avant de soumettre le DESIGN.md, poser cette question pour **chaque décision de thème** :
+Before submitting the DESIGN.md, ask this question for **every theme decision**:
 
-> *"Est-ce que j'ai vu ce concept sur les 1000 derniers portfolios/landing pages générés par IA ?"*
+> *"Have I seen this concept on the last 1000 AI-generated portfolios/landing pages?"*
 
-Si la réponse est oui → le remplacer par quelque chose de spécifique au projet réel.
+If the answer is yes → replace it with something specific to the real project.
 
-**Thèmes et concepts strictement interdits dans le DESIGN.md :**
+**Themes and concepts strictly forbidden in DESIGN.md:**
 
-| Concept interdit | Pourquoi | Alternative |
+| Forbidden concept | Why | Alternative |
 |---|---|---|
-| `dark cyberpunk` / `cybernetic` | Cliché IA #1 pour portfolios tech | Décrire la texture réelle : "surfaces matte carbon avec typographie monospace" |
-| `glow cursor` | Effet surutilisé, non demandé | Supprimer — aucun équivalent nécessaire |
-| `grid background` (grille de fond) | Présent dans 90% des portfolios dev IA | Fond uni ou gradient radial très subtil seulement si justifié |
-| `glassmorphism` | Tendance épuisée, signal IA fort | `backdrop-filter` uniquement sur éléments fonctionnels (modals, dropdowns) |
-| `neon glow` / `neon accents` | Signal IA cyberpunk immédiat | Couleurs à contraste élevé sans `box-shadow` lumineux |
-| `particle background` / `particles.js` | Overdone depuis 2018 | Fond statique ou motif CSS subtil |
-| `typewriter effect` / `typed.js` | Cliché portfolio dev #1 | Titre statique — le contenu parle, pas l'animation |
-| `SYS_STATUS: ONLINE` / badges système | Injection IA non demandée | Supprimer — ou justifier fonctionnellement dans le brief |
-| `hero badge` décoratif ("SecOps & Admin") | L'info est déjà dans le H1/H2 | Supprimer — toute info badge doit être dans le texte |
-| Lucide icons sur **tous** les éléments | Icons génériques interchangeables | SVG custom ou icons limitées aux éléments fonctionnels |
-| `style monitoring (Grafana/Datadog)` comme thème | Générique IA pour profils sysadmin | Identifier ce qui est unique au projet, pas au secteur |
+| `dark cyberpunk` / `cybernetic` | AI cliché #1 for tech portfolios | Describe the real texture: "matte carbon surfaces with monospace type" |
+| `glow cursor` | Overused effect, never requested | Remove — no equivalent needed |
+| `grid background` | Present in 90% of AI dev portfolios | Solid background or very subtle radial gradient only if justified |
+| `glassmorphism` | Exhausted trend, strong AI signal | `backdrop-filter` only on functional elements (modals, dropdowns) |
+| `neon glow` / `neon accents` | Immediate AI cyberpunk signal | High-contrast colors without luminous `box-shadow` |
+| `particle background` / `particles.js` | Overdone since 2018 | Static background or subtle CSS pattern |
+| `typewriter effect` / `typed.js` | Dev portfolio cliché #1 | Static title — content speaks, not animation |
+| `SYS_STATUS: ONLINE` / system badges | Unrequested AI injection | Remove — or justify functionally in the brief |
+| Decorative `hero badge` ("SecOps & Admin") | Info is already in H1/H2 | Remove — badge info must live in copy |
+| Lucide icons on **every** element | Generic, interchangeable icons | Custom SVG or icons limited to functional elements |
+| `monitoring style (Grafana/Datadog)` as theme | Generic AI choice for sysadmin profiles | Identify what's unique to the project, not the sector |
 
-**Règle d'or :** Si un élément n'est pas dans le brief original, il n'est pas dans le DESIGN.md.
+**Golden rule:** if an element is not in the original brief, it does not belong in DESIGN.md.
 
-
-Valider le DESIGN.md avant tout code :
+Validate DESIGN.md before any code:
 
 ```bash
-python3 scripts/check.py --gate 0   # Vérifie que Phase 0 a été exécutée
-python3 scripts/check.py --gate 1   # Valide le DESIGN.md (appelle validate_design.py en interne)
+python3 scripts/check.py --gate 0   # Verify Phase 0 was executed
+python3 scripts/check.py --gate 1   # Validate DESIGN.md
 ```
 
-**`check.py` est l'unique point d'entrée.** Il orchestre `validate_design.py` (thèmes interdits, WCAG AA, §0 preuves, §4 hiérarchie, §8 dark mode, §10 Three.js) et persiste l'état dans `.phase-log.json`.
+**If either command returns an error → do not move to Phase 1. Fix and rerun.**
 
-**Si l'une de ces deux commandes retourne une erreur → ne pas passer à Phase 1. Corriger et relancer.**
+`validate_design.py` automatically detects forbidden themes and blocks progress.
 
 ---
 
-### Phase 1 — Contrat de Design (Le "Cerveau")
+### Phase 1 — Design Contract (the "Brain")
 
-Le `DESIGN.md` final doit être complet avant tout code. Exigences minimales :
+The final `DESIGN.md` must be complete before any code. Minimum requirements:
 
-- **§2 Palette** : 4–8 couleurs avec rôles sémantiques (`Primaire`, `Fond`, `Texte`, `Accent`, `Succès`, `Danger`) — contraste WCAG AA vérifié automatiquement
-- **§3 Typographie** : Maximum 2 polices (display + body), Google Fonts uniquement
-- **§4 Hiérarchie typographique** : Tailles dans des plages vérifiées automatiquement par `validate_design.py` — **H1 28–80px**, H2 22–60px, H3 18–36px, **P 13–18px**, Small 11–14px
-- **§5 Espacements** : Tous en multiples de 8px
-- **§6 Composants** : Maximum 3 variantes par type
-- **§7 Animations** : ≤ 400ms, mention de `prefers-reduced-motion` obligatoire
-- **§8 Dark Mode** : Obligatoire si fond principal sombre — surface, texte-secondaire, bordure-dark documentés
-- **§9 Mobile** *(optionnel — obligatoire si app native dans le scope)* : touch targets ≥ 44pt iOS / 48dp Android, safe areas, unités natives
-- **§10 Three.js** *(optionnel — obligatoire si scène WebGL dans le scope)* : pixel ratio cap, dispose strategy, fallback WebGL — voir `references/threejs-best-practices.md`
+- **§2 Palette**: 4–8 colors with semantic roles (`Primary`, `Background`, `Text`, `Accent`, `Success`, `Danger`) — WCAG AA contrast auto-verified
+- **§3 Typography**: max 2 fonts (display + body), Google Fonts only
+- **§4 Type hierarchy**: sizes in ranges auto-checked by `validate_design.py` — **H1 28–80px**, H2 22–60px, H3 18–36px, **P 13–18px**, Small 11–14px
+- **§5 Spacing**: all multiples of 8px
+- **§6 Components**: max 3 variants per type
+- **§7 Animations**: ≤ 400ms, mandatory `prefers-reduced-motion` mention
+- **§8 Dark Mode**: mandatory if main background is dark — surface, secondary-text, dark-border documented
+- **§9 Mobile** *(optional — mandatory if a native app is in scope)*: touch targets ≥ 44pt iOS / 48dp Android, safe areas, native units
+- **§10 Three.js** *(optional — mandatory if a WebGL scene is in scope)*: pixel ratio cap, dispose strategy, WebGL fallback — see `references/threejs-best-practices.md`
 
-Valider avant de continuer :
+Validate before continuing:
 
 ```bash
 python3 scripts/check.py --gate 1
 ```
 
-**`check.py --gate 1` est la commande canonique.** Elle invoque `validate_design.py` (WCAG AA, §4 plages, §8/§9/§10) et persiste le hash SHA-256 du DESIGN.md dans `.phase-log.json` — le gate s'auto-invalide si le DESIGN.md est modifié.
+**`check.py --gate 1` is the canonical command.** It invokes `validate_design.py` (WCAG AA, §4 ranges, §8/§9/§10) and persists the DESIGN.md SHA-256 hash to `.phase-log.json` — the gate auto-invalidates if DESIGN.md is modified.
 
-**Si la commande retourne une erreur → corriger le DESIGN.md. Ne pas écrire une ligne de code avant que ce gate soit vert.**
-
----
-
-### Phase 2 — Implémentation Structurelle (Le "Corps")
-
-- **Primitives** : Exclusivement les composants **shadcn/ui** (Button, Card, Dialog, Input, Table...). Interdiction de recréer ces blocs depuis des `div` brutes.
-- **Variables** : Configurer `globals.css` uniquement via les variables CSS définies dans le `DESIGN.md` (`--primary`, `--background`, `--radius`...).
-- **Grille** : Classes Tailwind multiples de 8 uniquement (`p-2`, `p-4`, `p-8`, `gap-4`, `gap-8`). Interdiction absolue des valeurs arbitraires (`p-[11px]`, `mt-[13px]`).
+**If the command returns an error → fix DESIGN.md. Do not write a single line of code until this gate is green.**
 
 ---
 
-### Phase 3 — Dynamisme avec GSAP (L'"Âme")
+### Phase 2 — Structural Implementation (the "Body")
 
-Voir `references/gsap-best-practices.md`.
-
-- **shadcn/ui + Tailwind** gèrent les états natifs (hover, focus, disabled).
-- **GSAP** uniquement pour l'orchestration : entrées échelonnées (staggers), effets au scroll (ScrollTrigger).
-- Toutes les durées respectent les timings du `DESIGN.md` (≤ 400ms).
+- **Primitives**: exclusively **shadcn/ui** components (Button, Card, Dialog, Input, Table...). Recreating these blocks from raw `div`s is forbidden.
+- **Variables**: configure `globals.css` only via CSS variables defined in DESIGN.md (`--primary`, `--background`, `--radius`...).
+- **Grid**: Tailwind classes in multiples of 8 only (`p-2`, `p-4`, `p-8`, `gap-4`, `gap-8`). Arbitrary values (`p-[11px]`, `mt-[13px]`) are strictly forbidden.
 
 ---
 
-### Phase 4 — Inspection Visuelle (Les "Yeux" via MCP Playwright) — CRITIQUE
+### Phase 3 — Dynamism with GSAP (the "Soul")
 
-Une tâche n'est jamais terminée tant qu'elle n'a pas été inspectée visuellement.
+See `references/gsap-best-practices.md`.
+
+- **shadcn/ui + Tailwind** handle native states (hover, focus, disabled).
+- **GSAP** only for orchestration: staggered entries, scroll effects (ScrollTrigger).
+- All durations respect the timings in DESIGN.md (≤ 400ms).
+
+---
+
+### Phase 4 — Visual Inspection (the "Eyes" via MCP Playwright) — CRITICAL
+
+A task is never done until it has been visually inspected.
 
 ```bash
 python3 scripts/visual_audit.py --url http://localhost:3000 --output ./audit-results
 ```
 
-Inspecte sur **4 breakpoints** (375 / 768 / 1280 / 1920px). Corriger immédiatement si :
+Inspects on **4 breakpoints** (375 / 768 / 1280 / 1920px). Fix immediately if:
 
-- **Artefacts IA** : emojis, stickers, icônes décoratives non demandées
-- **Logos inventés** : placeholders graphiques (`logo-placeholder`, `your-logo`, `brandname`)
-- **Géométrie bancale** : espacements non-multiples de 8px
+- **AI artifacts**: emojis, stickers, decorative icons that weren't requested
+- **Invented logos**: graphic placeholders (`logo-placeholder`, `your-logo`, `brandname`)
+- **Wonky geometry**: spacings that aren't multiples of 8px
 
-Boucle de validation : corriger → relancer l'audit → répéter jusqu'à zéro défaut.
+Validation loop: fix → rerun audit → repeat until zero defect.
 
 ---
 
-### Phase 5 — Validation Automatisée (Obligatoire avant livraison)
+### Phase 5 — Automated Validation (mandatory before delivery)
 
-Exécuter dans cet ordre :
+Run in this order:
 
 ```bash
-# 1. Détection des antipatterns IA dans le code source
+# 1. AI antipattern detection in source code
 python3 scripts/detect_ai_slop.py --design DESIGN.md --code ./client/src
 
-# 2. Audit de la grille 8px sur tous les fichiers CSS/TSX/JSX
+# 2. 8px grid audit on all CSS/TSX/JSX files
 python3 scripts/audit_spacing.py --path ./client/src
 
-# 3. Validation finale du contrat DESIGN.md (inclut contraste WCAG AA + dark mode)
+# 3. Final DESIGN.md contract validation (includes WCAG AA contrast + dark mode)
 python3 scripts/validate_design.py DESIGN.md
 
-# 4. Diff DESIGN.md ↔ code — vérifie que l'implémentation respecte le contrat
+# 4. Diff DESIGN.md ↔ code — verify implementation respects the contract
 python3 scripts/diff_design_vs_code.py DESIGN.md --code ./src
 ```
 
-Si un script renvoie une erreur → corriger immédiatement en consultant `references/antipatterns-guide.md` → relancer. **Tout rendu non validé par les 3 scripts est rejeté.**
+If a script returns an error → fix immediately by consulting `references/antipatterns-guide.md` → rerun. **Any output not validated by all 3 scripts is rejected.**
 
 ---
 
-## Règles d'Hygiène Visuelle (Non-négociables)
+## Visual Hygiene Rules (non-negotiable)
 
-- **Moins mais mieux** : Tout élément visuel sans fonction claire (bordure, ombre, dégradé) est supprimé.
-- **Grille 8px stricte** : `p-2` `p-4` `p-6` `p-8` `gap-4` `gap-8`. Jamais de `p-[11px]`.
-- **Logo textuel** : Si aucun asset logo fourni → texte stylisé uniquement (`font-bold tracking-tight uppercase`). Jamais de placeholder graphique improvisé.
-- **Contraste WCAG AA** : Texte/Fond minimum **4.5:1**. Éléments UI minimum **3.0:1**.
+- **Less but better**: any visual element without a clear function (border, shadow, gradient) is removed.
+- **Strict 8px grid**: `p-2` `p-4` `p-6` `p-8` `gap-4` `gap-8`. Never `p-[11px]`.
+- **Text logo**: if no logo asset is provided → styled text only (`font-bold tracking-tight uppercase`). Never an improvised graphic placeholder.
+- **WCAG AA contrast**: text/background minimum **4.5:1**. UI elements minimum **3.0:1**.
 
 ---
 
-## Ressources
+## Resources
 
-| Fichier | Rôle |
+| File | Role |
 |---|---|
-| `templates/design-md-template.md` | Structure du DESIGN.md à remplir |
-| `templates/design-system.css` | Variables CSS prêtes à personnaliser |
-| `references/design-md-spec-v2.md` | Spec complète du format DESIGN.md |
-| `references/antipatterns-guide.md` | Exemples concrets ❌ vs ✅ |
-| `references/gsap-best-practices.md` | Guide GSAP |
-| `references/threejs-best-practices.md` | Guide Three.js — antipatterns WebGL critiques (§10) |
-| `scripts/validate_design.py` | Validation DESIGN.md + WCAG AA + plages §4 + §10 Three.js |
-| `scripts/detect_ai_slop.py` | Détection antipatterns dans le code |
-| `scripts/audit_spacing.py` | Audit grille 8px |
-| `scripts/visual_audit.py` | Audit visuel Playwright (4 breakpoints) |
-| `scripts/diff_design_vs_code.py` | Diff DESIGN.md ↔ code (couleurs, polices, animations) |
-| `.slop-ignore` | Whitelist anti-faux positifs pour detect_ai_slop.py |
+| `templates/design-md-template.md` | DESIGN.md skeleton to fill |
+| `templates/design-system.css` | Ready-to-customize CSS variables |
+| `references/design-md-spec-v2.md` | Full DESIGN.md format spec |
+| `references/antipatterns-guide.md` | Concrete ❌ vs ✅ examples |
+| `references/gsap-best-practices.md` | GSAP guide |
+| `references/threejs-best-practices.md` | Three.js guide — critical WebGL antipatterns (§10) |
+| `scripts/validate_design.py` | DESIGN.md validation + WCAG AA + §4 ranges + §10 Three.js |
+| `scripts/detect_ai_slop.py` | Antipattern detection in code |
+| `scripts/audit_spacing.py` | 8px grid audit |
+| `scripts/visual_audit.py` | Playwright visual audit (4 breakpoints) |
+| `scripts/diff_design_vs_code.py` | Diff DESIGN.md ↔ code (colors, fonts, animations) |
+| `.slop-ignore` | Whitelist against false positives for detect_ai_slop.py |

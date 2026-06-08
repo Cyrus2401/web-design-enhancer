@@ -29,7 +29,7 @@ jobs:
         run: |
           if [ ! -f DESIGN.md ]; then
             echo "no_design=true" >> "$GITHUB_OUTPUT"
-            echo "ℹ️  DESIGN.md absent — gate skipped."
+            echo "[INFO] No DESIGN.md found - gate skipped."
           else
             echo "no_design=false" >> "$GITHUB_OUTPUT"
           fi

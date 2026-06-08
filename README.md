@@ -1,169 +1,145 @@
 # Web Design Enhancer Pro
 
-**Éradiquer l'improvisation visuelle des IA — livrer des interfaces propres, précises, professionnelles.**
+**Eliminate AI visual improvisation — deliver clean, precise, professional interfaces.**
 
 ---
 
-## Philosophie : Anti-"AI Slop"
+## Philosophy: Anti-"AI Slop"
 
-Ce skill transforme n'importe quelle interface générée par une IA en un résultat de qualité professionnelle. Il impose une rigueur mécanique qui rend impossible la production de patterns "AI slop" — même avec un agent non supervisé.
+This skill transforms any AI-generated interface into a professional-quality result. It enforces a mechanical rigor that makes producing "AI slop" patterns impossible — even with an unsupervised agent.
 
-**3 principes fondamentaux :**
-- **Contrat avant code** — le DESIGN.md est validé mécaniquement avant qu'une seule ligne de code soit écrite
-- **Vérifiable > subjectif** — chaque règle design est testable par un script Python
-- **Références réelles > training data** — Phase 0 force l'ancrage sur des designs existants (Stripe, Linear, Vercel...)
+**3 core principles:**
+- **Contract before code** — DESIGN.md is mechanically validated before a single line of code is written
+- **Verifiable > subjective** — every design rule is testable by a Python script
+- **Real references > training data** — Phase 0 forces anchoring on existing designs (Stripe, Linear, Vercel...)
 
 ---
 
-## Architecture : 3 Piliers
+## Architecture: 3 Pillars
 
 ```
-Pilier 1 — getdesign.md           Pilier 2 — UI/UX Pro Max
-(références visuelles réelles)    (intelligence sectorielle, 161 règles, 67 styles)
+Pillar 1 — getdesign.md           Pillar 2 — UI/UX Pro Max
+(real visual references)          (sectoral intelligence, 161 rules, 67 styles)
            ↓                                    ↓
                       DESIGN.md
-                  (contrat de design)
+                  (design contract)
                          ↓
-           Pilier 3 — web-design-enhancer-pro
-           (validation + implémentation + audit)
+           Pillar 3 — web-design-enhancer-pro
+           (validation + implementation + audit)
 ```
 
 ---
 
-## Workflow en 5 Phases
+## 5-Phase Workflow
 
-### Phase 0 — Ancrage (obligatoire, bloquante)
+### Phase 0 — Anchoring (mandatory, blocking)
 ```bash
-# 1. Récupérer les références visuelles réelles
+# 1. Get real visual references
 npx getdesign@latest add stripe
 
-# 2. Interroger la base UI/UX Pro Max
-python3 scripts/search.py "saas analytics dashboard" --design-system -p "MonProjet"
+# 2. Query the UI/UX Pro Max database
+python3 scripts/search.py "saas analytics dashboard" --design-system -p "MyProject"
 
-# 3. Vérifier que Phase 0 est prouvée
+# 3. Verify Phase 0 was executed
 python3 scripts/check.py --gate 0
 ```
 
-### Phase 1 — Contrat DESIGN.md
-Remplir `DESIGN.md` avec les §0 à §10 (template : `templates/design-md-template.md`).
-Sections validées : §0 Sources Phase 0, §1–§7 cœur, **§4 plages H1/P** auto-vérifiées, §8 Dark Mode (obligatoire si fond sombre), §9 Mobile (si app native), **§10 Three.js (si scène WebGL — voir `references/threejs-best-practices.md`)**.
+### Phase 1 — DESIGN.md contract
+Fill `DESIGN.md` with §0 through §10 (template: `templates/design-md-template.md`).
+Validated sections: §0 Phase 0 sources, §1–§7 core, **§4 H1/P size ranges** auto-checked, §8 Dark Mode (mandatory if dark background), §9 Mobile (if native app), **§10 Three.js (if WebGL scene — see `references/threejs-best-practices.md`)**.
 ```bash
-python3 scripts/check.py --gate 1   # Point d'entrée canonique, invoque validate_design.py
+python3 scripts/check.py --gate 1   # Canonical entry point, invokes validate_design.py
 ```
 
-### Phase 2 — Implémentation CSS/HTML
-Mapper les tokens du DESIGN.md vers `globals.css` ou les variables CSS.
+### Phase 2 — CSS/HTML implementation
+Map DESIGN.md tokens to `globals.css` or CSS variables.
 
-### Phase 3 — Animations GSAP
-Orchestrer les entrées et effets de scroll selon `references/gsap-best-practices.md`.
+### Phase 3 — GSAP animations
+Orchestrate entries and scroll effects following `references/gsap-best-practices.md`.
 
-### Phase 4 — Audit visuel Playwright
+### Phase 4 — Playwright visual audit
 ```bash
 python3 scripts/visual_audit.py --url http://localhost:3000 --output ./audit-results
 ```
 
-### Phase 5 — Validation finale (gate bloquant)
+### Phase 5 — Final validation (blocking gate)
 ```bash
 python3 scripts/check.py --final --code ./src
-# Séquence : detect_ai_slop → audit_spacing → validate_design → diff_design_vs_code
+# Sequence: detect_ai_slop → audit_spacing → validate_design → diff_design_vs_code
 ```
 
 ---
 
-## Utilisation par outil IA
+## Usage by AI tool
 
-Le cœur du skill est un ensemble de scripts Python **agent-agnostiques** — ils tournent dans n'importe quel terminal. Seule la lecture de `SKILL.md` change selon l'outil.
+The core of this skill is a set of **agent-agnostic Python scripts** — they run in any terminal. Only the way `SKILL.md` is loaded changes per tool.
 
-| Outil | Installation | Lancement |
+| Tool | Install | Run |
 | :--- | :--- | :--- |
-| **Claude Code** | Cloner dans `~/.claude/skills/web-design-enhancer-pro/` | Le skill est auto-découvert. Invoquer via `/web-design-enhancer` ou laisser Claude le détecter |
-| **Codex** (OpenAI CLI) | Cloner n'importe où | Pointer Codex sur le repo : `codex --context ./web-design-enhancer-pro "valide mon DESIGN.md"`. Les scripts s'exécutent via Bash |
-| **OpenCode** | Cloner dans le projet ou ajouter en submodule | Référencer `SKILL.md` dans le contexte (`/add SKILL.md`) puis exécuter les `python3 scripts/...` |
-| **Antigravity** (Google) | Cloner dans le workspace | Charger `SKILL.md` comme contexte agent ; les scripts tournent via le terminal intégré |
+| **Claude Code** | Clone into `~/.claude/skills/web-design-enhancer-pro/` | Auto-discovered. Invoke via `/web-design-enhancer` or let Claude detect it |
+| **Codex** (OpenAI CLI) | Clone anywhere | Point Codex at the repo: `codex --context ./web-design-enhancer-pro "validate my DESIGN.md"`. Scripts run via Bash |
+| **OpenCode** | Clone into the project or add as a submodule | Reference `SKILL.en.md` in context (`/add SKILL.en.md`) then run `python3 scripts/...` |
+| **Antigravity** (Google) | Clone into the workspace | Load `SKILL.en.md` as agent context; scripts run via the built-in terminal |
 
-**Pré-requis communs** : Python 3.10+, `pip install -r requirements.txt`. Les scripts ne dépendent d'aucune API LLM — ils sont déterministes et reproductibles.
+**Common prerequisites**: Python 3.10+, `pip install -r requirements.txt`. The scripts depend on no LLM API — they are deterministic and reproducible.
 
 ---
 
-## Scripts disponibles
+## Available scripts
 
-| Script | Usage | Rôle |
+| Script | Usage | Role |
 | :--- | :--- | :--- |
-| `validate_design.py` | `DESIGN.md` | Valide les §0–8, WCAG AA, dark mode |
-| `detect_ai_slop.py` | `--design` + `--code` | Score antipatterns IA (0–100, seuil 80) |
-| `diff_design_vs_code.py` | `DESIGN.md --code ./src` | Divergences contrat ↔ implémentation |
-| `audit_spacing.py` | `--path ./src` | Grille 8px sur le CSS/JSX réel |
-| `visual_audit.py` | `--url localhost:3000` | Screenshots + audit Playwright 4 breakpoints |
-| `check.py` | `--gate 0/1/final` | Orchestrateur de gates séquentiels |
-| `search.py` | `"requête" --domain` | Recherche BM25 dans les CSV UI/UX Pro Max |
+| `validate_design.py` | `DESIGN.md` | Validates §0–8, WCAG AA, dark mode |
+| `detect_ai_slop.py` | `--design` + `--code` | Score AI antipatterns (0–100, threshold 80) |
+| `diff_design_vs_code.py` | `DESIGN.md --code ./src` | Divergences contract ↔ implementation |
+| `audit_spacing.py` | `--path ./src` | 8px grid on real CSS/JSX |
+| `visual_audit.py` | `--url localhost:3000` | Screenshots + Playwright audit on 4 breakpoints |
+| `check.py` | `--gate 0/1/final` | Sequential gate orchestrator |
+| `search.py` | `"query" --domain` | BM25 search across UI/UX Pro Max CSVs |
 
 ---
 
-## Antipatterns détectés automatiquement
+## Automatically detected antipatterns
 
-| Antipattern | Signal IA | Remède |
+| Antipattern | AI signal | Remedy |
 | :--- | :--- | :--- |
-| Emojis décoratifs | ✨🚀💡 dans le code | Suppression radicale |
-| Icônes Lucide génériques | sparkles, zap, star, bot, magic | Pack cohérent ou SVG custom |
-| Gradients clichés | bleu→violet, rose→violet | Couleurs sémantiques solides |
-| Badges statut non demandés | ● LIVE NOW, SYS_STATUS: ONLINE | Suppression ou justification §1 |
-| Buzzwords vagues | premium, moderne, élégant | Descriptions précises et mesurables |
-| Typographie uniforme | font-size: 16px partout | Hiérarchie §4 respectée |
-| Hover excessif | translateY(-8px), ombre 32px | ≤ -4px, ombre discrète |
-| Dark mode improvisé | couleurs inventées à la génération | Section §8 obligatoire |
-| Thèmes interdits | glassmorphism, typewriter effect | Détecté et bloqué par validate_design |
-| Three.js antipatterns | geometry dans animate(), renderer dans useEffect, pixel ratio non capé | Bloqué par detect_ai_slop sur .js/.ts/.jsx/.tsx |
+| Decorative emojis | ✨🚀💡 in code | Radical removal |
+| Generic Lucide icons | sparkles, zap, star, bot, magic | Consistent pack or custom SVG |
+| Cliché gradients | blue→purple, pink→purple | Solid semantic colors |
+| Unrequested status badges | ● LIVE NOW, SYS_STATUS: ONLINE | Remove or justify in §1 |
+| Vague buzzwords | premium, modern, elegant | Precise, measurable descriptions |
+| Uniform typography | font-size: 16px everywhere | Respect §4 hierarchy |
+| Excessive hover | translateY(-8px), 32px shadow | ≤ -4px, discreet shadow |
+| Improvised dark mode | colors invented at generation time | Mandatory §8 section |
+| Forbidden themes | glassmorphism, typewriter effect | Detected and blocked by validate_design |
+| Three.js antipatterns | geometry in animate(), renderer in useEffect, uncapped pixel ratio | Blocked by detect_ai_slop on .js/.ts/.jsx/.tsx |
 
 ---
 
-## Structure du projet
+## CI/CD integration
 
-```
-web-design-enhancer-pro/
-├── SKILL.md                          # Documentation principale (workflow complet)
-├── README.md                         # Ce fichier
-├── requirements.txt                  # Dépendances Python
-├── .slop-ignore                      # Whitelist anti-faux positifs
-├── data/                             # CSV UI/UX Pro Max (styles, couleurs, typo...)
-│   └── stacks/                       # Guidelines par stack (16 frameworks)
-├── scripts/
-│   ├── validate_design.py            # Validateur DESIGN.md (§0–8, WCAG, dark mode)
-│   ├── detect_ai_slop.py             # Détecteur antipatterns IA (score 0–100)
-│   ├── diff_design_vs_code.py        # Diff DESIGN.md ↔ code réel
-│   ├── audit_spacing.py              # Audit grille 8px sur CSS/JSX
-│   ├── visual_audit.py               # Audit Playwright 4 breakpoints
-│   ├── check.py                      # Orchestrateur de gates
-│   ├── search.py                     # Moteur BM25 UI/UX Pro Max
-│   ├── core.py                       # Moteur de recherche BM25 (dépendance search.py)
-│   └── design_system.py              # Générateur de design system (dépendance search.py)
-├── references/
-│   ├── design-md-spec-v2.md          # Spécification DESIGN.md v3 (§0–8 détaillés)
-│   ├── api_reference.md              # Référence technique complète
-│   ├── antipatterns-guide.md         # Guide antipatterns ❌ vs ✅
-│   └── gsap-best-practices.md        # Guide GSAP (Phase 3)
-├── templates/
-│   ├── design-md-template.md         # Template DESIGN.md §0–8 + checklist
-│   ├── design-system.css             # Variables CSS prêtes à personnaliser
-│   └── brand-kit.json                # Structure brand kit exportable
-└── examples/
-    ├── manus-demo/DESIGN.md          # Exemple validé — dev tool, Neo-Brutalism
-    └── dataflow-saas/DESIGN.md       # Exemple validé — SaaS analytics, Dense Dashboard
-```
+Two ready-to-use templates ship with this repo:
+
+- **`.husky/pre-commit`** — runs `check.py --gate 0` then `--gate 1` before every commit.
+  Install with `npx husky install`, then `chmod +x .husky/pre-commit`.
+- **`.github/workflows/design-gate.yml`** — runs gates 0/1 on every PR and the final gate on push to main.
+
+Both no-op gracefully when no `DESIGN.md` is present at the repo root.
 
 ---
 
-## Checklist avant livraison
+## Delivery checklist
 
-- [ ] `DESIGN.md` §0–8 complet, `check.py --gate 0` passé
-- [ ] `validate_design.py` : 0 erreur
-- [ ] `detect_ai_slop.py` : score ≥ 80/100
-- [ ] `diff_design_vs_code.py` : 0 divergence
-- [ ] `audit_spacing.py` : 0 violation grille 8px
-- [ ] `visual_audit.py` : screenshots validés sur 4 breakpoints
-- [ ] Section §8 Dark Mode présente avec fond < #333 et WCAG AA
-- [ ] `prefers-reduced-motion` dans le code CSS/JS
-- [ ] Zéro emoji décoratif, zéro gradient cliché, zéro icône générique non justifiée
+- [ ] `DESIGN.md` §0–8 complete, `check.py --gate 0` passes
+- [ ] `validate_design.py`: 0 errors
+- [ ] `detect_ai_slop.py`: score ≥ 80/100
+- [ ] `diff_design_vs_code.py`: 0 divergences
+- [ ] `audit_spacing.py`: 0 grid violations
+- [ ] `visual_audit.py`: screenshots validated on 4 breakpoints
+- [ ] §8 Dark Mode section present with background < #333 and WCAG AA
+- [ ] `prefers-reduced-motion` in CSS/JS code
+- [ ] Zero decorative emoji, zero cliché gradient, zero unjustified generic icon
 
 ---
 
-*Conçu pour transformer le code IA en design d'exception.*
+*Built to turn AI-generated code into exceptional design.*

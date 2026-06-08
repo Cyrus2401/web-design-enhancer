@@ -1,49 +1,49 @@
 # DESIGN.md — DataFlow
 
-Contrat de design pour **DataFlow**, un SaaS d'analytics B2B.
-Validé par `python3 scripts/validate_design.py DESIGN.md`.
+Design contract for **DataFlow**, a B2B analytics SaaS.
+Validated by `python3 scripts/validate_design.py DESIGN.md`.
 
 ---
 
 ## 0. Sources Phase 0
 
-- **Brand utilisée :** Linear
-- **Commande exécutée :** `npx getdesign@latest add linear`
-- **Requête exécutée :** `python3 scripts/search.py "saas analytics dashboard" --design-system -p "DataFlow"`
-- **Style retenu :** Data-Dense Dashboard
-- **Justification :** Haute densité d'information, grille serrée, performance maximale, zéro ornement. Linear apporte la précision des tokens (radius 4px, hairline borders).
+- **Brand used:** Linear
+- **Command executed:** `npx getdesign@latest add linear`
+- **Query executed:** `python3 scripts/search.py "saas analytics dashboard" --design-system -p "DataFlow"`
+- **Chosen style:** Data-Dense Dashboard
+- **Justification:** High information density, tight grid, maximum performance, zero ornamentation. Linear brings precise tokens (radius 4px, hairline borders).
 
 ---
 
-## 1. Thème Visuel & Concept
+## 1. Theme & Visual Concept
 
-- **Concept :** Précision analytique — interfaces axées sur la lisibilité de la donnée, contraste fort, aucune fioriture.
-- **Mots-clés :** Dense, structuré, technique, fiable, sobre.
-- **Références :** Linear (compacité, tokens précis), Stripe (clarté typographique).
+- **Concept:** Analytical precision — interfaces focused on data readability, strong contrast, no frills.
+- **Keywords:** Dense, structured, technical, reliable, sober.
+- **References:** Linear (compactness, precise tokens), Stripe (typographic clarity).
 
 ---
 
-## 2. Palette de Couleurs
+## 2. Color Palette
 
-| Rôle | Hex | Utilisation |
+| Role | Hex | Usage |
 | :--- | :--- | :--- |
-| Primaire | #1E40AF | Boutons principaux, liens actifs, focus |
-| Secondaire | #3B82F6 | Hover, accents secondaires, sparklines |
-| Accent | #D97706 | CTA critiques, highlights |
-| Fond | #F8FAFC | Arrière-plan principal |
-| Texte | #1E3A8A | Texte principal, headings |
-| Succès | #16A34A | Indicateurs positifs, deltas croissants |
-| Attention | #F59E0B | Alertes, avertissements |
-| Danger | #DC2626 | Actions destructives, erreurs |
+| Primary | #1E40AF | Primary buttons, active links, focus |
+| Secondary | #3B82F6 | Hover, secondary accents, sparklines |
+| Accent | #D97706 | Critical CTAs, highlights |
+| Background | #F8FAFC | Main background |
+| Text | #1E3A8A | Main text, headings |
+| Success | #16A34A | Positive indicators, increasing deltas |
+| Warning | #F59E0B | Alerts, warnings |
+| Danger | #DC2626 | Destructive actions, errors |
 
-Contraste WCAG AA — Texte sur Fond : 9.2:1 (min 4.5:1). Primaire sur Fond : 8.1:1 (min 3.0:1).
+WCAG AA contrast — Text on Background: 9.2:1 (min 4.5:1). Primary on Background: 8.1:1 (min 3.0:1).
 
 ---
 
-## 3. Typographie
+## 3. Typography
 
-- **Fira Code** (Display, Titres, KPI) — monospace technique, chiffres à largeur fixe, colonnes alignées.
-- **Fira Sans** (Body, corps de texte) — lisible, neutre, complémentaire.
+- **Fira Code** (Display, Titles, KPI) — technical monospace, fixed-width digits, aligned columns.
+- **Fira Sans** (Body, body text) — readable, neutral, complementary.
 
 ```css
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@400;500;600;700&display=swap');
@@ -51,63 +51,63 @@ Contraste WCAG AA — Texte sur Fond : 9.2:1 (min 4.5:1). Primaire sur Fond : 8.
 
 ---
 
-## 4. Hiérarchie Typographique
+## 4. Typography Hierarchy
 
-- **H1 :** 28px / 700 / 1.2
-- **H2 :** 20px / 600 / 1.3
-- **H3 :** 16px / 600 / 1.4
-- **P :** 14px / 400 / 1.6
-- **Small :** 12px / 400 / 1.5
-
----
-
-## 5. Espacement et Grille
-
-- **Base de la grille :** 8px
-- **Gouttière colonnes :** 16px
-- **Padding section vertical :** 32px
-- **Padding section horizontal :** 24px
-- **Padding card interne :** 16px
-- **Gap entre cards :** 16px
-- **Hauteur ligne tableau :** 40px
-- **Radius :** 4px (cartes, boutons)
+- **H1**: 28px / 700 / 1.2
+- **H2**: 22px / 600 / 1.3
+- **H3**: 18px / 600 / 1.4
+- **P**: 14px / 400 / 1.6
+- **Small**: 12px / 400 / 1.5
 
 ---
 
-## 6. Composants et États
+## 5. Spacing & Grid
 
-### Boutons
-
-- **Primaire (Normal) :** Fond #1E40AF, texte blanc, padding 8px 16px, font-weight 600
-- **Primaire (Hover) :** Fond #1D4ED8, transition 200ms ease-out
-- **Secondaire (Normal) :** Transparent, bordure 1px #1E40AF, texte #1E40AF
-- **Ghost (Normal) :** Transparent, texte #1E3A8A, sans bordure
-
-### Section Contact / CTA
-- **Titre :** H2 visible (28–32px)
-- **Sous-titre :** Texte descriptif, 1–2 lignes
-- **Action :** Bouton primaire ou champ email + CTA
-- **Padding vertical max :** 96px (jamais plus — densité minimale obligatoire)
-
-### Comportement grille sur nombre impair de cartes
-- **Stratégie :** Last card en `grid-column: 1 / -1` (full-width) si N%3 ≠ 0
-- **Alignement :** Centré sur la ligne incomplète
-
-### Cartes (Cards)
-
-- **Structure :** Fond blanc, bordure 1px solid #DBEAFE, radius 4px
-- **Padding Interne :** 16px
-- **Ombre :** `0 1px 3px rgba(30, 64, 175, 0.08)`
+- **Grid base:** 8px
+- **Column gutter:** 16px
+- **Vertical section padding:** 32px
+- **Horizontal section padding:** 24px
+- **Card inner padding:** 16px
+- **Gap between cards:** 16px
+- **Table row height:** 40px
+- **Radius:** 4px (cards, buttons)
 
 ---
 
-## 7. Motion et Animations
+## 6. Components & States
 
-- **Transitions générales :** 200ms ease-out
-- **Hover états :** 150ms ease-in-out
-- **Entrées stagger :** duration 300ms, stagger 40ms, ease power2.out
-- **Tooltip :** 150ms ease-out
-- **Accessibilité :** `prefers-reduced-motion` obligatoire.
+### Buttons
+
+- **Primary (Normal):** Background #1E40AF, white text, padding 8px 16px, font-weight 600
+- **Primary (Hover):** Background #1D4ED8, transition 200ms ease-out
+- **Secondary (Normal):** Transparent, border 1px #1E40AF, text #1E40AF
+- **Ghost (Normal):** Transparent, text #1E3A8A, no border
+
+### Contact / CTA Section
+- **Title:** Visible H2 (28–32px)
+- **Subtitle:** Descriptive text, 1–2 lines
+- **Action:** Primary button or email field + CTA
+- **Max vertical padding:** 96px (never more — minimal density required)
+
+### Grid behavior on odd number of cards
+- **Strategy:** Last card with `grid-column: 1 / -1` (full-width) if N%3 != 0
+- **Alignment:** Centered on the incomplete row
+
+### Cards
+
+- **Structure:** White background, border 1px solid #DBEAFE, radius 4px
+- **Inner Padding:** 16px
+- **Shadow:** `0 1px 3px rgba(30, 64, 175, 0.08)`
+
+---
+
+## 7. Motion & Animations
+
+- **General transitions:** 200ms ease-out
+- **Hover states:** 150ms ease-in-out
+- **Stagger entries:** duration 300ms, stagger 40ms, ease power2.out
+- **Tooltip:** 150ms ease-out
+- **Accessibility:** `prefers-reduced-motion` mandatory.
 
 ```css
 @media (prefers-reduced-motion: reduce) {
@@ -120,40 +120,40 @@ Contraste WCAG AA — Texte sur Fond : 9.2:1 (min 4.5:1). Primaire sur Fond : 8.
 
 ---
 
-## ✅ Checklist de Validation Anti-Slop
+## Anti-Slop Validation Checklist
 
-- [x] **DESIGN.md** : Complet, Phase 0 documentée.
-- [x] **Polices** : 2 polices (Fira Code + Fira Sans).
-- [x] **Espacements** : Tous multiples de 8px (4, 8, 16, 24, 32, 40, 48, 64).
-- [x] **Rayons** : 4px — net et technique.
-- [x] **Icônes** : Lucide uniquement pour fonctions justifiées (icônes fonctionnelles ciblées uniquement).
-- [x] **Gradients** : Aucun gradient décoratif.
-- [x] **Artefacts** : Aucun emoji, aucun sticker, aucun badge statut non demandé.
-- [x] **Logo** : Texte stylisé "DataFlow" en Fira Code 600.
-- [x] **Structure** : Dashboard (sidebar fixe + topbar + grille de cards).
-- [x] **Texte** : Descriptions précises, zéro buzzword.
-- [x] **Boutons** : 3 variantes (Primaire, Secondaire, Ghost).
-- [x] **Couleurs** : 8 couleurs avec rôles sémantiques.
-- [x] **Animations** : Toutes ≤ 400ms. prefers-reduced-motion documenté.
-- [x] **WCAG AA** : Ratios calculés et conformes.
+- [x] **DESIGN.md**: Complete, Phase 0 documented.
+- [x] **Fonts**: 2 fonts (Fira Code + Fira Sans).
+- [x] **Spacing**: All multiples of 8px (4, 8, 16, 24, 32, 40, 48, 64).
+- [x] **Radii**: 4px — clean and technical.
+- [x] **Icons**: Lucide only for justified functions (targeted functional icons only).
+- [x] **Gradients**: No decorative gradient.
+- [x] **Artifacts**: No emoji, no sticker, no unrequested status badge.
+- [x] **Logo**: Styled text "DataFlow" in Fira Code 600.
+- [x] **Structure**: Dashboard (fixed sidebar + topbar + grid of cards).
+- [x] **Text**: Precise descriptions, zero buzzword.
+- [x] **Buttons**: 3 variants (Primary, Secondary, Ghost).
+- [x] **Colors**: 8 colors with semantic roles.
+- [x] **Animations**: All <= 400ms. prefers-reduced-motion documented.
+- [x] **WCAG AA**: Ratios calculated and compliant.
 
 ---
 
 ## 8. Dark Mode
 
-| Rôle | Hex | Équivalent Light |
+| Role | Hex | Light Equivalent |
 | :--- | :--- | :--- |
-| Fond | #0F172A | #F8FAFC |
+| Background | #0F172A | #F8FAFC |
 | Surface | #1E293B | #FFFFFF |
-| Texte | #E2E8F0 | #1E3A8A |
-| Texte secondaire | #94A3B8 | #64748B |
-| Bordure | #334155 | #DBEAFE |
-| Primaire | #3B82F6 | #1E40AF |
+| Text | #E2E8F0 | #1E3A8A |
+| Secondary text | #94A3B8 | #64748B |
+| Border | #334155 | #DBEAFE |
+| Primary | #3B82F6 | #1E40AF |
 | Accent | #FBBF24 | #D97706 |
 
-**Règles dark mode :**
-- Fond #0F172A : luminosité relative ~0.007 — largement sous le seuil 9%
-- Texte #E2E8F0 sur Fond #0F172A : 14.2:1 — conforme WCAG AAA
-- Primaire adapté de #1E40AF → #3B82F6 pour maintenir le contraste sur fond sombre
-- Accent adapté de #D97706 → #FBBF24 pour lisibilité sur fond sombre
-- `prefers-color-scheme: dark` uniquement — pas de toggle JS
+**Dark mode rules:**
+- Background #0F172A: relative luminance ~0.007 — well below the 9% threshold
+- Text #E2E8F0 on Background #0F172A: 14.2:1 — WCAG AAA compliant
+- Primary adapted from #1E40AF -> #3B82F6 to maintain contrast on dark background
+- Accent adapted from #D97706 -> #FBBF24 for readability on dark background
+- `prefers-color-scheme: dark` only — no JS toggle

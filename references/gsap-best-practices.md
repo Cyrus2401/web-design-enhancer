@@ -1,16 +1,16 @@
-# Meilleures Pratiques GSAP pour l'UI
+# GSAP Best Practices for UI
 
-GSAP (GreenSock Animation Platform) est l'outil standard pour des animations web performantes et fluides.
+GSAP (GreenSock Animation Platform) is the standard tool for performant, smooth web animations.
 
-## Principes de base
-- **Performance** : Privilégier l'animation des `transforms` (`x`, `y`, `rotation`, `scale`) et de l'`opacity`. Ces propriétés ne provoquent pas de recalcul du layout (reflow).
-- **Shorthand GSAP** :
-  - `x: 100` au lieu de `translateX(100px)`
-  - `yPercent: 50` au lieu de `translateY(50%)`
-  - `autoAlpha: 0` combine `opacity: 0` et `visibility: hidden`
+## Core Principles
+- **Performance**: Prefer animating `transforms` (`x`, `y`, `rotation`, `scale`) and `opacity`. These properties do not trigger layout recalculation (reflow).
+- **GSAP shorthand**:
+  - `x: 100` instead of `translateX(100px)`
+  - `yPercent: 50` instead of `translateY(50%)`
+  - `autoAlpha: 0` combines `opacity: 0` and `visibility: hidden`
 
-## Patterns d'animation UI courants
-1. **Entrées Staggered (échelonnées)** :
+## Common UI Animation Patterns
+1. **Staggered entrances**:
    ```javascript
    gsap.from(".card", {
      opacity: 0,
@@ -20,11 +20,11 @@ GSAP (GreenSock Animation Platform) est l'outil standard pour des animations web
      ease: "power2.out"
    });
    ```
-2. **ScrollTrigger** : Déclencher des animations au défilement.
-3. **Hover Effects** : Utiliser des timelines pour des transitions fluides au survol.
-4. **Micro-interactions** : Petits retours visuels sur les boutons ou icônes.
+2. **ScrollTrigger**: Trigger animations on scroll.
+3. **Hover Effects**: Use timelines for smooth hover transitions.
+4. **Micro-interactions**: Small visual feedback on buttons or icons.
 
-## Conseils de Designer
-- **Ease** : Utiliser `power2.out` pour les entrées (ralentissement à la fin) et `power2.in` pour les sorties. `expo.out` pour un effet plus premium/vif.
-- **Durée** : Garder les animations UI entre 0.2s et 0.6s. Plus c'est long, plus l'interface semble lente.
-- **Accessibilité** : Respecter `prefers-reduced-motion`.
+## Designer Tips
+- **Ease**: Use `power2.out` for entrances (slow down at the end) and `power2.in` for exits. `expo.out` for a more premium/snappy effect.
+- **Duration**: Keep UI animations between 0.2s and 0.6s. The longer it is, the slower the interface feels.
+- **Accessibility**: Respect `prefers-reduced-motion`.

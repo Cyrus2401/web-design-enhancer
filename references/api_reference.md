@@ -1,76 +1,76 @@
-# Référence Technique — Web Design Enhancer
+# Technical Reference — Web Design Enhancer
 
-Spécifications techniques complètes des scripts et formats du skill.
+Complete technical specifications of the skill's scripts and formats.
 
 ---
 
-## 1. Scripts de Validation
+## 1. Validation Scripts
 
 ### `validate_design.py`
 
-Valide le fichier `DESIGN.md` contre le contrat complet du skill.
+Validates the `DESIGN.md` file against the skill's full contract.
 
 ```bash
 python3 scripts/validate_design.py DESIGN.md
 python3 scripts/validate_design.py DESIGN.md --strict
 ```
 
-**Règles vérifiées :**
-- Section `## 0. Sources Phase 0` présente et sans placeholders
-- Sections obligatoires présentes (§1 à §8 inclus)
-- Max 2 polices — détectées via `**NomPolice** (Display)` ou `Font: NomPolice`
-- Espacements multiples de 8px dans §5
-- 4 à 8 couleurs hex dans §2 avec rôles sémantiques
-- Contraste WCAG AA : Texte/Fond ≥ 4.5:1, Primaire/Fond ≥ 3.0:1
-- Animations ≤ 400ms dans §7, mention de `prefers-reduced-motion`
-- Max 3 variantes de boutons dans §6
-- Section `## 8. Dark Mode` présente avec ≥ 3 couleurs, fond < #333 (luminosité < 9%), rôles `fond`, `texte`, `surface`
-- Thèmes interdits absents (glassmorphism, dark cyberpunk, particle background, typewriter effect, glow cursor, neon glow, grid background)
-- Buzzwords absents (premium, moderne, élégant...)
+**Rules checked:**
+- Section `## 0. Sources Phase 0` present and without placeholders
+- Required sections present (§1 through §8 inclusive)
+- Max 2 fonts — detected via `**FontName** (Display)` or `Font: FontName`
+- Spacing values as multiples of 8px in §5
+- 4 to 8 hex colors in §2 with semantic roles
+- WCAG AA contrast: Text/Background ≥ 4.5:1, Primary/Background ≥ 3.0:1
+- Animations ≤ 400ms in §7, mention of `prefers-reduced-motion`
+- Max 3 button variants in §6
+- Section `## 8. Dark Mode` present with ≥ 3 colors, background < #333 (luminance < 9%), roles `background`, `text`, `surface`
+- Forbidden themes absent (glassmorphism, dark cyberpunk, particle background, typewriter effect, glow cursor, neon glow, grid background)
+- Buzzwords absent (premium, modern, elegant...)
 
-**Codes de sortie :** `0` = valide, `1` = erreurs bloquantes
+**Exit codes:** `0` = valid, `1` = blocking errors
 
 ---
 
 ### `detect_ai_slop.py`
 
-Détecte les antipatterns IA dans le DESIGN.md et/ou le code source.
+Detects AI antipatterns in the DESIGN.md and/or the source code.
 
 ```bash
 python3 scripts/detect_ai_slop.py --design DESIGN.md --code ./src
 python3 scripts/detect_ai_slop.py --design DESIGN.md
 ```
 
-**Détections :**
-- Icônes Lucide génériques (sparkles, zap, star, bot, magic...)
-- Gradients clichés (bleu→violet, rose→violet, cyan→bleu)
-- Buzzwords vagues (premium, moderne, élégant, futuriste...)
-- Badges statut non demandés (● LIVE NOW, SYS_STATUS: ONLINE...)
-- Polices génériques (Arial, Helvetica, Georgia, Verdana...)
-- Composants shadcn/ui laissés par défaut (variant="default" non personnalisé)
-- Logos placeholders (logo-placeholder, your-logo, brandname)
+**Detections:**
+- Generic Lucide icons (sparkles, zap, star, bot, magic...)
+- Cliché gradients (blue→purple, pink→purple, cyan→blue)
+- Vague buzzwords (premium, modern, elegant, futuristic...)
+- Unsolicited status badges (● LIVE NOW, SYS_STATUS: ONLINE...)
+- Generic fonts (Arial, Helvetica, Georgia, Verdana...)
+- shadcn/ui components left at default (variant="default" uncustomized)
+- Placeholder logos (logo-placeholder, your-logo, brandname)
 
-**Score :** Démarre à 100, pénalités par infraction. Seuil : ≥ 80 pour validation.
+**Score:** Starts at 100, penalties applied per violation. Threshold: ≥ 80 for validation.
 
-**Whitelist :** Créer `.slop-ignore` à la racine pour exempter les faux positifs.
-Chaque entrée doit avoir un commentaire justificatif — sans commentaire, la règle est ignorée.
+**Whitelist:** Create `.slop-ignore` at the project root to exempt false positives.
+Each entry must include a justification comment — without a comment, the rule is ignored.
 
 ```ini
 [icons]
-search          # barre de recherche fonctionnelle dans la nav
+search          # functional search bar in the nav
 
 [buzzwords]
-premium         # nom du plan tarifaire (pas un adjectif vague)
+premium         # name of the pricing plan (not a vague adjective)
 
 [files]
-scripts/        # scripts internes — faux positifs connus
+scripts/        # internal scripts — known false positives
 ```
 
 ---
 
 ### `diff_design_vs_code.py`
 
-Compare le contrat DESIGN.md contre le code CSS/JS/TSX réellement implémenté.
+Compares the DESIGN.md contract against the actual CSS/JS/TSX code implemented.
 
 ```bash
 python3 scripts/diff_design_vs_code.py DESIGN.md --code ./src
@@ -78,19 +78,19 @@ python3 scripts/diff_design_vs_code.py DESIGN.md --file index.css
 python3 scripts/diff_design_vs_code.py DESIGN.md --code ./src --strict
 ```
 
-**Comparaisons effectuées :**
-- Couleurs §2 présentes dans le code (exact + détection de dérive proche via distance RGB)
-- Polices §3 chargées dans les font-family, imports Google Fonts, fontsource
-- Durées d'animation dans le code (CSS transitions, `@keyframes`, GSAP `duration:`) vs max §7
-- Variables CSS `--custom` référençant les hex du DESIGN.md (`--strict` seulement)
+**Comparisons performed:**
+- Colors from §2 present in the code (exact + near-drift detection via RGB distance)
+- Fonts from §3 loaded in font-family, Google Fonts imports, fontsource
+- Animation durations in the code (CSS transitions, `@keyframes`, GSAP `duration:`) vs §7 max
+- `--custom` CSS variables referencing DESIGN.md hex values (`--strict` only)
 
-**Codes de sortie :** `0` = conforme, `1` = divergences détectées
+**Exit codes:** `0` = compliant, `1` = divergences detected
 
 ---
 
 ### `audit_spacing.py`
 
-Analyse les fichiers CSS/JS/TSX pour détecter les espacements hors grille 8px.
+Analyzes CSS/JS/TSX files to detect spacing values off the 8px grid.
 
 ```bash
 python3 scripts/audit_spacing.py --path ./src
@@ -98,110 +98,110 @@ python3 scripts/audit_spacing.py --file index.css
 python3 scripts/audit_spacing.py --path ./src --output report.json
 ```
 
-**Propriétés auditées :** `padding`, `margin`, `gap`, `border-radius`, `width`, `height`
-**Règle :** Toute valeur `px` doit être multiple de 8 (exception : 4px pour micro-espacements).
+**Audited properties:** `padding`, `margin`, `gap`, `border-radius`, `width`, `height`
+**Rule:** Every `px` value must be a multiple of 8 (exception: 4px for micro-spacing).
 
 ---
 
 ### `visual_audit.py`
 
-Audit visuel Playwright sur le rendu réel du site — 4 breakpoints.
+Playwright visual audit on the actual rendered site — 4 breakpoints.
 
 ```bash
 python3 scripts/visual_audit.py --url http://localhost:3000 --output ./audit-results
 ```
 
-**Breakpoints :** 375px (mobile), 768px (tablet), 1280px (desktop), 1920px (wide)
+**Breakpoints:** 375px (mobile), 768px (tablet), 1280px (desktop), 1920px (wide)
 
-**Audits effectués :**
-- Screenshots PNG par breakpoint
-- Polices calculées (computed styles DOM)
-- Espacements réels (padding/margin non-multiples de 8px)
-- Artefacts IA visuels (emojis, logos placeholders, SVG suspects)
+**Audits performed:**
+- PNG screenshots per breakpoint
+- Computed fonts (DOM computed styles)
+- Actual spacing values (padding/margin non-multiples of 8px)
+- Visual AI artifacts (emojis, placeholder logos, suspicious SVGs)
 
-**Prérequis :** `pip install playwright --break-system-packages && playwright install chromium`
+**Prerequisites:** `pip install playwright --break-system-packages && playwright install chromium`
 
-**Sortie :** `audit-results/audit_report.json` + 4 fichiers PNG
+**Output:** `audit-results/audit_report.json` + 4 PNG files
 
 ---
 
 ### `check.py`
 
-Orchestrateur de gates — transforme les phases du SKILL.md en validations mécaniques séquentielles.
+Gate orchestrator — converts SKILL.md phases into sequential mechanical validations.
 
 ```bash
-python3 scripts/check.py --gate 0           # Phase 0 exécutée ?
-python3 scripts/check.py --gate 1           # DESIGN.md valide ?
-python3 scripts/check.py --final            # Validation complète avant livraison
+python3 scripts/check.py --gate 0           # Phase 0 performed?
+python3 scripts/check.py --gate 1           # DESIGN.md valid?
+python3 scripts/check.py --final            # Full validation before delivery
 python3 scripts/check.py --final --code ./src
 ```
 
-**Séquence des gates :**
+**Gate sequence:**
 
-| Gate | Condition | Bloque si |
+| Gate | Condition | Blocks if |
 | :--- | :--- | :--- |
-| 0 | `design-system-output*.md` + `getdesign-*.md` + `DESIGN.md` avec §0 | Fichiers manquants ou placeholders non remplacés |
-| 1 | `validate_design.py` sans erreur | Gate 0 non passé ou DESIGN.md invalide |
-| Final | 4 scripts en séquence | Gate 1 non passé ou l'un des scripts échoue |
+| 0 | `design-system-output*.md` + `getdesign-*.md` + `DESIGN.md` with §0 | Files missing or placeholders not replaced |
+| 1 | `validate_design.py` without error | Gate 0 not passed or DESIGN.md invalid |
+| Final | 4 scripts in sequence | Gate 1 not passed or any script fails |
 
-**Gate Final — 4 étapes :**
-1. `detect_ai_slop.py` — antipatterns IA
-2. `audit_spacing.py` — grille 8px
-3. `validate_design.py` — contrat DESIGN.md
-4. `diff_design_vs_code.py` — divergences DESIGN.md ↔ code (si `--code` fourni)
+**Final Gate — 4 steps:**
+1. `detect_ai_slop.py` — AI antipatterns
+2. `audit_spacing.py` — 8px grid
+3. `validate_design.py` — DESIGN.md contract
+4. `diff_design_vs_code.py` — DESIGN.md ↔ code divergences (if `--code` provided)
 
-**Log persistant :** `.phase-log.json` à la racine — trace les gates passés.
+**Persistent log:** `.phase-log.json` at the project root — tracks passed gates.
 
 ---
 
 ### `search.py`
 
-Moteur de recherche BM25 dans les données UI/UX Pro Max (CSV).
+BM25 search engine across the UI/UX Pro Max data (CSV).
 
 ```bash
-python3 scripts/search.py "saas analytics dashboard" --design-system -p "MonProjet"
+python3 scripts/search.py "saas analytics dashboard" --design-system -p "MyProject"
 python3 scripts/search.py "fintech banking" --domain color
 python3 scripts/search.py "button hover" --stack nextjs
 ```
 
-**Domaines disponibles :** `style`, `color`, `chart`, `landing`, `product`, `ux`, `typography`, `icons`, `react`, `web`, `google-fonts`
+**Available domains:** `style`, `color`, `chart`, `landing`, `product`, `ux`, `typography`, `icons`, `react`, `web`, `google-fonts`
 
-**Stacks disponibles :** `react`, `nextjs`, `vue`, `svelte`, `astro`, `swiftui`, `react-native`, `flutter`, `nuxtjs`, `shadcn`, `html-tailwind`, `angular`, `laravel`, `threejs`, `jetpack-compose`, `nuxt-ui`
+**Available stacks:** `react`, `nextjs`, `vue`, `svelte`, `astro`, `swiftui`, `react-native`, `flutter`, `nuxtjs`, `shadcn`, `html-tailwind`, `angular`, `laravel`, `threejs`, `jetpack-compose`, `nuxt-ui`
 
 ---
 
-## 2. Format DESIGN.md (v3)
+## 2. DESIGN.md Format (v3)
 
-Le DESIGN.md est le contrat de vérité unique. Placé à la racine du projet, lu par `validate_design.py` avant tout code.
+The DESIGN.md is the single source of truth contract. Placed at the project root, read by `validate_design.py` before any code is written.
 
-**Sections obligatoires :**
+**Required sections:**
 
-| # | Section | Validée par | Règle clé |
+| # | Section | Validated by | Key rule |
 | :--- | :--- | :--- | :--- |
-| 0 | Sources Phase 0 | `check.py --gate 0` | getdesign + UI/UX Pro Max prouvés |
-| 1 | Thème Visuel & Concept | `validate_design.py` | Pas de thème interdit |
-| 2 | Palette de Couleurs | `validate_design.py` | 4–8 hex, rôles sémantiques, WCAG AA |
-| 3 | Typographie | `validate_design.py` | Max 2 polices, format `**NomPolice** (Display)` |
-| 4 | Hiérarchie Typographique | — | H1 à Small avec px / weight / line-height |
-| 5 | Espacement et Grille | `validate_design.py` + `audit_spacing.py` | Multiples de 8px, grille mentionnée |
-| 6 | Composants et États | `validate_design.py` | Max 3 variantes de boutons |
-| 7 | Motion et Animations | `validate_design.py` | ≤ 400ms, prefers-reduced-motion |
-| 8 | Dark Mode | `validate_design.py` | ≥ 3 couleurs, fond < #333, WCAG AA |
+| 0 | Phase 0 Sources | `check.py --gate 0` | getdesign + UI/UX Pro Max proven |
+| 1 | Visual Theme & Concept | `validate_design.py` | No forbidden theme |
+| 2 | Color Palette | `validate_design.py` | 4–8 hex, semantic roles, WCAG AA |
+| 3 | Typography | `validate_design.py` | Max 2 fonts, format `**FontName** (Display)` |
+| 4 | Typographic Hierarchy | — | H1 to Small with px / weight / line-height |
+| 5 | Spacing and Grid | `validate_design.py` + `audit_spacing.py` | Multiples of 8px, grid mentioned |
+| 6 | Components and States | `validate_design.py` | Max 3 button variants |
+| 7 | Motion and Animations | `validate_design.py` | ≤ 400ms, prefers-reduced-motion |
+| 8 | Dark Mode | `validate_design.py` | ≥ 3 colors, background < #333, WCAG AA |
 
 ---
 
-## 3. Fichiers de support
+## 3. Support files
 
-| Fichier | Rôle |
+| File | Role |
 | :--- | :--- |
-| `templates/design-md-template.md` | Template DESIGN.md à remplir (§0 à §8 + checklist) |
-| `templates/design-system.css` | Variables CSS prêtes à personnaliser depuis le DESIGN.md |
-| `templates/brand-kit.json` | Structure brand kit exportable |
-| `references/design-md-spec-v2.md` | Spécification détaillée du format DESIGN.md |
-| `references/antipatterns-guide.md` | Guide des antipatterns IA — exemples ❌ vs ✅ |
-| `references/gsap-best-practices.md` | Guide GSAP (Phase 3) |
-| `.slop-ignore` | Whitelist anti-faux positifs pour `detect_ai_slop.py` |
-| `data/*.csv` | Données UI/UX Pro Max (styles, couleurs, typographie...) |
-| `data/stacks/*.csv` | Guidelines par stack (React, Next.js, Vue, Svelte...) |
-| `examples/manus-demo/` | Exemple validé — outil dev, style Clean Tech + Neo-Brutalism |
-| `examples/dataflow-saas/` | Exemple validé — SaaS analytics, style Data-Dense Dashboard |
+| `templates/design-md-template.md` | DESIGN.md template to fill in (§0 to §8 + checklist) |
+| `templates/design-system.css` | CSS variables ready to be customized from the DESIGN.md |
+| `templates/brand-kit.json` | Exportable brand kit structure |
+| `references/design-md-spec-v2.md` | Detailed specification of the DESIGN.md format |
+| `references/antipatterns-guide.md` | AI antipatterns guide — ❌ vs ✅ examples |
+| `references/gsap-best-practices.md` | GSAP guide (Phase 3) |
+| `.slop-ignore` | Anti-false-positive whitelist for `detect_ai_slop.py` |
+| `data/*.csv` | UI/UX Pro Max data (styles, colors, typography...) |
+| `data/stacks/*.csv` | Per-stack guidelines (React, Next.js, Vue, Svelte...) |
+| `examples/manus-demo/` | Validated example — dev tool, Clean Tech + Neo-Brutalism style |
+| `examples/dataflow-saas/` | Validated example — SaaS analytics, Data-Dense Dashboard style |
