@@ -48,6 +48,16 @@ Pour illustrer : un brief "app de finances personnelles" donne des résultats co
 | **§3 Luxury/Restrained** | Ivoire, typo fine, 0 couleur vive | Cabinet privé, Aesop |
 | **§8 Data/Dashboard** | Fond sombre, couleur sémantique, charts first | Grafana propre, Amplitude |
 
+### Exemple de rendu : FC Méridien (Archétype §7 Playful/Expressive)
+
+Voici le résultat généré avec ce skill pour un club de football (zéro template générique IA, typographie display forte, palette sur-mesure) :
+
+![Hero Section](assets/football-hero.png)
+
+![Match Section](assets/football-match.png)
+
+![Players Section](assets/football-players.png)
+
 ---
 
 ## Les 10 archétypes

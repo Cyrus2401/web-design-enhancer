@@ -18,6 +18,11 @@ import re
 import sys
 from collections import defaultdict
 from pathlib import Path
+
+# Windows terminals may default to cp1252 — force UTF-8 for emoji output
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 from typing import Any
 
 # ──────────────────────────────────────────────────────────────────────────────
