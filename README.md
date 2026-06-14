@@ -152,5 +152,5 @@ web-design-enhancer-pro/
 
 ```bash
 py -m pytest tests/ -v
-# 149 tests — should display 149 passed
+# 188 tests — should display 188 passed
 ```
