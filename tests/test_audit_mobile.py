@@ -175,3 +175,27 @@ class TestJson:
         d = _audit({"V.swift": GOOD_SWIFT}).to_dict()
         assert set(d) >= {"platform", "mobile_score", "exit_code", "dimensions", "blockers", "weaknesses"}
         assert set(d["dimensions"]) == {"M1", "M2", "M3", "M4", "M5"}
+
+
+class TestSafeAreaFalsePositive:
+    def test_ignores_safe_area_does_not_count(self):
+        # .ignoresSafeArea() is the OPPOSITE of handling the safe area
+        src = """
+            import SwiftUI
+            struct V: View { var body: some View {
+                VStack { Text("x").font(.body) }.ignoresSafeArea()
+            } }
+        """
+        a = _audit({"V.swift": src})
+        assert a.dimension_scores["M2"] == 0
+        assert "M2" in {b["dimension"] for b in a.blockers}
+
+    def test_safe_area_inset_counts(self):
+        src = """
+            import SwiftUI
+            struct V: View { var body: some View {
+                VStack { Text("x").font(.body) }.safeAreaInset(edge:.top){ Spacer() }
+            } }
+        """
+        a = _audit({"V.swift": src})
+        assert a.dimension_scores["M2"] == 20

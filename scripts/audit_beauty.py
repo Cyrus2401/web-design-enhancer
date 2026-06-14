@@ -177,6 +177,7 @@ class BeautyAuditor:
         self._colors: list[str] = []
         self._space_px: list[float] = []
         self._flags: dict[str, bool] = defaultdict(bool)
+        self._vars: dict[str, str] = {}
 
     # ── file collection ────────────────────────────────────────────────────────
 
@@ -194,12 +195,15 @@ class BeautyAuditor:
 
     def scan(self) -> None:
         files = self._collect_files()
+        texts: list[str] = []
         for fp in files:
             try:
-                text = fp.read_text(encoding="utf-8", errors="replace")
+                texts.append(fp.read_text(encoding="utf-8", errors="replace"))
             except OSError:
                 continue
-            self._harvest(text)
+        self._vars = self._build_var_map(texts)
+        for text in texts:
+            self._harvest(self._resolve_vars(text))
 
         self._score_d1_type_contrast()
         self._score_d2_hierarchy()
@@ -209,13 +213,42 @@ class BeautyAuditor:
 
         self.score = min(sum(self.dimension_scores.values()), 100)
 
+    def _build_var_map(self, texts: list[str]) -> dict[str, str]:
+        raw: dict[str, str] = {}
+        for t in texts:
+            for name, val in re.findall(r"(--[A-Za-z0-9_-]+)\s*:\s*([^;}{]+)", t):
+                raw[name.strip()] = val.strip()
+        resolved: dict[str, str] = {}
+        for name in raw:
+            val = raw[name]
+            for _ in range(5):
+                m = re.search(r"var\(\s*(--[A-Za-z0-9_-]+)\s*(?:,[^)]*)?\)", val)
+                if not m:
+                    break
+                val = val[: m.start()] + raw.get(m.group(1), "") + val[m.end():]
+            resolved[name] = val
+        return resolved
+
+    def _resolve_vars(self, text: str) -> str:
+        def repl(m):
+            return self._vars.get(m.group(1), m.group(0))
+        out = text
+        for _ in range(5):
+            new = re.sub(r"var\(\s*(--[A-Za-z0-9_-]+)\s*(?:,[^)]*)?\)", repl, out)
+            if new == out:
+                break
+            out = new
+        return out
+
     def _harvest(self, text: str) -> None:
-        # font sizes (CSS units)
-        for val, unit in _FONT_SIZE_RE.findall(text):
-            try:
-                self._font_px.append(_to_px(float(val), unit))
-            except ValueError:
-                pass
+        # font sizes (CSS units, incl. clamp(): take the largest rem/px/em present)
+        for m in re.finditer(r"font-size\s*:\s*([^;}{]+)", text, re.IGNORECASE):
+            pxs = [
+                _to_px(float(v), u)
+                for v, u in re.findall(r"([0-9.]+)\s*(px|rem|em)\b", m.group(1), re.IGNORECASE)
+            ]
+            if pxs:
+                self._font_px.append(max(pxs))
         # font sizes (Tailwind utility classes)
         for cls in _TW_TEXT_RE.findall(text):
             if cls in _TW_TEXT_PX:

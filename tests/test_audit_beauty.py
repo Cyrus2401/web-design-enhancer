@@ -210,3 +210,36 @@ class TestJsonOutput:
         }
         assert set(d["dimensions"]) == {"D1", "D2", "D3", "D4", "D5"}
         assert 0 <= d["beauty_score"] <= 100
+
+
+VAR_TOKEN_CSS = """
+    :root {
+      --accent:#c1440e; --ink:#1a1a1a;
+      --step-0:1rem; --step-1:1.25rem; --step-3:2.1rem;
+      --step-5:clamp(2.8rem,6vw,4.6rem);
+      --space-2:16px; --space-3:24px; --space-5:64px; --space-6:96px;
+    }
+    body { font-size:var(--step-0); color:var(--ink); }
+    h1 { font-size:var(--step-5); }
+    h2 { font-size:var(--step-3); }
+    h3 { font-size:var(--step-1); }
+    .section { padding:var(--space-6) var(--space-3); }
+    .card { padding:var(--space-3); gap:var(--space-2); transition:transform .2s; }
+    .btn:hover { color:var(--accent); }
+    .btn:focus-visible { outline:2px solid var(--accent); }
+    @media (prefers-reduced-motion: reduce){ *{ transition:none; } }
+"""
+
+
+class TestCssVarResolution:
+    def test_var_based_tokens_are_resolved_and_score_high(self):
+        a = _audit({"styles.css": VAR_TOKEN_CSS})
+        # var(--step-5) clamp max 4.6rem=73.6px vs body 16px -> strong contrast
+        assert a.dimension_scores["D1"] == 25
+        assert a.dimension_scores["D2"] >= 12
+        assert a.dimension_scores["D4"] >= 11  # large spacing (96px) resolved from var(); rhythm picked up
+        assert a.score >= a.threshold_pass
+
+    def test_clamp_uses_largest_value(self):
+        a = _audit({"s.css": ":root{--d:clamp(2rem,5vw,4rem)} body{font-size:1rem} h1{font-size:var(--d)}"})
+        assert a.dimension_scores["D1"] == 25

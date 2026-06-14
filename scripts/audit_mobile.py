@@ -91,7 +91,7 @@ def detect_platform(files: list[Path]) -> str | None:
 
 PATTERNS = {
     "swiftui": {
-        "safe_area": r"\.(?:safeAreaInset|ignoresSafeArea)\b|GeometryReader|safeAreaPadding",
+        "safe_area": r"\.safeAreaInset\b|safeAreaPadding|\.safeAreaInsets\b",
         "nav": r"\b(?:NavigationStack|NavigationSplitView|TabView|NavigationView)\b",
         "anim": r"\bwithAnimation\b|\.animation\(|\bmatchedGeometryEffect\b|\.transition\(",
         "tactile": r"UIImpactFeedbackGenerator|\.sensoryFeedback\(|UISelectionFeedbackGenerator",
