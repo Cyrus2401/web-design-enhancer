@@ -507,7 +507,7 @@ def check_final(code_path=None, verbose=False):
             errors.append(
                 "audit_beauty.py — BLOCKED: beauty score below floor (50/100). "
                 "Design is technically clean but soulless. Raise the craft before delivery — "
-                "see references/design-archetypes.md for signature gestures per archetype."
+                "see references/beauty-gestures.md for signature gestures per archetype."
             )
         elif r.returncode == 1:
             warn("audit_beauty.py — NEEDS POLISH: beauty score below pass (70/100). Address flagged weaknesses.")

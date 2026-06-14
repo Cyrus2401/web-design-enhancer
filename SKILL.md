@@ -220,7 +220,9 @@ No code before gate 2 is green and scope/responsive are declared.
 
 #### Step 1 — Choose a design archetype explicitly
 
-Before any code, state which archetype from `references/design-archetypes.md` you are targeting. The choice must be justified by the brief:
+Before any code, state which archetype from `references/design-archetypes.md` you are targeting. The choice must be justified by the brief.
+
+Then open `references/beauty-gestures.md` and commit to that archetype's **signature gestures** + **validated font pairing** — the positive craft moves that lift the Beauty Score (gate 7). Avoiding clichés is not enough; you must add deliberate beauty:
 
 | If the brief mentions… | Default archetype to consider |
 |---|---|
@@ -442,6 +444,7 @@ The output is a JSON object with a `violations` array. Each entry contains:
 | `templates/design-system.css` | Ready-to-customize CSS variables |
 | `references/design-md-spec-v2.md` | Full DESIGN.md format spec |
 | `references/antipatterns-guide.md` | Concrete ❌ vs ✅ examples |
+| `references/beauty-gestures.md` | Per-archetype signature gestures + validated font pairings, mapped to Beauty Score dimensions (the positive recipe for gate 7) |
 | `references/gsap-best-practices.md` | GSAP guide |
 | `references/threejs-best-practices.md` | Three.js guide — critical WebGL antipatterns (§10) |
 | `references/mobile-references.md` | Mobile UX references — open CSV index + walled sources (Mobbin / Page Flows / Screenlane) |

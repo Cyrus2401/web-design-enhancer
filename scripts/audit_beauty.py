@@ -478,7 +478,7 @@ class BeautyAuditor:
                 f"  {RED}{BOLD}❌ DELIVERY BLOCKED{RESET} — Score {self.score}/100 below "
                 f"floor {self.threshold_floor}.\n"
                 f"  Technically clean but soulless. Raise the craft before delivery —\n"
-                f"  see references/design-archetypes.md for the signature gestures per archetype."
+                f"  see references/beauty-gestures.md for the signature gestures per archetype."
             )
         elif self._exit_code() == 1:
             print(
