@@ -20,6 +20,7 @@ import sys
 import os
 import re
 import json
+import csv
 import hashlib
 import argparse
 import subprocess
@@ -40,9 +41,11 @@ def warn(msg): print(f"  {YELLOW}[WARN] {msg}{RESET}")
 def info(msg): print(f"  {CYAN}->  {msg}{RESET}")
 
 SCRIPTS_DIR  = Path(__file__).parent
+DATA_DIR     = SCRIPTS_DIR.parent / "data"
 LOG_FILE     = Path(".phase-log.json")
 DESIGN_FILE  = Path("DESIGN.md")
 LOCK_FILE    = Path("structural-lock.md")
+REFERENCES_CSV = DATA_DIR / "getdesign-references.csv"
 
 # Gates whose validity depends on the content of DESIGN.md
 DESIGN_DEPENDENT_GATES = {"gate0", "gate1"}
@@ -190,6 +193,90 @@ def _validate_stack_consistency(stack: str) -> list:
     return errors
 
 
+# --- Reference diversity (anti-monoculture) --------------------------------
+
+def _normalize_brand(name: str) -> str:
+    """Normalize a brand id/filename fragment for matching.
+
+    getdesign uses ids like 'linear.app' / 'mistral.ai', but writes files as
+    'getdesign-linear.md'. Lowercase, drop a leading 'getdesign-'/'brand-'
+    prefix, strip the '.md' suffix and any TLD-like '.app'/'.ai' tail so both
+    sides compare equal.
+    """
+    n = name.strip().lower()
+    n = re.sub(r"\.md$", "", n)
+    n = re.sub(r"^(getdesign|brand)-", "", n)
+    n = re.sub(r"\.(app|ai|com|io|dev)$", "", n)
+    return n
+
+
+def _load_reference_segments() -> dict:
+    """brand -> segment ('saas' | 'non-saas') from the editable CSV.
+
+    Returns an empty dict if the CSV is absent or unreadable — the check then
+    degrades to a no-op rather than blocking on infrastructure problems.
+    """
+    segments = {}
+    if not REFERENCES_CSV.exists():
+        return segments
+    try:
+        with open(REFERENCES_CSV, newline="", encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                brand = _normalize_brand(row.get("brand", ""))
+                seg = (row.get("segment", "") or "").strip().lower()
+                if brand and seg:
+                    segments[brand] = seg
+    except Exception:
+        pass
+    return segments
+
+
+def _check_reference_diversity(getdesign_files):
+    """Anti-monoculture nudge for Phase 0 references.
+
+    Classifies each getdesign reference present at project root as saas /
+    non-saas / unknown via data/getdesign-references.csv. Pure-SaaS anchoring
+    is the root cause of "every AI site looks like a San-Francisco SaaS", so we
+    surface it. This validates *provenance* (where the reference comes from),
+    never the quality of the result — the only legitimate use of a gate.
+
+    WARN, not BLOCK: a fintech legitimately anchoring on Stripe alone should
+    not be hard-blocked. Returns a list of warning strings (never errors).
+    """
+    segments = _load_reference_segments()
+    if not segments:
+        return []
+
+    seen = {}
+    for f in getdesign_files:
+        brand = _normalize_brand(f.name)
+        seen[brand] = segments.get(brand, "unknown")
+
+    if not seen:
+        return []
+
+    non_saas = [b for b, s in seen.items() if s == "non-saas"]
+    saas     = [b for b, s in seen.items() if s == "saas"]
+    unknown  = [b for b, s in seen.items() if s == "unknown"]
+
+    warnings = []
+    if non_saas:
+        ok(f"Reference diversity: non-SaaS anchor present ({', '.join(sorted(non_saas))})")
+    elif saas and not unknown:
+        warn("Reference monoculture: every Phase 0 reference is SaaS/tech "
+             f"({', '.join(sorted(saas))}).")
+        info("Add at least one non-SaaS anchor so the output does not collapse "
+             "into the generic San-Francisco SaaS look. Verified non-SaaS brands:")
+        info("  editorial: wired, theverge | auto/luxe: ferrari, bmw, tesla")
+        info("  retail: apple, nike, starbucks | retro: dell-1996, nintendo-2001, playstation")
+        info("  -> npx getdesign@latest add <brand>  (full editable list: data/getdesign-references.csv)")
+        warnings.append("reference monoculture — all Phase 0 references are SaaS/tech")
+    elif unknown:
+        info(f"Reference(s) not in the diversity allow-list: {', '.join(sorted(unknown))}. "
+             "If non-SaaS, add a row to data/getdesign-references.csv.")
+    return warnings
+
+
 # --- Gate 0 — Phase 0 execution proof --------------------------------------
 
 def check_gate0():
@@ -212,10 +299,12 @@ def check_gate0():
     getdesign_files = list(Path(".").glob("getdesign-*.md")) + list(Path(".").glob("brand-*.md"))
     if getdesign_files:
         ok(f"getdesign.md reference found ({getdesign_files[0].name})")
+        _check_reference_diversity(getdesign_files)
     else:
         fail("No getdesign.md reference file found")
         info("Run: npx getdesign@latest add <brand>")
-        info("Brand examples: vercel / stripe / linear / notion / supabase")
+        info("Brand examples: vercel / stripe / linear.app (SaaS) — but add at least one")
+        info("non-SaaS anchor: wired / ferrari / nike / nintendo-2001 (anti-monoculture)")
         errors.append("getdesign.md not executed")
 
     # 3. DESIGN.md present
@@ -277,7 +366,7 @@ def check_gate1():
 
     result = subprocess.run(
         [sys.executable, str(SCRIPTS_DIR / "validate_design.py"), "DESIGN.md"],
-        capture_output=True, text=True
+        capture_output=True, text=True, encoding="utf-8", errors="replace"
     )
     print(result.stdout)
     if result.returncode == 0:
@@ -406,7 +495,7 @@ def check_final(code_path=None, verbose=False, url=None, audit_output="./audit-r
     slop_args = [sys.executable, str(SCRIPTS_DIR / "detect_ai_slop.py"), "--design", "DESIGN.md"]
     if code_path:
         slop_args += ["--code", code_path]
-    r = subprocess.run(slop_args, capture_output=True, text=True)
+    r = subprocess.run(slop_args, capture_output=True, text=True, encoding="utf-8", errors="replace")
     print(r.stdout)
     if r.returncode != 0:
         errors.append("detect_ai_slop.py — antipatterns detected")
@@ -414,7 +503,7 @@ def check_final(code_path=None, verbose=False, url=None, audit_output="./audit-r
             # Re-run in JSON mode to get machine-readable fix instructions
             print(f"\n{YELLOW}  Fix instructions (JSON mode):{RESET}")
             json_args = slop_args + ["--json"]
-            rj = subprocess.run(json_args, capture_output=True, text=True)
+            rj = subprocess.run(json_args, capture_output=True, text=True, encoding="utf-8", errors="replace")
             try:
                 data = json.loads(rj.stdout)
                 for v in data.get("violations", [])[:10]:  # cap at 10
@@ -428,7 +517,7 @@ def check_final(code_path=None, verbose=False, url=None, audit_output="./audit-r
     spacing_path = code_path or "."
     r = subprocess.run(
         [sys.executable, str(SCRIPTS_DIR / "audit_spacing.py"), "--path", spacing_path],
-        capture_output=True, text=True
+        capture_output=True, text=True, encoding="utf-8", errors="replace"
     )
     print(r.stdout)
     if r.returncode != 0:
@@ -438,7 +527,7 @@ def check_final(code_path=None, verbose=False, url=None, audit_output="./audit-r
     print(f"\n{CYAN}[3/8] Final DESIGN.md validation...{RESET}")
     r = subprocess.run(
         [sys.executable, str(SCRIPTS_DIR / "validate_design.py"), "DESIGN.md"],
-        capture_output=True, text=True
+        capture_output=True, text=True, encoding="utf-8", errors="replace"
     )
     print(r.stdout)
     if r.returncode != 0:
@@ -449,7 +538,7 @@ def check_final(code_path=None, verbose=False, url=None, audit_output="./audit-r
     if code_path:
         r = subprocess.run(
             [sys.executable, str(SCRIPTS_DIR / "diff_design_vs_code.py"), "DESIGN.md", "--code", code_path],
-            capture_output=True, text=True
+            capture_output=True, text=True, encoding="utf-8", errors="replace"
         )
         print(r.stdout)
         if r.returncode != 0:
@@ -468,7 +557,7 @@ def check_final(code_path=None, verbose=False, url=None, audit_output="./audit-r
                 a11y_args += ["--json"]
         else:
             a11y_args += ["--path", "."]
-        r = subprocess.run(a11y_args, capture_output=True, text=True)
+        r = subprocess.run(a11y_args, capture_output=True, text=True, encoding="utf-8", errors="replace")
         print(r.stdout)
         if r.returncode != 0:
             errors.append("audit_accessibility.py — WCAG 2.1 violations found")
@@ -482,7 +571,7 @@ def check_final(code_path=None, verbose=False, url=None, audit_output="./audit-r
         uniq_args = [sys.executable, str(uniqueness_script), "--path", code_path or "."]
         if verbose:
             uniq_args += ["--json"]
-        r = subprocess.run(uniq_args, capture_output=True, text=True)
+        r = subprocess.run(uniq_args, capture_output=True, text=True, encoding="utf-8", errors="replace")
         print(r.stdout)
         if r.returncode == 2:
             errors.append(
@@ -501,7 +590,7 @@ def check_final(code_path=None, verbose=False, url=None, audit_output="./audit-r
         beauty_args = [sys.executable, str(beauty_script), "--path", code_path or "."]
         if verbose:
             beauty_args += ["--json"]
-        r = subprocess.run(beauty_args, capture_output=True, text=True)
+        r = subprocess.run(beauty_args, capture_output=True, text=True, encoding="utf-8", errors="replace")
         print(r.stdout)
         if r.returncode == 2:
             errors.append(
@@ -628,7 +717,7 @@ def evaluate_visual_gate(audit_output="./audit-results", code_path=None, verdict
     else:
         r = subprocess.run(
             [sys.executable, str(SCRIPTS_DIR / "aesthetic_review.py"), "--verdict", str(verdict_file)],
-            capture_output=True, text=True
+            capture_output=True, text=True, encoding="utf-8", errors="replace"
         )
         if r.stdout:
             infos.append(r.stdout.rstrip())

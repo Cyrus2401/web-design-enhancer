@@ -1,0 +1,59 @@
+brand,category,segment,note
+stripe,fintech,saas,Signature purple gradients — the canonical SaaS-marketing look
+vercel,dev-tool,saas,Black/white precision Geist — peak dev-tool convergence
+linear.app,dev-tool,saas,Ultra-minimal purple accent — heavily cloned
+notion,workspace,saas,Warm minimalism serif headings
+supabase,dev-tool,saas,Dark emerald code-first
+cursor,ai,saas,Sleek dark gradient accents
+framer,website-builder,saas,Bold black/blue motion-first
+webflow,website-builder,saas,Blue-accented polished marketing
+sanity,cms,saas,Red accent content-first editorial
+mintlify,docs,saas,Clean green-accented reading-optimized
+resend,dev-tool,saas,Minimal dark monospace accents
+raycast,productivity,saas,Sleek dark gradient accents
+warp,dev-tool,saas,Dark IDE-like block-based UI
+posthog,analytics,saas,Playful hedgehog dark UI
+sentry,analytics,saas,Dark data-dense pink-purple accent
+clickhouse,database,saas,Yellow-accented technical docs
+mongodb,database,saas,Green leaf developer docs
+hashicorp,infra,saas,Enterprise-clean black/white
+figma,design-tool,saas,Vibrant multi-color playful-professional
+miro,collaboration,saas,Bright yellow infinite canvas
+intercom,saas,saas,Friendly blue conversational UI
+zapier,automation,saas,Warm orange illustration-driven
+airtable,saas,saas,Colorful friendly structured data
+superhuman,saas,saas,Premium dark keyboard-first purple glow
+claude,ai,saas,Warm terracotta clean editorial
+cohere,ai,saas,Vibrant gradients data-rich
+mistral.ai,ai,saas,French-engineered minimalism purple
+elevenlabs,ai,saas,Dark cinematic audio-waveform
+runwayml,ai,saas,Cinematic dark media-rich
+binance,crypto,saas,Bold yellow on monochrome trading urgency
+coinbase,crypto,saas,Clean blue institutional trust
+kraken,crypto,saas,Purple-accented dark data-dense
+revolut,fintech,saas,Sleek dark gradient cards
+wise,fintech,saas,Bright green friendly clear
+wired,editorial,non-saas,Paper-white broadsheet custom serif display ink-blue links
+theverge,editorial,non-saas,Acid-mint/ultraviolet Manuka display rave-flyer tiles
+ferrari,automotive,non-saas,Chiaroscuro editorial cinematic black red accent
+lamborghini,automotive,non-saas,True-black gold accents dramatic uppercase
+bugatti,automotive,non-saas,Cinema-black monochrome austerity monumental display
+bmw,automotive,non-saas,Dark premium precise German engineering
+bmw-m,automotive,non-saas,Pure-black M tricolor full-bleed photography
+tesla,automotive,non-saas,Radical subtraction full-viewport photography near-zero UI
+renault,automotive,non-saas,Vibrant aurora gradients NouvelR bold energy
+apple,physical-product,non-saas,Premium white space SF Pro cinematic imagery
+nike,retail,non-saas,Monochrome massive uppercase full-bleed photography
+starbucks,retail,non-saas,Four-tier green warm cream full-pill buttons
+mastercard,payments,non-saas,Warm cream orbital pill shapes editorial warmth
+meta,retail,non-saas,Photography-first binary light/dark surfaces
+hp,physical-product,non-saas,White canvas electric blue angular chevron motifs
+spacex,aerospace,non-saas,Stark black/white full-bleed futuristic
+nvidia,hardware,non-saas,Green-black technical power aesthetic
+nintendo-2001,retro,non-saas,Y2K console-chrome brushed-metal panels outlined Arial-Black
+dell-1996,retro,non-saas,Catalog-era black page frame flat color-block Helvetica/Times
+playstation,retro,non-saas,Three-surface channel layout quiet-authority cyan hover
+airbnb,consumer,non-saas,Warm coral photography-driven rounded UI
+spotify,consumer,non-saas,Vibrant green album-art-driven bold type
+pinterest,consumer,non-saas,Red accent masonry grid image-first
+uber,consumer,non-saas,Bold black/white tight type urban energy

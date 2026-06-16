@@ -70,12 +70,15 @@ Examples by project type:
 |---|---|---|
 | Fintech, payments | Stripe | `npx getdesign@latest add stripe` |
 | Dev tool, infra | Vercel | `npx getdesign@latest add vercel` |
-| Minimalist SaaS | Linear | `npx getdesign@latest add linear` |
-| Workspace, docs | Notion | `npx getdesign@latest add notion` |
-| Open-source, API | Supabase | `npx getdesign@latest add supabase` |
-| Luxury e-commerce | Ferrari | `npx getdesign@latest add ferrari` |
-| Crypto, trading | Binance | `npx getdesign@latest add binance` |
-| AI, chatbot | Cursor | `npx getdesign@latest add cursor` |
+| Minimalist SaaS | Linear | `npx getdesign@latest add linear.app` |
+| Editorial, media | Wired / The Verge | `npx getdesign@latest add wired` |
+| Luxury, automotive | Ferrari / BMW | `npx getdesign@latest add ferrari` |
+| Physical product, retail | Apple / Nike / Starbucks | `npx getdesign@latest add nike` |
+| Retro, nostalgic | dell-1996 / nintendo-2001 / playstation | `npx getdesign@latest add nintendo-2001` |
+
+> **Anti-monoculture rule (Phase 0).** The getdesign catalogue is ~70% SaaS/tech, so anchoring only on SaaS brands (Stripe, Vercel, Linear…) reproduces the exact "every AI site looks like a San-Francisco SaaS" failure this skill exists to prevent. **Add at least one non-SaaS anchor.** `check.py --gate 0` classifies your references via `data/getdesign-references.csv` and **warns** (does not block — a fintech may legitimately anchor on Stripe alone) when every reference is SaaS/tech. The editable allow-list of verified non-SaaS brands lives in that CSV — add rows as getdesign's catalogue grows.
+>
+> A developer portfolio briefed on `nintendo-2001 + wired` produces something nobody has seen; briefed on Stripe alone, it produces a failed Stripe. Diversify the anchor, diversify the output.
 
 The reference `DESIGN.md` is dropped at the project root. **It is inspiration, not copy-paste.** Extract the relevant tokens (colors, type, radii, shadows) that match the project.
 
