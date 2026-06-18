@@ -178,6 +178,29 @@ class AISloPDetector:
         (r'class=["\'][^"\']*(?:console-log|system-console|log-terminal|terminal-output)[^"\']*["\']',
          "HTML class console-log/system-console — fake terminal component (§0d)"),
 
+        # G4b — Fake-terminal cosplay in SENTENCE case. These dodge every ALL_CAPS / SYS_*
+        # token rule above by using normal capitalisation, and slipped past the whole
+        # detector in a real delivery (the "Status is active" / "Transmit payload" portfolio).
+        (r'>\s*(?:System\s+)?Status\s+(?:is\s+)?(?:active|online|enabled|connected|live|operational)\s*<',
+         "Fake 'Status is active' indicator — unrequested system-status chrome, sentence-case AI slop (§0d)"),
+        (r'class=["\'][^"\']*\bstatus[-_](?:indicator|dot|text|light|led)\b[^"\']*["\']',
+         "HTML class 'status-indicator/status-dot/status-text' — decorative system-status chrome (§0d)"),
+        (r'System\s+(?:terminal|console)\s+connection\s*:',
+         "'System terminal connection:' — fake terminal chrome in footer/header, never requested (§0d)"),
+        (r'>\s*System\s+Initialization\s*<',
+         "'System Initialization' kicker — fake boot-sequence cosplay, AI signal (§0d)"),
+        (r'(?:>|aria-label=["\'])\s*(?:Transmit|Initialize|Initialise)\s+(?:payload|session|sequence|protocol|contact\s+session)\b',
+         "Terminal-cosplay verb on a UI control ('Transmit payload', 'Initialize session') — fake-system language instead of a plain label (§0d)"),
+        (r'>\s*Session\s+payload\s*:?\s*<',
+         "'Session payload' label — fake terminal field name instead of a plain UI label (§0d)"),
+
+        # SEC1 — Hardcoded credentials / API keys in delivered output (even 'example' keys
+        # used as decoration — ironic on the "appsec" card that shipped one).
+        (r'\bAKIA[0-9A-Z]{16}\b',
+         "Hardcoded AWS access key (AKIA…) in delivered output — never ship credentials, not even example keys (§0b)"),
+        (r'(?:api[_-]?key|secret|access[_-]?key|auth[_-]?token|password)\s*[=:]\s*["\'][A-Za-z0-9_\-]{12,}["\']',
+         "Hardcoded credential literal (api_key/secret/token = \"…\") — never embed secrets in delivered code (§0b)"),
+
         # G5 — ALL_CAPS operational labels (PILOTE AUTOMATIQUE, AUTOMATIQUE (FERMÉ)…)
         (r'PILOTE\s+AUTOMATIQUE',
          "PILOTE AUTOMATIQUE — industrial ALL_CAPS operational label, AI injection (§0d)"),
@@ -214,6 +237,24 @@ class AISloPDetector:
         # A4 — Hardcoded testimonial/review cards without real data source
         (r'(?:class|className)=[^>]*(?:testimonial[-_]card|review[-_]card|quote[-_]card|testimonial[-_]item)',
          "Testimonial/review card class — hardcoded testimonials are AI fabrication (§0b)"),
+
+        # ── taste-skill AI Tells, mechanized (self-checked there → enforced here) ──
+        # T-EM — em-dash: taste-skill's #1 AI tell. Flag em-dash in VISIBLE text
+        # (between > and <), not inside tags/attributes.
+        (r'>[^<]*\u2014[^<]*<',
+         "Em-dash (—) in visible page text — taste-skill's #1 AI tell; use a colon, comma, or rewrite (§9.G)"),
+        # T-SCROLL — scroll cues ("Scroll", "↓ scroll", "Scroll to explore")
+        (r'>\s*(?:\u2193\s*)?Scroll(?:\s+(?:down|to\s+explore|for\s+more))?\s*(?:\u2193)?\s*<',
+         "Scroll cue ('Scroll', 'Scroll to explore') — AI tell; a good page invites scrolling by design (§9)"),
+        # T-VER — version/build labels on a marketing page (v1.4.2, Build 0048, BETA…)
+        (r'>\s*(?:v\d+\.\d+(?:\.\d+)?|build\s*\d{2,}|V\d+\.\d+|INVITE[-\s]?ONLY)\s*<',
+         "Version/build/INVITE-ONLY label — AI tell on a marketing page unless the brief is a launch (§9)"),
+        # T-SECNUM — section-numbering eyebrows (00 / INDEX, 06 · how it works)
+        (r'>\s*0\d{1,2}\s*[/·.\u2014\-]\s*[A-Za-z]',
+         "Section-numbering eyebrow ('00 / INDEX', '06 · how it works') — overused AI tell (§9)"),
+        # T-FAKE — placeholder identities (Jane/John Doe, Acme, "Quietly in use at")
+        (r'\b(?:Jane|John)\s+Doe\b|\bAcme\s+(?:Inc|Corp|Co|Labs)\b|Quietly\s+in\s+use\s+at',
+         "Placeholder identity (Jane Doe / Acme / 'Quietly in use at') — AI 'Jane Doe' content tell (§9.D)"),
 
         # (H1 viewport check moved to a dedicated, case-correct check in _detect_html_slop)
 

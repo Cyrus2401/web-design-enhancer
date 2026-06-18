@@ -377,8 +377,51 @@ def check_creative_brief():
         info("Format: 'We ignore <rule> because <why breaking it IS the design>'.")
         errors.append("Creative Brief: The Broken Rule has no rationale")
 
+    # 5. Design Dials — three numeric dials (taste-skill VARIANCE/MOTION/DENSITY),
+    #    reasoned from the brief, not silently left blank. "Waouh" comes from
+    #    pushing ONE dial far; a brief with no dials cannot commit to that.
+    dials_body = _section_body(content, "Design Dials")
+    found_dials = {}
+    for dial in ("VARIANCE", "MOTION", "DENSITY"):
+        m = re.search(rf"{dial}\s*:\s*(\d{{1,2}})\b", dials_body, re.IGNORECASE)
+        if m and 1 <= int(m.group(1)) <= 10:
+            found_dials[dial] = int(m.group(1))
+    missing_dials = [d for d in ("VARIANCE", "MOTION", "DENSITY") if d not in found_dials]
+    if missing_dials:
+        fail(f"CREATIVE-BRIEF.md: 'Design Dials' missing valid 1-10 value(s) for: {', '.join(missing_dials)}")
+        info("Set all three, reasoned from the Design Read: VARIANCE / MOTION / DENSITY (each 1-10).")
+        errors.append("Creative Brief: Design Dials incomplete")
+    elif max(found_dials.values()) - min(found_dials.values()) <= 1:
+        warn("CREATIVE-BRIEF.md: all three dials are nearly equal — that is the averaged, "
+             "templated look. Push ONE dial far so a single dimension can shout.")
+        warnings.append("Creative Brief: dials too balanced for a memorable result")
+
+    # 6. The Cross-Domain Steal — a reference from OUTSIDE software. A tech/SaaS
+    #    reference here defeats the mechanism (it is how every AI page converges
+    #    on the same SF-SaaS look). Structure BLOCKS; a tech reference WARNS.
+    steal = _section_body(content, "The Cross-Domain Steal")
+    if not _brief_field_filled(steal):
+        fail("CREATIVE-BRIEF.md: 'The Cross-Domain Steal' is empty or unfilled")
+        info("Name a NON-software reference (print, industrial design, cinema, signage, "
+             "architecture, fashion) and the one move you steal from it.")
+        errors.append("Creative Brief: The Cross-Domain Steal unfilled")
+    else:
+        _TECH_REF = [
+            "website", "web app", "webapp", "saas", "dashboard", "landing page",
+            "app store", "mobile app", "ui kit", "design system", "framer",
+            "figma", "dribbble", "behance", "linear", "vercel", "stripe",
+            "notion", "github", "tailwind", "shadcn", "bootstrap", "material ui",
+        ]
+        low = steal.lower()
+        tech_hits = [t for t in _TECH_REF if t in low]
+        if tech_hits:
+            warn(f"CREATIVE-BRIEF.md: 'The Cross-Domain Steal' references software/web ({', '.join(tech_hits)}). "
+                 "That defeats the point — steal from OUTSIDE the category (print, industrial design, "
+                 "cinema, signage, architecture) or the result converges on the generic SaaS look.")
+            warnings.append("Creative Brief: Cross-Domain Steal is still a tech reference")
+
     if not errors:
-        ok("Phase -1 Creative Brief: all four fields present and filled")
+        ok("Phase -1 Creative Brief: all six fields present and filled")
     return errors, warnings
 
 
@@ -621,6 +664,16 @@ def check_final(code_path=None, verbose=False, url=None, audit_output="./audit-r
             except Exception:
                 print(rj.stdout)
 
+    # 1b. audit_declared_antipatterns.py — enforce the project's OWN "Avoid" list
+    print(f"\n{CYAN}[1b/8] Enforcing project-declared antipatterns (DESIGN.md / design-system 'Avoid')...{RESET}")
+    decl_args = [sys.executable, str(SCRIPTS_DIR / "audit_declared_antipatterns.py"), "--design", "DESIGN.md"]
+    if code_path:
+        decl_args += ["--code", code_path]
+    rd = subprocess.run(decl_args, capture_output=True, text=True, encoding="utf-8", errors="replace")
+    print(rd.stdout)
+    if rd.returncode == 1:
+        errors.append("audit_declared_antipatterns.py — the delivery contains an antipattern the project declared it would avoid")
+
     # 2. audit_spacing.py
     print(f"\n{CYAN}[2/8] 8px grid audit...{RESET}")
     spacing_path = code_path or "."
@@ -827,8 +880,12 @@ def evaluate_visual_gate(audit_output="./audit-results", code_path=None, verdict
             f"'{verdict_file}', then re-run check.py --final."
         )
     else:
+        # 'Waouh' bar: delivery requires a genuinely strong design, not merely a
+        # non-ugly one. Pass mark raised to 80 (the "strong, clearly human-crafted"
+        # calibration anchor) instead of the lenient 75.
         r = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "aesthetic_review.py"), "--verdict", str(verdict_file)],
+            [sys.executable, str(SCRIPTS_DIR / "aesthetic_review.py"),
+             "--verdict", str(verdict_file), "--threshold", "62", "80"],
             capture_output=True, text=True, encoding="utf-8", errors="replace"
         )
         if r.stdout:
@@ -844,6 +901,39 @@ def evaluate_visual_gate(audit_output="./audit-results", code_path=None, verdict
                 "aesthetic_review.py — NEEDS POLISH: rendered design acceptable but below the pass mark. "
                 "Address the top_fixes in the verdict."
             )
+
+        # Provenance + signature enforcement. The validity hole that let a 94/100
+        # self-grade ship terminal cosplay: the SAME model produced AND judged the
+        # design. A self/unknown-reviewed or idea-less verdict can NEVER authorize
+        # delivery — it must be independently or human-judged AND name one owned idea.
+        try:
+            v = json.loads(verdict_file.read_text(encoding="utf-8"))
+        except Exception:
+            v = None
+        if isinstance(v, dict):
+            reviewer = str(v.get("reviewer", "")).strip().lower()
+            if reviewer in {"", "self", "agent"}:
+                errors.append(
+                    f"aesthetic_review.py — PROVENANCE: the design was judged by the same model "
+                    f"that produced it (reviewer='{reviewer or 'unset'}'). Self-review is "
+                    f"structurally inflated and CANNOT authorize delivery. Get an INDEPENDENT "
+                    f"verdict (aesthetic_review.py --screenshots {audit_dir} --mode api --provider "
+                    f"<a different model>) or a HUMAN sign-off (--reviewer human)."
+                )
+            idea = v.get("memorable_idea")
+            has_idea = (isinstance(idea, str) and len(idea.strip()) >= 8
+                        and idea.strip().lower() not in {"null", "none", "n/a", "-"})
+            if not has_idea:
+                errors.append(
+                    "aesthetic_review.py — NO SIGNATURE: the verdict names no memorable, owned "
+                    "design idea (memorable_idea is empty). 'Clean and professional' is the floor, "
+                    "not a pass. Commit to one fearless, nameable move — see references/beauty-gestures.md."
+                )
+            if str(v.get("reads_as", "")).strip().lower() == "ai":
+                errors.append(
+                    "aesthetic_review.py — READS AS AI: the verdict itself says the page reads as AI "
+                    "output. Raise the craft until it reads as deliberate, human design."
+                )
     return errors, warnings, infos
 
 

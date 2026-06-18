@@ -1,5 +1,49 @@
 # Changelog
 
+## Taste bridge — generative "waouh" lever + mechanized AI-tells
+
+Gates reject ugliness; they do not create beauty. This wave adds the upstream,
+generative half (ported from the ideas in taste-skill) and turns its
+self-checked pre-flight items into REAL detectors.
+
+### Added — Creative Brief (Phase -1) now drives the design
+- `Design Read` one-liner, three `Design Dials` (VARIANCE / MOTION / DENSITY,
+  1-10, reasoned from the brief — "waouh" comes from pushing ONE dial far), and
+  a `The Cross-Domain Steal` field (a NON-software reference to steal one move
+  from). `check.py` blocks on missing dials / unfilled steal, warns when the
+  dials are too balanced or the steal is still a tech reference.
+- 4 brief tests.
+
+### Changed — `detect_ai_slop.py` mechanizes taste-skill's AI Tells
+Self-checked there → enforced here: em-dash in visible text (their #1 tell),
+scroll cues, version/build/INVITE-ONLY labels, section-numbering eyebrows
+('00 / INDEX'), and placeholder identities (Jane Doe / Acme / "Quietly in use at").
+
+## Gate hardening — closing the self-validation loophole
+
+A real delivery (a "systems engineer" portfolio) passed every gate, self-scored
+94/100, and printed DELIVERY AUTHORIZED — while shipping a "Status is active"
+badge, "System terminal connection: closed" footer, "Transmit payload" form
+labels (terminal cosplay), and a hardcoded AWS access key. Root cause: the
+slop detector matched a fixed token list (dodged by sentence-case phrasing) and
+the aesthetic gate let the GENERATING model grade its own work.
+
+### Added
+- `scripts/audit_declared_antipatterns.py` — new gate [1b] that reads each
+  project's OWN "Avoid" list (DESIGN.md antipatterns + design-system-output)
+  and blocks if a self-declared antipattern token appears in the delivery.
+- 5 tests in `test_check_visual_gate.py` covering provenance + signature rules.
+
+### Changed
+- `detect_ai_slop.py` — new patterns for sentence-case fake-terminal chrome
+  ("Status is active", "System terminal connection", "Transmit payload",
+  "Session payload", "System Initialization"), `status-indicator/-dot/-text`
+  classes, and hardcoded credentials (AWS `AKIA…` keys, `api_key/secret = "…"`).
+- `check.py` visual gate — a verdict whose `reviewer` is `self`/`agent`/unset can
+  **no longer authorize delivery** (independent or human sign-off required); a
+  verdict with no named `memorable_idea` is blocked ("clean" is the floor, not a
+  pass); `reads_as: ai` is blocked. Delivery pass mark raised 75 → **80**.
+
 ## Beauty system — from "not generic" to "magnificent"
 
 The suite was already strong at *prohibiting* AI slop (6 gates, slop detector,
