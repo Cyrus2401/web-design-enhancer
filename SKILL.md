@@ -427,9 +427,23 @@ python3 scripts/aesthetic_review.py --verdict verdict.json
 It scores 7 dimensions an eye judges in the first seconds (first impression, hierarchy, whitespace/balance, typography, colour harmony, finish, **human-vs-AI tell**), returns an `overall_score`, a `reads_as: human|ai` flag, and ranked fixes. **Score < 60 = BLOCKED** (does not yet read as human-designed); ≥ 75 passes.
 
 > **Who judges matters (provenance).** When you generate the design *and* score your own screenshots, the verdict is `reviewer: self` — and self-review is structurally inflated: you unconsciously credit the page for craft you *intended* but did not render. The script therefore applies a provenance discount to any self-judged verdict (a self-flattered "shippable" 80 lands at 72 and fails the pass mark). To earn a trustworthy verdict, break the self-judging loop:
+> - **Independent-clone** (best free option): spawn a *fresh-context subagent* of the same model that sees ONLY the screenshots + rubric — never the brief, DESIGN.md, or your reasoning. The bias is in the *context* (intentions), not the weights: a blank-context judge cannot credit the page for craft it never knew you intended. Tagged `reviewer: independent-clone`, small **-3** residual discount (same model = shared taste). **Costs nothing extra** (internal, no API). Only legitimate if context hygiene is actually respected — leaking the brief makes the tag a lie.
 > - **Independent model** (best for unsupervised): `--mode api --provider anthropic` (or `openai`) — a *different* model judges, tagged `reviewer: independent`, no discount.
 > - **Human sign-off**: a person reviews the screenshots and runs `--reviewer human` — trusted, no discount.
 > - Be honest in the verdict's `reviewer` field; the art-director bar in the rubric means "clean and professional" caps at ~65 unless you can name one specific, owned, memorable idea.
+>
+> **Provenance discount tiers:** `self` −8 · `independent-clone` −3 · `independent`/`human` 0. `check.py --final` blocks delivery on a `self`/undeclared verdict (self-review can never authorize); `independent-clone` is accepted.
+>
+> **Panel mode (`--panel`) — max rigour.** Instead of one judge, a context-isolated *panel*: three specialist jurors (typographer / UX-minimalist / brand-strategist) each critique their own domain and may **hard-fail** it, then an **art-director chair** synthesises their verdicts + the screenshots into the final holistic call. A **domain veto is BLOCKING** even if the chair's overall would pass — a good average can never bury a broken fundamental. Two steps:
+> ```bash
+> # 1. emit the 4 judge prompts + context-hygiene rule + orchestration:
+> python3 scripts/aesthetic_review.py --panel --screenshots ./audit-results --archetype "§2 Editorial"
+> #    → spawn the 3 jurors (each a blank-context subagent, transfer ONLY the PNGs) → juror-*.json,
+> #      then the chair (gets PNGs + the 3 juror JSON) → chair.json, all in ./audit-results/
+> # 2. aggregate with domain veto + provenance discount:
+> python3 scripts/aesthetic_review.py --panel --verdicts ./audit-results
+> ```
+> Use the **single clone** (fast, free, −3) by default; reserve the **panel** for projects where you want the most trustworthy score. Save the chair verdict as `aesthetic-verdict.json` so gate 9 picks it up.
 
 > **No API key needed by default** — the model executing this skill judges with its own vision (mode `agent`). An external vision model (`--mode api`, `OPENAI_API_KEY` / `ANTHROPIC_API_KEY`) is only for fully-unsupervised pipelines. **`check.py --final` enforces this step as gate 8: it will not authorize delivery unless a fresh `audit_report.json` and a passing aesthetic verdict both exist** — see Phase 5.
 
@@ -535,7 +549,7 @@ The output is a JSON object with a `violations` array. Each entry contains:
 | `scripts/audit_spacing.py` | 8px grid audit on CSS files |
 | `scripts/audit_accessibility.py` | WCAG 2.1 AA — img alt, button type, input labels, div onclick, html lang, title, empty links |
 | `scripts/visual_audit.py` | Playwright visual audit — 4 breakpoints, real DOM, rendered slop detection |
-| `scripts/aesthetic_review.py` | Aesthetic judgment of rendered screenshots — the agent judges with its OWN vision by default (no key); external model optional via --mode api |
+| `scripts/aesthetic_review.py` | Aesthetic judgment of rendered screenshots — the agent judges with its OWN vision by default (no key); external model optional via `--mode api`. Provenance tiers `self`/`independent-clone`/`independent`/`human` with graded discounts (−8/−3/0/0). `--panel` runs a context-isolated jury (3 specialists + art-director chair) with **domain veto** (a hard-failed fundamental blocks regardless of the overall score) |
 | `scripts/diff_design_vs_code.py` | Diff DESIGN.md ↔ code (colors, fonts, animations) |
 | `scripts/audit_beauty.py` | Beauty Score (0-100) — rewards type-scale contrast, hierarchy, signature colour, spacing rhythm, finition. Blocks below 50 |
 | `scripts/audit_brief.py` | Phase -1 quality layer — scores the Creative Brief 0-100 (Emotional Intent concreteness, non-software Cross-Domain Steal, dials pushed to an extreme, etc.). Blocks below 50. Closes the "a tepid brief passes" hole in gate 0 |
