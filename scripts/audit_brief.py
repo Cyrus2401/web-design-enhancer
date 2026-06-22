@@ -35,6 +35,9 @@ import json
 import argparse
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 VAGUE_TERMS = [
     "professional", "modern", "clean", "sleek", "elegant", "premium",
     "minimalist", "beautiful", "nice", "simple", "user-friendly", "intuitive",
@@ -277,7 +280,7 @@ def main():
         }, indent=2))
         sys.exit(1 if total < floor else 0)
 
-    verdict = "BLOCKED (filler)" if total < floor else ("SHARP" if total >= passmark else "NEEDS SHARPENING")
+    verdict = "❌ BLOCKED (filler)" if total < floor else ("✅ SHARP" if total >= passmark else "⚠️ NEEDS SHARPENING")
     bar_w = 24
     filled_w = round(bar_w * total / 100)
     print("\n" + "=" * 60)

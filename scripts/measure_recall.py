@@ -296,7 +296,9 @@ def measure(verbose: bool = False):
 
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(
+        description="Measure AI-slop detector recall over the ID + OOD corpus "
+                    "(detect_ai_slop in isolation through the full pipeline).")
     ap.add_argument("--verbose", action="store_true")
     args = ap.parse_args()
     measure(verbose=args.verbose)

@@ -68,7 +68,8 @@ def run(tmp_path, text, *args):
     p = tmp_path / "CREATIVE-BRIEF.md"
     p.write_text(text, encoding="utf-8")
     return subprocess.run([sys.executable, str(SCRIPT), "--brief", str(p), *args],
-                          capture_output=True, text=True)
+                          capture_output=True, text=True,
+                          encoding="utf-8", errors="replace")
 
 
 def test_sharp_brief_scores_high(tmp_path):

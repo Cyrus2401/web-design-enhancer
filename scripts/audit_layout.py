@@ -39,6 +39,9 @@ import os
 import sys
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 try:
     from playwright.sync_api import sync_playwright
 except ImportError:
@@ -439,7 +442,7 @@ def main():
                 print(f"      ⚠ {v['code']}  {v['message']}")
                 print(f"           ↳ fix: {v['fix']}")
         print("-" * 64)
-        verdict = "PASS" if results["summary"]["passed"] else "BLOCKED"
+        verdict = "✅ PASS" if results["summary"]["passed"] else "❌ BLOCKED"
         print(f"  {verdict}  —  {total_err} error(s), {total_warn} warning(s)"
               f"{'  (strict: warnings block)' if args.strict else ''}")
         print("=" * 64)

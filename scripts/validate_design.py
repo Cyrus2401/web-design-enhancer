@@ -1091,10 +1091,23 @@ class DesignValidator:
             )
 
 
+USAGE = """Usage: python3 validate_design.py DESIGN.md [--strict] [--code <path>]
+
+Validate a DESIGN.md against the Pillar-3 quality rules.
+
+Arguments:
+  DESIGN.md        Path to the design spec to validate (required)
+
+Options:
+  --strict         Promote warnings to blockers (exit 1 if any warning)
+  --code <path>    Cross-check the spec against the implementation at <path>
+  -h, --help       Show this help and exit"""
+
+
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python3 validate_design.py DESIGN.md [--strict] [--code <path>]")
-        sys.exit(1)
+    if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help"):
+        print(USAGE)
+        sys.exit(0 if len(sys.argv) >= 2 else 1)
 
     filepath = sys.argv[1]
     strict = "--strict" in sys.argv
