@@ -16,120 +16,112 @@
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "web-design-enhancer-pro",
-  "applicationCategory": "DeveloperApplication",
-  "operatingSystem": "Cross-platform (Web, iOS, Android)",
-  "description": "An AI skill that eliminates generic AI slop in web design and enforces premium UI/UX via sequential quality gates, ratio-based layout/composition audits and a rendered vision pass.",
-  "url": "https://steph-ux.github.io/web-design-enhancer/",
-  "codeRepository": "https://github.com/Steph-ux/web-design-enhancer",
-  "programmingLanguage": "Python",
-  "author": {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    "name": "Steph-ux",
-    "url": "https://github.com/Steph-ux"
-  },
-  "datePublished": "2026-06-24",
-  "dateModified": "2026-06-24",
-  "license": "https://github.com/Steph-ux/web-design-enhancer/blob/main/LICENSES/open-design-APACHE-2.0.txt",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
-  },
-  "keywords": "AI design, anti-slop, UI/UX, design system, web design, accessibility, WCAG, GSAP, shadcn/ui, Claude Code, Codex"
-}
-  </script>
-  <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Person",
-  "name": "Steph-ux",
-  "url": "https://github.com/Steph-ux"
-}
-  </script>
-  <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "web-design-enhancer-pro",
-  "url": "https://steph-ux.github.io/web-design-enhancer/",
-  "inLanguage": "en",
-  "datePublished": "2026-06-24",
-  "dateModified": "2026-06-24",
-  "about": {
-    "@type": "SoftwareApplication",
-    "name": "web-design-enhancer-pro"
-  },
-  "author": {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    "name": "Steph-ux",
-    "url": "https://github.com/Steph-ux"
-  }
-}
-  </script>
-  <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
+  "@graph": [
     {
-      "@type": "Question",
-      "name": "What is web-design-enhancer-pro?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "web-design-enhancer-pro is an open-source AI skill that eliminates generic \"AI slop\" in web design and enforces premium UI/UX. It automatically validates, blocks, and fixes generic AI model outputs before delivery, on both web and native mobile, through a sequence of automatic quality gates."
+      "@type": "SoftwareApplication",
+      "@id": "https://steph-ux.github.io/web-design-enhancer/#software",
+      "name": "web-design-enhancer-pro",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Cross-platform (Web, iOS, Android)",
+      "description": "An AI skill that eliminates generic AI slop in web design and enforces premium UI/UX via sequential quality gates, ratio-based layout/composition audits and a rendered vision pass.",
+      "url": "https://steph-ux.github.io/web-design-enhancer/",
+      "codeRepository": "https://github.com/Steph-ux/web-design-enhancer",
+      "programmingLanguage": "Python",
+      "author": {
+        "@id": "https://github.com/Steph-ux/#person"
+      },
+      "datePublished": "2026-06-24",
+      "dateModified": "2026-06-24",
+      "license": "https://github.com/Steph-ux/web-design-enhancer/blob/main/LICENSES/open-design-APACHE-2.0.txt",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      },
+      "keywords": "AI design, anti-slop, UI/UX, design system, web design, accessibility, WCAG, GSAP, shadcn/ui, Claude Code, Codex"
+    },
+    {
+      "@type": "Person",
+      "@id": "https://github.com/Steph-ux/#person",
+      "name": "Steph-ux",
+      "url": "https://github.com/Steph-ux"
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://steph-ux.github.io/web-design-enhancer/#webpage",
+      "name": "web-design-enhancer-pro",
+      "url": "https://steph-ux.github.io/web-design-enhancer/",
+      "inLanguage": "en",
+      "datePublished": "2026-06-24",
+      "dateModified": "2026-06-24",
+      "about": {
+        "@id": "https://steph-ux.github.io/web-design-enhancer/#software"
+      },
+      "author": {
+        "@id": "https://github.com/Steph-ux/#person"
       }
     },
     {
-      "@type": "Question",
-      "name": "How is it different from a normal AI design prompt?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "By default, almost every AI generates the same website: a dark hero, a blue-to-purple gradient, a 3-column card grid and a blue CTA. This skill makes that impossible to deliver. An anti-template gate penalises generic slop while a Beauty Score gate rewards genuine craft, and a final vision pass judges whether the rendered result actually reads as human-made."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "What do I have to do myself?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "One thing the skill cannot do for you: write a short Creative Brief (CREATIVE-BRIEF.md, four fields) that sets the point of view - what the page must make someone feel, the one unexpected bet, the hero dimension, and the rule you deliberately break. Everything after the brief is automatic."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Which frameworks and platforms does it support?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Web stacks (HTML/CSS/JS, shadcn/ui, GSAP, Three.js) and native mobile: SwiftUI, Jetpack Compose, Flutter and React Native. Native audits hard-block touch targets under 44pt and missing safe-area handling."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Does it require an API key?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "No. The vision aesthetic review runs in agent mode using the executing model's own vision, with no API key required. An optional API mode (OpenAI or Anthropic) is available if you prefer."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "What are the quality gates?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Seven automatic gates run before each delivery: AI-slop detection, 8px spacing grid, WCAG 2.1 AA contrast, design-vs-code drift, accessibility, style-uniqueness (blocked above 65/100) and Beauty Score (blocked below 50/100). A mandatory rendered vision gate (gate 8) captures the live page with Playwright and cannot be bypassed."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Is it free and open source?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Yes. It is open source on GitHub and vendors the brand-agnostic craft layer of nexu-io/open-design (Apache-2.0). It ships with 434 tests."
-      }
+      "@type": "FAQPage",
+      "@id": "https://steph-ux.github.io/web-design-enhancer/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is web-design-enhancer-pro?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "web-design-enhancer-pro is an open-source AI skill that eliminates generic \"AI slop\" in web design and enforces premium UI/UX. It automatically validates, blocks, and fixes generic AI model outputs before delivery, on both web and native mobile, through a sequence of automatic quality gates."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How is it different from a normal AI design prompt?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "By default, almost every AI generates the same website: a dark hero, a blue-to-purple gradient, a 3-column card grid and a blue CTA. This skill makes that impossible to deliver. An anti-template gate penalises generic slop while a Beauty Score gate rewards genuine craft, and a final vision pass judges whether the rendered result actually reads as human-made."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What do I have to do myself?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "One thing the skill cannot do for you: write a short Creative Brief (CREATIVE-BRIEF.md, four fields) that sets the point of view - what the page must make someone feel, the one unexpected bet, the hero dimension, and the rule you deliberately break. Everything after the brief is automatic."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which frameworks and platforms does it support?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Web stacks (HTML/CSS/JS, shadcn/ui, GSAP, Three.js) and native mobile: SwiftUI, Jetpack Compose, Flutter and React Native. Native audits hard-block touch targets under 44pt and missing safe-area handling."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it require an API key?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. The vision aesthetic review runs in agent mode using the executing model's own vision, with no API key required. An optional API mode (OpenAI or Anthropic) is available if you prefer."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What are the quality gates?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Seven automatic gates run before each delivery: AI-slop detection, 8px spacing grid, WCAG 2.1 AA contrast, design-vs-code drift, accessibility, style-uniqueness (blocked above 65/100) and Beauty Score (blocked below 50/100). A mandatory rendered vision gate (gate 8) captures the live page with Playwright and cannot be bypassed."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it free and open source?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. It is open source on GitHub and vendors the brand-agnostic craft layer of nexu-io/open-design (Apache-2.0). It ships with 434 tests."
+          }
+        }
+      ]
     }
   ]
 }
