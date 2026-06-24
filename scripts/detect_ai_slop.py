@@ -23,6 +23,18 @@ from pathlib import Path
 from typing import List, Dict, Tuple
 from collections import Counter
 
+# -- Canon link (#2: anti-slop source of truth) ------------------------------
+# The default-AI "Tailwind indigo" palette is the #1 cardinal sin in the vendored
+# anti-slop canon. This constant mirrors that list so the canon stays the single
+# source of truth; tests/test_anti_slop_canon_sync.py FAILS if the two drift apart.
+#   Canon : references/craft/anti-ai-slop.md
+#   Origin: nexu-io/open-design @ 009ff65 (Apache-2.0); mirrors their AI_DEFAULT_INDIGO.
+# These hexes are already enforced generically by rule B6 (hardcoded hex) and the
+# indigo->violet gradient rule B12 - the constant documents *why* they are slop.
+CANON_DEFAULT_INDIGO = (
+    "#6366f1", "#4f46e5", "#4338ca", "#3730a3", "#8b5cf6", "#7c3aed", "#a855f7",
+)
+
 
 class AISloPDetector:
     """AI slop antipattern detector"""
@@ -1496,4 +1508,10 @@ def main():
 
 
 if __name__ == "__main__":
+    # Windows robustness: messages can contain non-ASCII (e.g. the indigo->violet
+    # arrow). Force UTF-8 stdout so a cp1252 console/pipe cannot crash a real run.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
     main()

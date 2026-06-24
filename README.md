@@ -52,15 +52,15 @@ To illustrate: a "personal finance app" brief yields completely different result
 | **§3 Luxury/Restrained** | Ivory, thin typography, 0 bright colors | Private practice, Aesop |
 | **§8 Data/Dashboard** | Dark background, semantic colors, charts first | Clean Grafana, Amplitude |
 
-### Rendering Example: FC Méridien (§7 Playful/Expressive Archetype)
+### Rendering Example: NOIRÉ Maison de Beauté (§3 Luxury/Restrained Archetype)
 
-Here is the result generated with this skill for a football club (zero generic AI template, strong display typography, custom palette):
+A real end-to-end run of the V2.1 pipeline for a small-batch cosmetics house — dark-first onyx, a two-font hierarchy (Fraunces display / Inter body), a single champagne accent, and a signature self-drawing hairline. Zero generic template, and it clears every hard gate (slop **99/100**, beauty **96/100**, composition **74/100** on rendered DOM geometry):
 
-![Hero Section](assets/football-hero.png)
+![Hero — "Beauty kept deliberately quiet."](assets/noire-hero.png)
 
-![Match Section](assets/football-match.png)
+![Collection — four products, single-accent grid](assets/noire-collection.png)
 
-![Players Section](assets/football-players.png)
+![The Ritual — editorial rhythm and the signature champagne hairline](assets/noire-ritual.png)
 
 ---
 
@@ -208,12 +208,61 @@ The AI can **never** produce these elements, regardless of the project:
 
 ---
 
+## What's new in V2 (beauty enhancement)
+
+V2 replaces fragile binary regex scoring with **graduated, ratio-based measurement** and adds a true **iterative enhancement loop**.
+
+| # | Improvement | Module | What changed |
+|---|---|---|---|
+| 1 | **Ratio-based scoring** | `scripts/wde_measure.py` | Shared primitives: type-scale jump ratios, whitespace ratios, graded ramps. No more 80px=40pts / 78px=0pts cliffs. |
+| 2 | **Composition layer** | `scripts/audit_composition.py` | Real DOM geometry — focal dominance, whitespace breath, rhythm regularity, grid alignment. Static-CSS fallback when no render. |
+| 3 | **Hardened vision judge** | `scripts/aesthetic_harden.py` | Variance across N runs (median + uncertainty flag), comparative anchors instead of absolute scores, mandatory per-dimension evidence. |
+| 4 | **Anti-gaming coherence** | `scripts/audit_beauty.py` | Craft markers only count when consistent with the declared Design Dials (e.g. MOTION 8 with zero transitions is flagged). No-op without a brief. |
+| 5 | **Calibration corpus** | `references/calibration_corpus.json` | Labeled reference designs as comparison anchors; `calibrate_against_corpus()` turns A-vs-B verdicts into a score band. |
+| 6 | **Two-axis WOW** | `scripts/audit_wow.py` | Ambition × execution (not additive) + graded W1 — diagnoses "ambitious but botched" vs "timid but clean". |
+| 7 | **Refinement loop** | `scripts/refine_loop.py` | measure → prioritise by leverage → checkpoint to `.refine-log.json` → detect convergence / plateau / regression / max-iter. Turns the validator into an enhancer. |
+
+All V2 changes are **backward compatible** — the existing JSON contracts and 382 prior tests are preserved; V2 adds 48 new tests (430 total).
+
+---
+
+## Craft references (vendored from open-design)
+
+V2.1 vendors the **brand-agnostic craft layer** of
+[`nexu-io/open-design`](https://github.com/nexu-io/open-design) (Apache-2.0,
+pinned at `009ff65`) into `references/craft/`. These are dense, human-maintained
+craft guides — typography, color, motion discipline, **Laws of UX**, state
+coverage, form validation, accessibility baseline, RTL/bidi — that enrich the
+agent's reference set (Pillar 2) without overlapping getdesign.
+
+> **What is *not* vendored, on purpose:** open-design's per-brand
+> `design-systems/`. web-design-enhancer-pro already sources brand references
+> **live** via `getdesign` (Pillar 1, kept fresh by `sync_references.py`);
+> snapshotting 150 brands would duplicate that and go stale.
+
+| Vendored | Role |
+|---|---|
+| `references/craft/*.md` | Brand-agnostic craft knowledge (typography, color, UX laws, a11y, RTL, states, forms, motion) |
+| `references/craft/anti-ai-slop.md` | **Source of truth** for `detect_ai_slop.py` — the default-AI indigo palette is mirrored as `CANON_DEFAULT_INDIGO` and kept in lock-step by `tests/test_anti_slop_canon_sync.py` |
+
+Attribution lives in `NOTICE`, `LICENSES/open-design-APACHE-2.0.txt`, and
+`references/craft/ATTRIBUTION.md`. A `references/craft/_manifest.txt` +
+the documented re-sync snippet keep the vendored copy reproducible against a
+pinned commit. This integration also hardened the detector itself: `detect_ai_slop.py`
+now forces UTF-8 stdout so the indigo→violet gradient message can no longer crash
+a real run on a Windows cp1252 console.
+
+---
+
 ## Project structure
 
 ```
 web-design-enhancer-pro/
 ├── SKILL.md                          # Full skill instructions
 ├── CHANGELOG.md                      # Version history
+├── NOTICE                            # Third-party attribution (open-design, Apache-2.0)
+├── LICENSES/
+│   └── open-design-APACHE-2.0.txt    # Full Apache-2.0 license text
 ├── scripts/
 │   ├── check.py                      # Orchestrator for the 7 gates (+ mobile & vision)
 │   ├── detect_ai_slop.py             # AI pattern detector (G/A/B/C/D/H)
@@ -226,24 +275,43 @@ web-design-enhancer-pro/
 │   ├── validate_design.py            # DESIGN.md contract validation
 │   ├── diff_design_vs_code.py        # Drift code vs DESIGN.md
 │   ├── sync_references.py            # Keep getdesign-references.csv in sync with getdesign
-│   └── visual_audit.py               # Playwright 4 breakpoints capture
+│   ├── visual_audit.py               # Playwright 4 breakpoints capture
+│   ├── wde_measure.py                # V2 shared ratio/measurement primitives (DRY core)
+│   ├── audit_composition.py          # V2 geometry layer — focal/whitespace/rhythm/alignment
+│   ├── aesthetic_harden.py           # V2 vision-judge reliability harness (variance/anchors/evidence)
+│   └── refine_loop.py                # V2 iterative enhancement loop (measure→prioritise→converge)
 ├── references/
 │   ├── design-archetypes.md          # The 10 archetypes — full CSS tokens
 │   ├── beauty-gestures.md            # Signature gestures + font pairings per archetype
 │   ├── mobile-beauty.md              # Mobile craft & native conventions
 │   ├── gsap-best-practices.md        # GSAP animations
-│   └── threejs-best-practices.md     # WebGL scenes
+│   ├── threejs-best-practices.md     # WebGL scenes
+│   ├── calibration_corpus.json       # V2 labeled reference designs (vision-judge anchors, #5)
+│   └── craft/                        # V2.1 vendored craft refs from open-design (Apache-2.0)
+│       ├── anti-ai-slop.md           #   -> source of truth for detect_ai_slop.py
+│       ├── typography*.md, color.md, animation-discipline.md
+│       ├── laws-of-ux.md, state-coverage.md, form-validation.md
+│       ├── accessibility-baseline.md, rtl-and-bidi.md
+│       ├── ATTRIBUTION.md, _manifest.txt   # provenance + re-sync manifest
+│       └── README.md, FUTURE_SECTIONS.md   # upstream index (informational)
 ├── templates/
 │   ├── creative-brief-template.md    # Phase -1 point-of-view brief
 │   └── design-md-template.md         # DESIGN.md skeleton
-└── tests/                            # 277 tests
+└── tests/                            # 434 tests (1 skipped)
     ├── test_audit_accessibility.py
     ├── test_audit_style_uniqueness.py
     ├── test_audit_beauty.py
     ├── test_audit_mobile.py
     ├── test_aesthetic_review.py
     ├── test_detect_domain.py
-    └── test_detect_slop_falsepos.py  # Calibration wave 3 regression suite
+    ├── test_detect_slop_falsepos.py  # Calibration wave 3 regression suite
+    ├── test_wde_measure.py           # V2 ratio primitives
+    ├── test_wow_v2.py                # V2 graded W1 + two-axis wow
+    ├── test_beauty_coherence.py      # V2 dial-coherence anti-gaming
+    ├── test_audit_composition.py     # V2 geometry metrics
+    ├── test_refine_loop.py           # V2 loop decision engine
+    ├── test_aesthetic_harden.py      # V2 vision-judge harness + calibration corpus
+    └── test_anti_slop_canon_sync.py  # V2.1 canon<->detector sync guard (open-design)
 ```
 
 ---
@@ -252,5 +320,5 @@ web-design-enhancer-pro/
 
 ```bash
 py -m pytest tests/ -v
-# 277 tests — should display 277 passed
+# 434 tests — should display 434 passed (1 skipped)
 ```

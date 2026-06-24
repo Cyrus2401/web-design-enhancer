@@ -38,6 +38,9 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import wde_measure as wm  # graded ratios + Design-Dial parsing for coherence
+
 # Windows terminals may default to cp1252 — force UTF-8 for emoji output
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -169,10 +172,14 @@ class BeautyAuditor:
         root_path: Path,
         threshold_floor: int = 50,
         threshold_pass: int = 70,
+        brief_text: str = "",
     ) -> None:
         self.root_path = root_path
         self.threshold_floor = threshold_floor
         self.threshold_pass = threshold_pass
+        self.brief_text = brief_text or ""
+        self.coherence: list[dict[str, Any]] = []
+        self.coherence_penalty = 0
 
         self.score: int = 0
         self.dimension_scores: dict[str, int] = {}
@@ -219,6 +226,11 @@ class BeautyAuditor:
         self._score_d5_finition()
 
         self.score = min(sum(self.dimension_scores.values()), 100)
+        # Coherence layer (#4 anti-gaming): craft markers only count when they are
+        # consistent with the declared Design Dials. No brief => no-op (back-compat).
+        self._check_coherence()
+        if self.coherence_penalty:
+            self.score = max(0, self.score - self.coherence_penalty)
 
     def _build_var_map(self, texts: list[str]) -> dict[str, str]:
         raw: dict[str, str] = {}
@@ -533,6 +545,64 @@ class BeautyAuditor:
             )
         print(f"{BOLD}{sep}{RESET}\n")
 
+    def _cohere(self, signal, message, fix, penalty):
+        self.coherence.append({"signal": signal, "message": message, "fix": fix, "penalty": penalty})
+
+    def _check_coherence(self):
+        """#4 anti-gaming: a craft marker only earns trust when it is consistent with
+        the declared Design Dials. MOTION 8 with zero transitions is box-ticking; a
+        single-use easing curve is decorative, not a motion language. No brief => no-op."""
+        if not self.brief_text:
+            return
+        parts = []
+        for fp in self._collect_files():
+            try:
+                parts.append(fp.read_text(encoding="utf-8", errors="ignore"))
+            except Exception:
+                pass
+        blob_raw = "\n".join(parts)
+        blob = blob_raw.lower()
+        dials = wm.parse_dials(self.brief_text)
+        PEN = 4
+        motion = dials.get("motion")
+        if motion is not None and motion >= 7:
+            if not re.search(r"@keyframes|transition\s*:|animation\s*:|cubic-bezier|"
+                             r"prefers-reduced-motion|framer-motion|gsap|scrolltrigger|"
+                             r"animate-|\.animate\(", blob):
+                self._cohere("MOTION",
+                             f"Brief declares MOTION {motion}/10 but the code ships no motion craft "
+                             "(no transitions, keyframes or easing).",
+                             "Implement the declared motion, or lower the MOTION dial to match reality.",
+                             PEN)
+        density = dials.get("density")
+        if density is not None and density <= 3:
+            spaces = wm.extract_spacing_px(blob_raw)
+            if spaces:
+                tight = sum(1 for s in spaces if s <= 8)
+                if tight / len(spaces) > 0.5:
+                    self._cohere("DENSITY",
+                                 f"Brief declares an airy DENSITY {density}/10 but most spacing is tight (<=8px).",
+                                 "Open up the spacing to honour the airy density, or raise the DENSITY dial.",
+                                 PEN)
+        beziers = re.findall(r"cubic-bezier\([^)]*\)", blob_raw)
+        if len(beziers) == 1:
+            self._cohere("CRAFT",
+                         "A custom easing curve (cubic-bezier) appears exactly once - a decorative "
+                         "box-tick, not a systematic motion language.",
+                         "Reuse the easing across interactions via a shared token, or remove it.",
+                         PEN)
+        variance = dials.get("variance")
+        if variance is not None and variance >= 8:
+            grids = set(re.findall(r"grid-template-columns\s*:\s*([^;}{]+)", blob))
+            sections = len(re.findall(r"<section\b", blob))
+            if sections >= 3 and len(grids) <= 1 and "grid-template-columns" in blob:
+                self._cohere("VARIANCE",
+                             f"Brief declares VARIANCE {variance}/10 but every section reuses one "
+                             "identical grid - the layout is uniform.",
+                             "Vary section layouts to honour the declared variance, or lower the dial.",
+                             PEN)
+        self.coherence_penalty = min(12, sum(c["penalty"] for c in self.coherence))
+
     def to_dict(self) -> dict[str, Any]:
         label, _ = self._score_label()
         return {
@@ -547,6 +617,8 @@ class BeautyAuditor:
             },
             "findings": self.findings,
             "weaknesses": self.weaknesses,
+            "coherence": self.coherence,
+            "coherence_penalty": self.coherence_penalty,
         }
 
 
@@ -570,6 +642,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--threshold", nargs=2, type=int, metavar=("FLOOR", "PASS"),
                         default=[50, 70],
                         help="Block-floor and pass thresholds (default: 50 70)")
+    parser.add_argument("--brief", type=Path, default=None,
+                        help="CREATIVE-BRIEF.md / DESIGN.md for dial-coherence checks (optional)")
     return parser
 
 
@@ -588,7 +662,11 @@ def main() -> int:
         print("Error: thresholds must satisfy 0 ≤ FLOOR < PASS ≤ 100.", file=sys.stderr)
         return 2
 
-    auditor = BeautyAuditor(root_path=root, threshold_floor=floor, threshold_pass=passing)
+    brief_text = ""
+    if args.brief and args.brief.exists():
+        brief_text = args.brief.read_text(encoding="utf-8", errors="ignore")
+    auditor = BeautyAuditor(root_path=root, threshold_floor=floor, threshold_pass=passing,
+                            brief_text=brief_text)
     try:
         auditor.scan()
     except Exception as exc:  # noqa: BLE001

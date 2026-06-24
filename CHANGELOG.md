@@ -1,5 +1,38 @@
 # Changelog
 
+## V2.1 — open-design craft integration (brand-agnostic only)
+
+Vendors the **brand-agnostic craft layer** of [`nexu-io/open-design`](https://github.com/nexu-io/open-design)
+(Apache-2.0, pinned `009ff65`) without touching getdesign's territory. Their
+per-brand `design-systems/` are deliberately **excluded** — brand references are
+sourced live via `getdesign` (Pillar 1), and snapshotting them would duplicate
+that and go stale.
+
+### Added — vendored craft references
+- `references/craft/*.md` — typography, color, motion discipline, Laws of UX,
+  state coverage, form validation, accessibility baseline, RTL/bidi. Enriches
+  the agent's reference set (Pillar 2). Vendored verbatim (byte-exact, UTF-8).
+- `references/craft/anti-ai-slop.md` — the human-maintained **source of truth**
+  for the default-AI indigo palette.
+- Attribution: root `NOTICE`, `LICENSES/open-design-APACHE-2.0.txt`,
+  `references/craft/ATTRIBUTION.md`, and a `_manifest.txt` for reproducible re-sync.
+
+### Changed — `detect_ai_slop.py` linked to the canon + hardened
+- New `CANON_DEFAULT_INDIGO` constant mirrors open-design's `AI_DEFAULT_INDIGO`,
+  documenting *why* those hexes are slop (already enforced by rules B6 + B12).
+- **Bug fix:** forces UTF-8 stdout at the CLI entry so a non-ASCII finding (the
+  indigo→violet gradient message) can no longer crash a real run on a Windows
+  cp1252 console.
+
+### Tests
+- +4 tests (`test_anti_slop_canon_sync.py`) — fail loudly if the canon and the
+  detector constant drift apart. Full suite: **434 passed, 1 skipped**.
+
+### Docs
+- README (new "Craft references" section, file tree, 434 count), SKILL.md
+  (Resources rows for `references/craft/` + canon link).
+
+
 ## Taste bridge — generative "waouh" lever + mechanized AI-tells
 
 Gates reject ugliness; they do not create beauty. This wave adds the upstream,

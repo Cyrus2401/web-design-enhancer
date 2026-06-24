@@ -471,6 +471,12 @@ python3 scripts/check.py --final --code ./src --url http://localhost:3000
 python3 scripts/check.py --final --code ./src --url http://localhost:3000 --verbose   # shows fix_instructions on failure
 ```
 
+> **V2 measured modules (additive, beyond the binary gates above).** These score *gradually* (ratios, not cliffs) and complement the pass/fail gates:
+> - `audit_composition.py --layout layout.json` — geometry: focal dominance, whitespace breath, rhythm, grid alignment (static-CSS fallback without a render).
+> - `audit_wow.py --brief CREATIVE-BRIEF.md` — deliberate excess on **two axes** (ambition × execution) with graded W1; diagnoses *ambitious-but-botched* vs *timid-but-clean*.
+> - `audit_beauty.py --brief CREATIVE-BRIEF.md` — adds **dial-coherence anti-gaming**: craft markers only count when consistent with the declared Design Dials (no-op without a brief).
+> - `aesthetic_harden.py --verdicts <dir> --anchors references/calibration_corpus.json` — hardens the vision judge: median across N runs + uncertainty flag, comparative anchors, mandatory per-dimension evidence.
+
 > **The rendered visual + vision pass is gate 8 of `check.py --final` and cannot be bypassed.** `visual_audit.py` still runs separately (it needs a live server) to PRODUCE the evidence; `check.py --final` then REQUIRES it:
 > ```bash
 > # 1. render the evidence (live server, Playwright)
@@ -513,6 +519,14 @@ The output is a JSON object with a `violations` array. Each entry contains:
 
 **Hard stop:** if violations persist after 3 iterations, stop. Report the unresolved violations with their `fix_instruction`. Do not deliver.
 
+**V2 — measured enhancement loop (`refine_loop.py`).** Beyond binary slop-fixing, the loop turns the validator into an *enhancer*: it measures all scoring gates, prioritises fixes by leverage (weight × gap), checkpoints each pass to `.refine-log.json`, and stops on convergence / plateau / regression / max-iter.
+
+```bash
+python3 scripts/refine_loop.py --code . --design DESIGN.md --brief CREATIVE-BRIEF.md --json
+# verdict.action: continue|stop  +  next_fixes ranked by leverage
+# re-run after each round of edits; it detects plateau/regression automatically
+```
+
 > **Why this protocol exists.** A regex-based auto-fixer would patch HTML but leave orphaned CSS rules, miss JS references, or corrupt adjacent structure. The model executing this skill has full context — it applies fixes semantically, not mechanically. The JSON output is the interface between the detector (mechanical) and the fixer (the model itself).
 
 ---
@@ -538,6 +552,9 @@ The output is a JSON object with a `violations` array. Each entry contains:
 | `references/gsap-best-practices.md` | GSAP guide |
 | `references/threejs-best-practices.md` | Three.js guide — critical WebGL antipatterns (§10) |
 | `references/mobile-references.md` | Mobile UX references — open CSV index + walled sources (Mobbin / Page Flows / Screenlane) |
+| `references/calibration_corpus.json` | **V2** labeled reference designs used as vision-judge comparison anchors (#5) |
+| `references/craft/` | **V2.1** brand-agnostic craft refs vendored from [`nexu-io/open-design`](https://github.com/nexu-io/open-design) (Apache-2.0, pinned `009ff65`): typography, color, motion discipline, Laws of UX, state coverage, form validation, a11y baseline, RTL/bidi. Enriches Pillar 2; deliberately excludes their per-brand `design-systems/` (covered live by `getdesign`). |
+| `references/craft/anti-ai-slop.md` | The human-maintained **source of truth** for the default-AI indigo palette; mirrored in `detect_ai_slop.py` as `CANON_DEFAULT_INDIGO` and kept in sync by `tests/test_anti_slop_canon_sync.py`. See `references/craft/ATTRIBUTION.md` + root `NOTICE`. |
 | `references/mobile-beauty.md` | Native signature gestures + hard rules (touch targets, safe areas, nav) per platform, mapped to mobile-audit dimensions |
 | `scripts/audit_mobile.py` | Native craft + mobile gates for SwiftUI / Compose / Flutter / React Native — scores M1-M5, hard-blocks sub-min touch targets and missing safe areas |
 | `data/apple-hig-patterns.csv` | 77 Apple HIG component anatomies (iOS / iPadOS / macOS / watchOS / tvOS / visionOS / CarPlay) — queryable via `--domain apple-hig` |
@@ -545,7 +562,7 @@ The output is a JSON object with a `violations` array. Each entry contains:
 | `data/pttrns-patterns.csv` | 50 Pttrns mobile UX pattern categories with anatomy — queryable via `--domain pttrns` |
 | `data/page-flows-patterns.csv` | 97 Page Flows end-to-end mobile user flows (onboarding, login, checkout, booking, cancellation, verification…) — queryable via `--domain page-flows` |
 | `scripts/validate_design.py` | DESIGN.md validation + WCAG AA + §4 ranges + §10 Three.js |
-| `scripts/detect_ai_slop.py` | G1-G9 + A1-A6 + B4-B5 + C1-C7 + D1-D3 antipattern detection in HTML/CSS/JS |
+| `scripts/detect_ai_slop.py` | G1-G9 + A1-A6 + B4-B5 + C1-C7 + D1-D3 antipattern detection in HTML/CSS/JS. The default-AI indigo palette is sourced from `references/craft/anti-ai-slop.md` via `CANON_DEFAULT_INDIGO` (V2.1). Forces UTF-8 stdout so non-ASCII findings (e.g. the indigo→violet gradient) never crash a Windows console run. |
 | `scripts/audit_spacing.py` | 8px grid audit on CSS files |
 | `scripts/audit_accessibility.py` | WCAG 2.1 AA — img alt, button type, input labels, div onclick, html lang, title, empty links |
 | `scripts/visual_audit.py` | Playwright visual audit — 4 breakpoints, real DOM, rendered slop detection |

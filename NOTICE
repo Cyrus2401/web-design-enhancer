@@ -1,0 +1,28 @@
+web-design-enhancer-pro — NOTICE
+================================
+
+This product includes third-party material vendored from the Open Design
+project.
+
+--------------------------------------------------------------------------
+Open Design  (https://github.com/nexu-io/open-design)
+--------------------------------------------------------------------------
+Vendored files : references/craft/*   (brand-agnostic craft references)
+Pinned commit  : 009ff6566f6c1596e74d64d79d2ec90af0746042
+License        : Apache License 2.0  (full text: LICENSES/open-design-APACHE-2.0.txt)
+Status         : Vendored verbatim (unmodified). NOT connected to Open Design's
+                 daemon / MCP server; consumed here only as agent-readable
+                 reference documents and as the documented source of truth for
+                 the default-indigo slop palette.
+
+Open Design's craft references are themselves adapted from refero_skill
+(https://github.com/referodesign/refero_skill), MIT License.
+
+Modifications by web-design-enhancer-pro
+----------------------------------------
+- The vendored craft files are NOT edited.
+- scripts/detect_ai_slop.py mirrors Open Design's AI_DEFAULT_INDIGO palette as
+  the module constant CANON_DEFAULT_INDIGO. The two are kept in sync by
+  tests/test_anti_slop_canon_sync.py (the test fails if they drift apart).
+- The per-brand design-systems/ of Open Design are deliberately NOT vendored:
+  web-design-enhancer-pro sources brand references live via getdesign.

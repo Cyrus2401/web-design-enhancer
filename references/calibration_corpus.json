@@ -1,0 +1,65 @@
+{
+  "_meta": {
+    "purpose": "Labeled reference designs used as comparison anchors for the vision judge (#5). The candidate is compared A-vs-B against these; calibrate_via_comparisons converts wins/losses into a score band. Models rank pairs far more reliably than they score in the absolute.",
+    "scale": "0-100 aesthetic craft score (higher = more beautiful/intentional)",
+    "version": 1
+  },
+  "anchors": [
+    {
+      "id": "stripe-press-2023",
+      "archetype": "06 Corporate Confident",
+      "score": 92,
+      "source": "stripe.com/press",
+      "notes": "Restrained palette, decisive type scale, immaculate grid rhythm."
+    },
+    {
+      "id": "linear-landing-2024",
+      "archetype": "08 Dark Mode Premium",
+      "score": 90,
+      "source": "linear.app",
+      "notes": "Signature gradient discipline, motion language consistent across CTAs."
+    },
+    {
+      "id": "editorial-nyt-feature",
+      "archetype": "02 Editorial",
+      "score": 88,
+      "source": "nytimes.com feature",
+      "notes": "Violent type hierarchy, generous whitespace, single focal hero."
+    },
+    {
+      "id": "brutalist-balenciaga",
+      "archetype": "05 Brutalist",
+      "score": 78,
+      "source": "balenciaga.com",
+      "notes": "Intentional excess; ambition high, execution mostly controlled."
+    },
+    {
+      "id": "saas-generic-template",
+      "archetype": "06 Corporate Confident",
+      "score": 52,
+      "source": "generic SaaS template",
+      "notes": "Default blue, centered hero, even spacing - competent but anonymous."
+    },
+    {
+      "id": "ai-slop-baseline",
+      "archetype": "00 Generic AI",
+      "score": 28,
+      "source": "untouched AI output",
+      "notes": "Indigo gradient, emoji bullets, uniform cards - the anti-pattern baseline."
+    },
+    {
+      "id": "playful-duolingo",
+      "archetype": "07 Playful Bold",
+      "score": 84,
+      "source": "duolingo.com",
+      "notes": "Bold color, springy motion, coherent illustration system."
+    },
+    {
+      "id": "mono-vercel-docs",
+      "archetype": "08 Dark Mode Premium",
+      "score": 86,
+      "source": "vercel.com/docs",
+      "notes": "Monochrome restraint, precise spacing scale, quiet confidence."
+    }
+  ]
+}

@@ -37,6 +37,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 import audit_gestures as ag   # ARCHETYPES, collect_code, resolve_archetype, audit
 import audit_brief as ab      # section_body
+import wde_measure as wm      # graded ratio measurement (W1 grading + axes)
 
 HERO_DIMS = ["typography", "negative space", "colour", "color", "motion", "illustration"]
 
@@ -131,8 +132,25 @@ def main():
             w1, note1 = 0, f"unrecognised hero dimension '{hero}'."
         else:
             hit = any(re.search(p, code_text) for p in spec["patterns"])
-            w1 = 40 if hit else 0
-            note1 = spec["label"] + (" - present." if hit else f" - ABSENT. {spec['fix']}")
+            w1_binary = 40 if hit else 0
+            # Graded magnitude: WOW is the JUMP, not mere presence. Where the
+            # hero dimension is continuously measurable we award partial credit
+            # so a near-miss is not flattened to zero. We never drop BELOW the
+            # legacy binary, so existing expectations are preserved.
+            w1_graded, ratio_note = 0, ""
+            if hero == "typography":
+                jump = wm.scale_jump_ratio(code_text)
+                w1_graded = wm.graded(jump, 2.5, 6.0, 40)
+                ratio_note = f" [scale jump {jump:.1f}x]"
+            elif hero in ("negative space", "negative-space", "whitespace", "white space"):
+                wsr = wm.whitespace_ratio(wm.extract_spacing_px(code_text))
+                w1_graded = wm.graded(wsr, 3.0, 8.0, 40)
+                ratio_note = f" [whitespace ratio {wsr:.1f}x]"
+            elif hero in ("color", "colour"):
+                w1_graded = 40 if wm.color_dominance_hint(code_text) else 0
+            w1 = max(w1_binary, w1_graded)
+            state = (" - present." if w1 >= 40 else " - partial.") if w1 > 0 else f" - ABSENT. {spec['fix']}"
+            note1 = spec["label"] + state + ratio_note
     levers.append(("W1", f"Hero dimension excess ({hero_label})", w1, 40, note1))
 
     # W2 - all 3 signature gestures -----------------------------------------
@@ -182,10 +200,31 @@ def main():
     total = sum(l[2] for l in levers)
     passed = total >= args.threshold
 
+    # Two-axis decomposition: WOW conflates COMMITMENT (ambition = did you push
+    # one dimension hard: W1 hero + W3 dial extreme) with CRAFT (execution = did
+    # you pull it off: W2 gestures + W4 owned signature in code). A botched
+    # excess can still sum high, so we surface both axes to catch "ambitious but
+    # botched" and "executed but timid" without changing the legacy pass/fail.
+    by_id = {l[0]: l[2] for l in levers}
+    AXIS_FLOOR = 60
+    ambition = round(100 * (by_id.get("W1", 0) + by_id.get("W3", 0)) / 55)
+    execution = round(100 * (by_id.get("W2", 0) + by_id.get("W4", 0)) / 45)
+    balanced = ambition >= AXIS_FLOOR and execution >= AXIS_FLOOR
+    if balanced:
+        diagnosis = "committed AND executed"
+    elif ambition >= AXIS_FLOOR and execution < AXIS_FLOOR:
+        diagnosis = "ambitious but botched - commitment is there, craft is not"
+    elif execution >= AXIS_FLOOR and ambition < AXIS_FLOOR:
+        diagnosis = "executed but timid - clean craft, no dimension pushed far enough"
+    else:
+        diagnosis = "neither committed nor fully executed"
+    axes = {"ambition": ambition, "execution": execution, "floor": AXIS_FLOOR,
+            "balanced": balanced, "diagnosis": diagnosis}
     if args.json:
         print(json.dumps({
             "status": "wow" if passed else "competent",
             "score": total, "threshold": args.threshold, "hero": hero_label,
+            "axes": axes,
             "levers": [{"id": i, "label": l, "points": p, "max": mx, "note": n} for i, l, p, mx, n in levers],
         }, indent=2))
         sys.exit(0 if passed else 1)
@@ -197,6 +236,7 @@ def main():
     print("=" * 60 + "\n")
     print(f"  WOW Score: {total}/100   {'REACHES FOR WAOUH' if passed else 'STILL COMPETENT'}")
     print("  [" + "#" * fw + "-" * (bar_w - fw) + "]\n")
+    print(f"  Axes: ambition {ambition}/100 | execution {execution}/100  -> {diagnosis}\n")
     for i, l, p, mx, n in levers:
         flag = "[OK]" if p >= 0.7 * mx else ("[WARN]" if p > 0 else "[--]")
         print(f"  {flag} {i} {l:<36} {p:>2}/{mx}")
